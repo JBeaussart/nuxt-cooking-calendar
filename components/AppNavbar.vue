@@ -199,9 +199,7 @@ const handleLogout = async () => {
 };
 
 // Fermer le menu au clic extérieur
-onMounted(() => {
-  document.addEventListener("click", () => {
-    desktopMenuOpen.value = false;
-  });
-});
+const closeMenu = () => { desktopMenuOpen.value = false; };
+onMounted(() => { document.addEventListener("click", closeMenu); });
+onUnmounted(() => { document.removeEventListener("click", closeMenu); });
 </script>

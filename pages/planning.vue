@@ -173,7 +173,7 @@ const clearPlanning = async () => {
 };
 
 // Fermer le menu déplacer au clic extérieur
-onMounted(() => {
-  document.addEventListener("click", () => { activeMoveDay.value = null; });
-});
+const closeMoveMenu = () => { activeMoveDay.value = null; };
+onMounted(() => { document.addEventListener("click", closeMoveMenu); });
+onUnmounted(() => { document.removeEventListener("click", closeMoveMenu); });
 </script>

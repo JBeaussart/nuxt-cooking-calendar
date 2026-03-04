@@ -19,11 +19,13 @@ export const useAuth = () => {
     () => !["premium", "admin"].includes(userRole.value)
   );
 
-  const fetchProfile = async () => {
+  const fetchProfile = async (force = false) => {
     if (!user.value) {
       profile.value = null;
       return;
     }
+    // Skip if already loaded for this user
+    if (!force && profile.value?.id === user.value.id) return;
     const { data } = await supabase
       .from("user_profiles")
       .select("*")

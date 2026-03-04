@@ -25,9 +25,10 @@
           <!-- Image header -->
           <div class="relative h-64 sm:h-80 w-full">
             <img
-              :src="recipe.image || '/images/default-recipe.jpg'"
+              :src="getOptimizedImageUrl(recipe.image, 800, 80)"
               :alt="recipe.title"
-              loading="eager"
+              loading="lazy"
+              decoding="async"
               class="h-full w-full object-cover"
               @error="(e: Event) => (e.target as HTMLImageElement).src = '/images/default-recipe.jpg'"
             />
@@ -117,6 +118,7 @@
 definePageMeta({ layout: "default", middleware: "auth" });
 
 const route = useRoute();
+const { getOptimizedImageUrl } = useImageOptimizer();
 const id = route.params.id as string;
 const dayParam = computed(() => (route.query.day as string || "").toLowerCase());
 

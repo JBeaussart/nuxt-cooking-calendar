@@ -1,7 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: "2024-11-01",
-  devtools: { enabled: true },
+  devtools: { enabled: process.env.NODE_ENV === "development" },
 
   modules: ["@nuxtjs/supabase", "@nuxtjs/tailwindcss", "@pinia/nuxt"],
 
@@ -23,4 +23,22 @@ export default defineNuxtConfig({
   css: ["~/assets/css/main.css"],
 
   ssr: true,
+
+  nitro: {
+    compressPublicAssets: { gzip: true, brotli: true },
+    minify: true,
+  },
+
+  vite: {
+    build: {
+      cssMinify: true,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            supabase: ["@supabase/supabase-js"],
+          },
+        },
+      },
+    },
+  },
 });

@@ -201,6 +201,7 @@ const dayParam = computed(() => (route.query.day as string || "").toLowerCase())
 const slotParam = computed(() => (route.query.slot as string || "").toLowerCase());
 
 const searchQuery = ref("");
+const debouncedQuery = ref("");
 const saltFilter = ref("all");
 const mamanFilter = ref(false);
 const bannerDismissed = ref(false);
@@ -212,6 +213,12 @@ const saltFilters = [
   { value: "sweet", label: "Sucré" },
 ];
 
+let debounceTimer: ReturnType<typeof setTimeout>;
+watch(searchQuery, (val) => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => { debouncedQuery.value = val; }, 300);
+});
+
 const { data: recipes, pending } = await useFetch<any[]>("/api/recipes");
 
 const normalize = (s: string) =>
@@ -219,7 +226,7 @@ const normalize = (s: string) =>
 
 const filteredRecipes = computed(() => {
   let list = recipes.value || [];
-  const q = normalize(searchQuery.value);
+  const q = normalize(debouncedQuery.value);
 
   if (q) {
     list = list.filter((r) => {
