@@ -8,6 +8,8 @@ export default defineNuxtConfig({
   // @nuxtjs/supabase lit automatiquement SUPABASE_URL et SUPABASE_KEY depuis .env
   supabase: {
     redirect: false, // On gère la redirection manuellement via middleware
+    url: process.env.PUBLIC_SUPABASE_URL,
+    key: process.env.PUBLIC_SUPABASE_ANON_KEY,
   },
 
   runtimeConfig: {
