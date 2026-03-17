@@ -119,6 +119,7 @@ definePageMeta({ layout: "default", middleware: "auth" });
 
 const route = useRoute();
 const { getOptimizedImageUrl } = useImageOptimizer();
+const planning = usePlanningStore();
 const id = route.params.id as string;
 const dayParam = computed(() => (route.query.day as string || "").toLowerCase());
 
@@ -134,13 +135,10 @@ const deleteRecipe = async () => {
   }
 };
 
-const assignToPlanning = async () => {
-  try {
-    await $fetch("/api/planning/assign", { method: "POST", body: { day: dayParam.value, id } });
-    await navigateTo("/planning");
-  } catch {
-    alert("Impossible d'ajouter la recette au planning.");
-  }
+const assignToPlanning = () => {
+  if (!recipe.value) return;
+  planning.assign(dayParam.value, { id, title: recipe.value.title, image: recipe.value.image });
+  navigateTo("/planning");
 };
 
 useHead({ title: computed(() => recipe.value?.title || "Recette") });
