@@ -141,30 +141,38 @@
         <div
           v-for="r in filteredRecipes"
           :key="r.id"
-          class="group relative flex items-center gap-3 rounded-xl bg-white p-3.5 shadow-sm border border-slate-100 transition-all duration-200 hover:shadow-md hover:border-slate-200 hover:-translate-y-px cursor-pointer"
+          class="group relative flex items-center gap-3 rounded-xl bg-white p-2.5 shadow-sm border border-slate-100 transition-all duration-200 hover:shadow-md hover:border-slate-200 cursor-pointer"
           @click="handleCardClick(r)"
         >
-          <!-- Icône type -->
-          <div
-            class="shrink-0 w-10 h-10 rounded-lg flex items-center justify-center text-xl select-none"
-            :class="r.salt === false ? 'bg-amber-50' : 'bg-sage-50'"
-          >
-            {{ r.salt === false ? '🍰' : '🧂' }}
+          <!-- Vignette -->
+          <div class="shrink-0 w-14 h-14 rounded-lg overflow-hidden bg-slate-100">
+            <img
+              v-if="r.image"
+              :src="getOptimizedImageUrl(r.image, 112, 70)"
+              :alt="r.title"
+              loading="lazy"
+              decoding="async"
+              class="w-full h-full object-cover"
+              @error="(e: Event) => { (e.target as HTMLImageElement).style.display='none'; (e.target as HTMLImageElement).nextElementSibling!.classList.remove('hidden') }"
+            />
+            <div
+              class="w-full h-full flex items-center justify-center text-2xl select-none"
+              :class="[r.image ? 'hidden' : '', r.salt === false ? 'bg-amber-50' : 'bg-sage-50']"
+            >
+              {{ r.salt === false ? '🍰' : '🧂' }}
+            </div>
           </div>
 
           <!-- Contenu -->
           <div class="flex-1 min-w-0">
-            <h3 class="text-sm font-semibold text-slate-800 leading-snug truncate" :class="{'pr-8': dayParam || slotParam}">
+            <h3 class="text-sm font-semibold text-slate-800 leading-snug line-clamp-2">
               {{ r.title }}
             </h3>
-            <div class="flex items-center gap-1.5 mt-1 flex-wrap">
-              <span
-                class="text-xs font-medium"
-                :class="r.salt === false ? 'text-amber-500' : 'text-sage-400'"
-              >
+            <div class="flex items-center gap-1.5 mt-1">
+              <span class="text-xs font-medium" :class="r.salt === false ? 'text-amber-500' : 'text-sage-400'">
                 {{ r.salt === false ? 'Sucré' : 'Salé' }}
               </span>
-              <span v-if="r.maman" class="inline-flex items-center gap-0.5 text-xs text-pink-400" title="Recette de maman">
+              <span v-if="r.maman" class="inline-flex items-center gap-0.5 text-xs text-pink-400">
                 <svg class="w-3 h-3" viewBox="0 0 512 512" fill="currentColor"><path d="M226.5 92.9c14.3 42.9-.3 86.2-32.6 96.8s-70.1-15.6-84.4-58.5.3-86.2 32.6-96.8 70.1 15.6 84.4 58.5zM100.4 198.6c18.9 32.4 14.3 70.1-10.2 84.1s-59.7-.9-78.5-33.3S-2.7 179.3 21.8 165.3s59.7.9 78.6 33.3zM69.2 401.2C121.6 259.9 214.7 224 256 224s134.4 35.9 186.8 177.2c3.6 9.7 5.2 20.1 5.2 30.5v1.6c0 25.8-20.9 46.7-46.7 46.7-11.5 0-22.9-1.4-34-4.2l-88-22c-15.3-3.8-31.3-3.8-46.6 0l-88 22c-11.1 2.8-22.5 4.2-34 4.2-25.8 0-46.7-20.9-46.7-46.7v-1.6c0-10.4 1.6-20.8 5.2-30.5zM324.5 92.9c14.3-42.9 51.7-73.1 84.4-58.5s46.9 53.9 32.6 96.8-51.7 73.1-84.4 58.5-46.9-53.9-32.6-96.8zM400.1 165.3c24.5 14 29.1 51.7 10.2 84.1s-54 48.2-78.5 33.3-29.1-51.7-10.2-84.1 54-48.2 78.5-33.3z"/></svg>
                 Ninette
               </span>
@@ -203,6 +211,7 @@
 definePageMeta({ layout: "default", middleware: "auth" });
 
 const route = useRoute();
+const { getOptimizedImageUrl } = useImageOptimizer();
 const { isPremium, isAdmin, isFree } = useAuth();
 const planning = usePlanningStore();
 const toast = useToast();

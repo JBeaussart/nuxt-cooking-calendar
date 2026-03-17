@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
 
   const { data, error } = await supabase
     .from("recipes")
-    .select("id, title, salt, maman")
+    .select("id, title, salt, maman, image")
     .eq("user_id", user.id)
     .order("title", { ascending: true });
 
