@@ -10,6 +10,12 @@ export const usePlanningStore = defineStore("planning", () => {
   const loaded = ref(false);
   const pending = ref(false);
 
+  function hydrate(data: PlanningEntry[]) {
+    entries.value = data;
+    loaded.value = true;
+    pending.value = false;
+  }
+
   async function load(force = false) {
     if (loaded.value && !force) return;
     pending.value = true;
@@ -62,5 +68,5 @@ export const usePlanningStore = defineStore("planning", () => {
     });
   }
 
-  return { entries, loaded, pending, load, assign, remove, move, clear };
+  return { entries, loaded, pending, hydrate, load, assign, remove, move, clear };
 });

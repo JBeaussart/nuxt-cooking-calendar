@@ -143,8 +143,11 @@ const planning = usePlanningStore();
 
 const days = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
 
-// Load planning data once (cached in store across navigations)
-await planning.load();
+// useFetch gère correctement les cookies SSR — on hydrate le store une seule fois
+if (!planning.loaded) {
+  const { data } = await useFetch<{ day: string; recipe: any }[]>("/api/planning");
+  if (data.value) planning.hydrate(data.value);
+}
 
 const activeMoveDay = ref<string | null>(null);
 
