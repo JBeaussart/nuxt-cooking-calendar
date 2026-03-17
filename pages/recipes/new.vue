@@ -143,9 +143,9 @@ definePageMeta({ layout: "default", middleware: "auth" });
 
 const { isAdmin, isFree } = useAuth();
 
-// Vérifier la limite
-const { data: recipes } = await useFetch<any[]>("/api/recipes");
-const limitReached = computed(() => isFree.value && (recipes.value?.length || 0) >= 20);
+// Vérifier la limite (count seulement, sans charger toutes les recettes)
+const { data: recipesCount } = await useFetch<{ count: number }>("/api/recipes/count");
+const limitReached = computed(() => isFree.value && (recipesCount.value?.count || 0) >= 20);
 
 const form = reactive({
   title: "",

@@ -3,7 +3,7 @@ export default defineEventHandler(async (event) => {
   if (!user || !supabase) throw createError({ statusCode: 401, statusMessage: "Non authentifié" });
 
   const body = await readBody(event);
-  const { action, item, quantity, id } = body;
+  const { action, item, quantity, id, checked } = body;
 
   if (action === "add") {
     const { data, error } = await supabase
@@ -21,13 +21,8 @@ export default defineEventHandler(async (event) => {
   }
 
   if (action === "toggle") {
-    const { data: current } = await supabase
-      .from("shopping_custom")
-      .select("checked")
-      .eq("id", id)
-      .eq("user_id", user.id)
-      .single();
-    await supabase.from("shopping_custom").update({ checked: !current?.checked }).eq("id", id).eq("user_id", user.id);
+    // Client sends the desired checked state directly — no SELECT needed
+    await supabase.from("shopping_custom").update({ checked: !!checked }).eq("id", id).eq("user_id", user.id);
     return { ok: true };
   }
 

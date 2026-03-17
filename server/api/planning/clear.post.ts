@@ -8,5 +8,10 @@ export default defineEventHandler(async (event) => {
     .eq("user_id", user.id);
 
   if (error) throw createError({ statusCode: 500, statusMessage: error.message });
+
+  await supabase
+    .from("shopping_totals")
+    .upsert({ user_id: user.id, data: { items: [] } }, { onConflict: "user_id" });
+
   return { ok: true };
 });

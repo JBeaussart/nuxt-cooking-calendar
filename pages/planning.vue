@@ -156,20 +156,31 @@ const hasRecipeOnDay = (day: string) => {
 };
 
 const removeRecipe = async (day: string) => {
+  if (entries.value) {
+    entries.value = entries.value.map((e) => e.day === day ? { ...e, recipe: null } : e);
+  }
   await $fetch("/api/planning/remove", { method: "POST", body: { day } });
-  await refresh();
 };
 
 const moveRecipe = async (fromDay: string, toDay: string, recipeId: string) => {
   activeMoveDay.value = null;
+  if (entries.value) {
+    const recipe = entries.value.find((e) => e.day === fromDay)?.recipe ?? null;
+    entries.value = entries.value.map((e) => {
+      if (e.day === fromDay) return { ...e, recipe: null };
+      if (e.day === toDay) return { ...e, recipe };
+      return e;
+    });
+  }
   await $fetch("/api/planning/move", { method: "POST", body: { fromDay, toDay, recipeId } });
-  await refresh();
 };
 
 const clearPlanning = async () => {
   if (!confirm("Réinitialiser tout le planning ?")) return;
+  if (entries.value) {
+    entries.value = entries.value.map((e) => ({ ...e, recipe: null }));
+  }
   await $fetch("/api/planning/clear", { method: "POST" });
-  await refresh();
 };
 
 // Fermer le menu déplacer au clic extérieur

@@ -10,5 +10,7 @@ export default defineEventHandler(async (event) => {
     .upsert({ day, recipe_id: id, user_id: user.id }, { onConflict: "day,user_id" });
 
   if (error) throw createError({ statusCode: 500, statusMessage: error.message });
+
+  await recomputeShoppingTotals(user.id, supabase);
   return { ok: true };
 });

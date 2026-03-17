@@ -43,7 +43,17 @@
 
       <!-- Liste -->
       <div class="rounded-3xl bg-white shadow-xl shadow-slate-200/50 ring-1 ring-slate-100 mb-20 sm:mb-0">
-        <ul v-if="allItems.length > 0" class="divide-y divide-slate-100">
+        <!-- Skeleton pendant le chargement initial -->
+        <template v-if="pending && allItems.length === 0">
+          <ul class="divide-y divide-slate-100">
+            <li v-for="n in 5" :key="n" class="flex items-center gap-4 px-4 py-3">
+              <div class="h-5 w-5 flex-none rounded bg-slate-100 animate-pulse" />
+              <div class="h-4 flex-1 rounded bg-slate-100 animate-pulse" :style="`width: ${50 + n * 8}%`" />
+            </li>
+          </ul>
+        </template>
+
+        <ul v-else-if="allItems.length > 0" class="divide-y divide-slate-100">
           <!-- Items du planning -->
           <li v-for="(item, i) in totals" :key="`t-${i}`"
             class="flex items-center gap-4 px-4 py-3 transition hover:bg-slate-50 group cursor-pointer"
@@ -61,22 +71,22 @@
           </li>
 
           <!-- Items personnalisés -->
-          <li v-for="(item, i) in custom" :key="`c-${i}`"
+          <li v-for="(item, i) in custom" :key="`c-${item.id}`"
             class="flex items-center gap-4 px-4 py-3 transition hover:bg-slate-50 group">
             <div class="flex h-5 w-5 flex-none items-center justify-center rounded border-2 transition cursor-pointer"
               :class="item.checked ? 'border-sage-300 bg-sage-300' : 'border-slate-300'"
-              @click="toggleCustom(item.id)">
+              @click="toggleCustom(i)">
               <svg v-if="item.checked" class="h-3 w-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
               </svg>
             </div>
             <span class="flex-1 text-sm font-medium transition cursor-pointer" :class="item.checked ? 'line-through text-slate-400' : 'text-slate-800'"
-              @click="toggleCustom(item.id)">
+              @click="toggleCustom(i)">
               {{ item.item }}
               <span v-if="item.quantity" class="text-slate-500 ml-1">× {{ item.quantity }}</span>
             </span>
             <span class="text-xs font-medium text-slate-400 mr-1">ajouté</span>
-            <button @click.stop="deleteCustom(item.id)" class="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-500 transition">
+            <button @click.stop="deleteCustom(i)" class="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-500 transition">
               <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
           </li>
@@ -106,7 +116,8 @@ const newItem = ref("");
 const newQty = ref<number | "">("");
 const toast = useToast();
 
-const { data: shoppingData, refresh } = await useFetch<{ totals: any[]; custom: any[] }>("/api/shopping/data");
+// Pas de await → la page s'affiche immédiatement avec un skeleton
+const { data: shoppingData, pending } = useFetch<{ totals: any[]; custom: any[] }>("/api/shopping/data");
 
 const totals = computed(() => shoppingData.value?.totals || []);
 const custom = computed(() => shoppingData.value?.custom || []);
@@ -114,14 +125,17 @@ const allItems = computed(() => [...totals.value, ...custom.value]);
 
 const addCustomItem = async () => {
   if (!newItem.value.trim()) return;
+  const itemName = newItem.value.trim();
+  const qty = newQty.value || 0;
+  newItem.value = "";
+  newQty.value = "";
   try {
-    await $fetch("/api/shopping/custom", {
+    const { item } = await $fetch<{ ok: boolean; item: any }>("/api/shopping/custom", {
       method: "POST",
-      body: { action: "add", item: newItem.value.trim(), quantity: newQty.value || 0 },
+      body: { action: "add", item: itemName, quantity: qty },
     });
-    newItem.value = "";
-    newQty.value = "";
-    await refresh();
+    // Optimistic: add to local list
+    if (shoppingData.value) shoppingData.value.custom.push(item);
   } catch { toast.show("Erreur lors de l'ajout"); }
 };
 
@@ -139,14 +153,20 @@ const toggleTotal = (i: number) => {
   saveTotals();
 };
 
-const toggleCustom = async (id: string) => {
-  await $fetch("/api/shopping/custom", { method: "POST", body: { action: "toggle", id } });
-  await refresh();
+const toggleCustom = (i: number) => {
+  if (!shoppingData.value) return;
+  const item = shoppingData.value.custom[i];
+  item.checked = !item.checked;
+  // Fire-and-forget — client sends the new state directly
+  $fetch("/api/shopping/custom", { method: "POST", body: { action: "toggle", id: item.id, checked: item.checked } })
+    .catch(() => { if (shoppingData.value) shoppingData.value.custom[i].checked = !item.checked; });
 };
 
-const deleteCustom = async (id: string) => {
-  await $fetch("/api/shopping/custom", { method: "POST", body: { action: "delete", id } });
-  await refresh();
+const deleteCustom = (i: number) => {
+  if (!shoppingData.value) return;
+  const [removed] = shoppingData.value.custom.splice(i, 1);
+  $fetch("/api/shopping/custom", { method: "POST", body: { action: "delete", id: removed.id } })
+    .catch(() => { if (shoppingData.value) shoppingData.value.custom.splice(i, 0, removed); });
 };
 
 const checkAll = () => {

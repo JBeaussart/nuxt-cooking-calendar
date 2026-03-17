@@ -12,5 +12,7 @@ export default defineEventHandler(async (event) => {
     .eq("user_id", user.id);
 
   if (error) throw createError({ statusCode: 500, statusMessage: error.message });
+
+  await recomputeShoppingTotals(user.id, supabase);
   return { ok: true };
 });

@@ -23,7 +23,7 @@ export async function getServerUser(event: H3Event) {
 
   const { data: profile } = await supabase
     .from("user_profiles")
-    .select("*")
+    .select("user_role, created_at")
     .eq("id", user.id)
     .single();
 

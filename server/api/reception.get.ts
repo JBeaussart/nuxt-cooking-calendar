@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
   if (recipeIds.length > 0) {
     const { data: recipesData } = await supabase
       .from("recipes")
-      .select("*")
+      .select("id, title, image")
       .in("id", recipeIds)
       .eq("user_id", user.id);
     if (recipesData) recipesMap = new Map(recipesData.map((r: any) => [r.id, r]));

@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
   if (recipeIds.length) {
     const { data: recipesData } = await supabase
       .from("recipes")
-      .select("*")
+      .select("id, title, image")
       .in("id", recipeIds)
       .eq("user_id", user.id);
     if (recipesData) {
