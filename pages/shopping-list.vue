@@ -53,11 +53,10 @@
           </ul>
         </template>
 
-        <ul v-else-if="allItems.length > 0" class="divide-y divide-slate-100">
-          <!-- Items du planning -->
-          <li v-for="(item, i) in totals" :key="`t-${i}`"
+        <TransitionGroup v-else-if="allItems.length > 0" tag="ul" name="list" class="divide-y divide-slate-100 relative">
+          <li v-for="item in sortedItems" :key="item._key"
             class="flex items-center gap-4 px-4 py-3 transition hover:bg-slate-50 group cursor-pointer"
-            @click="toggleTotal(i)">
+            @click="toggleItem(item)">
             <div class="flex h-5 w-5 flex-none items-center justify-center rounded border-2 transition"
               :class="item.checked ? 'border-sage-300 bg-sage-300' : 'border-slate-300'">
               <svg v-if="item.checked" class="h-3 w-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -68,29 +67,13 @@
               {{ item.item }}
               <span v-if="item.quantity" class="text-slate-500 ml-1">× {{ item.quantity }} {{ item.unit || '' }}</span>
             </span>
-          </li>
-
-          <!-- Items personnalisés -->
-          <li v-for="(item, i) in custom" :key="`c-${item.id}`"
-            class="flex items-center gap-4 px-4 py-3 transition hover:bg-slate-50 group">
-            <div class="flex h-5 w-5 flex-none items-center justify-center rounded border-2 transition cursor-pointer"
-              :class="item.checked ? 'border-sage-300 bg-sage-300' : 'border-slate-300'"
-              @click="toggleCustom(i)">
-              <svg v-if="item.checked" class="h-3 w-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <span class="flex-1 text-sm font-medium transition cursor-pointer" :class="item.checked ? 'line-through text-slate-400' : 'text-slate-800'"
-              @click="toggleCustom(i)">
-              {{ item.item }}
-              <span v-if="item.quantity" class="text-slate-500 ml-1">× {{ item.quantity }}</span>
-            </span>
-            <span class="text-xs font-medium text-slate-400 mr-1">ajouté</span>
-            <button @click.stop="deleteCustom(i)" class="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-500 transition">
+            <span v-if="item._type === 'custom'" class="text-xs font-medium text-slate-400 mr-1">ajouté</span>
+            <button v-if="item._type === 'custom'" @click.stop="deleteCustomItem(item)"
+              class="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-500 transition">
               <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
           </li>
-        </ul>
+        </TransitionGroup>
 
         <!-- État vide -->
         <div v-else class="p-12 text-center">
@@ -123,6 +106,12 @@ const totals = computed(() => shoppingData.value?.totals || []);
 const custom = computed(() => shoppingData.value?.custom || []);
 const allItems = computed(() => [...totals.value, ...custom.value]);
 
+const sortedItems = computed(() => {
+  const ts = totals.value.map((t: any) => ({ ...t, _type: 'total', _key: `t-${t.item}` }));
+  const cs = custom.value.map((c: any) => ({ ...c, _type: 'custom', _key: `c-${c.id}` }));
+  return [...ts, ...cs].sort((a, b) => (a.checked ? 1 : 0) - (b.checked ? 1 : 0));
+});
+
 const addCustomItem = async () => {
   if (!newItem.value.trim()) return;
   const itemName = newItem.value.trim();
@@ -147,23 +136,24 @@ const saveTotals = () => {
   }, 800);
 };
 
-const toggleTotal = (i: number) => {
+const toggleItem = (item: any) => {
   if (!shoppingData.value) return;
-  shoppingData.value.totals[i].checked = !shoppingData.value.totals[i].checked;
-  saveTotals();
+  if (item._type === 'total') {
+    const original = shoppingData.value.totals.find((t: any) => t.item === item.item);
+    if (original) { original.checked = !original.checked; saveTotals(); }
+  } else {
+    const original = shoppingData.value.custom.find((c: any) => c.id === item.id);
+    if (!original) return;
+    original.checked = !original.checked;
+    $fetch("/api/shopping/custom", { method: "POST", body: { action: "toggle", id: original.id, checked: original.checked } })
+      .catch(() => { original.checked = !original.checked; });
+  }
 };
 
-const toggleCustom = (i: number) => {
+const deleteCustomItem = (item: any) => {
   if (!shoppingData.value) return;
-  const item = shoppingData.value.custom[i];
-  item.checked = !item.checked;
-  // Fire-and-forget — client sends the new state directly
-  $fetch("/api/shopping/custom", { method: "POST", body: { action: "toggle", id: item.id, checked: item.checked } })
-    .catch(() => { if (shoppingData.value) shoppingData.value.custom[i].checked = !item.checked; });
-};
-
-const deleteCustom = (i: number) => {
-  if (!shoppingData.value) return;
+  const i = shoppingData.value.custom.findIndex((c: any) => c.id === item.id);
+  if (i === -1) return;
   const [removed] = shoppingData.value.custom.splice(i, 1);
   $fetch("/api/shopping/custom", { method: "POST", body: { action: "delete", id: removed.id } })
     .catch(() => { if (shoppingData.value) shoppingData.value.custom.splice(i, 0, removed); });
@@ -171,13 +161,19 @@ const deleteCustom = (i: number) => {
 
 const checkAll = () => {
   if (!shoppingData.value) return;
-  shoppingData.value.totals.forEach((t) => (t.checked = true));
+  shoppingData.value.totals.forEach((t: any) => (t.checked = true));
   saveTotals();
 };
 
 const uncheckAll = () => {
   if (!shoppingData.value) return;
-  shoppingData.value.totals.forEach((t) => (t.checked = false));
+  shoppingData.value.totals.forEach((t: any) => (t.checked = false));
   saveTotals();
 };
 </script>
+
+<style scoped>
+.list-move {
+  transition: transform 0.35s ease;
+}
+</style>
