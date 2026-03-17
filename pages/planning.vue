@@ -6,10 +6,10 @@
         <p class="text-slate-600">Planifiez vos repas en un clin d'œil</p>
       </div>
 
-      <div v-if="pending" class="text-center py-20 text-slate-400">Chargement...</div>
+      <div v-if="planning.pending && !planning.loaded" class="text-center py-20 text-slate-400">Chargement...</div>
       <div v-else class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <div
-          v-for="entry in entries"
+          v-for="entry in planning.entries"
           :key="entry.day"
           class="group relative rounded-3xl bg-white shadow-lg shadow-slate-200/50 transition-all duration-300 hover:shadow-xl hover:shadow-slate-300/50 hover:scale-[1.02]"
         >
@@ -64,7 +64,6 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
                     </svg>
                   </button>
-                  <!-- Dropdown déplacer -->
                   <div
                     v-if="activeMoveDay === entry.day"
                     class="absolute right-0 bottom-full mb-1 w-40 rounded-xl border border-slate-200 bg-white shadow-2xl z-50 py-1.5"
@@ -91,7 +90,7 @@
                   type="button"
                   title="Retirer"
                   class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-600 hover:bg-red-50 hover:text-red-600 transition"
-                  @click="removeRecipe(entry.day)"
+                  @click="planning.remove(entry.day)"
                 >
                   <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -126,7 +125,7 @@
       <div class="mt-12 pb-16 sm:pb-0 text-center">
         <button
           type="button"
-          @click="clearPlanning"
+          @click="confirmClear"
           class="rounded-full bg-slate-900 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-slate-800 hover:shadow-xl"
         >
           Réinitialiser le planning
@@ -140,10 +139,12 @@
 definePageMeta({ layout: "default", middleware: "auth" });
 
 const { getOptimizedImageUrl } = useImageOptimizer();
+const planning = usePlanningStore();
 
 const days = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
 
-const { data: entries, pending, refresh } = await useFetch<{ day: string; recipe: any }[]>("/api/planning");
+// Load planning data once (cached in store across navigations)
+await planning.load();
 
 const activeMoveDay = ref<string | null>(null);
 
@@ -151,39 +152,19 @@ const toggleMoveMenu = (day: string) => {
   activeMoveDay.value = activeMoveDay.value === day ? null : day;
 };
 
-const hasRecipeOnDay = (day: string) => {
-  return entries.value?.some((e) => e.day === day && e.recipe) ?? false;
-};
+const hasRecipeOnDay = (day: string) =>
+  planning.entries.some((e) => e.day === day && e.recipe);
 
-const removeRecipe = async (day: string) => {
-  if (entries.value) {
-    entries.value = entries.value.map((e) => e.day === day ? { ...e, recipe: null } : e);
-  }
-  await $fetch("/api/planning/remove", { method: "POST", body: { day } });
-};
-
-const moveRecipe = async (fromDay: string, toDay: string, recipeId: string) => {
+const moveRecipe = (fromDay: string, toDay: string, recipeId: string) => {
   activeMoveDay.value = null;
-  if (entries.value) {
-    const recipe = entries.value.find((e) => e.day === fromDay)?.recipe ?? null;
-    entries.value = entries.value.map((e) => {
-      if (e.day === fromDay) return { ...e, recipe: null };
-      if (e.day === toDay) return { ...e, recipe };
-      return e;
-    });
-  }
-  await $fetch("/api/planning/move", { method: "POST", body: { fromDay, toDay, recipeId } });
+  planning.move(fromDay, toDay, recipeId);
 };
 
-const clearPlanning = async () => {
+const confirmClear = () => {
   if (!confirm("Réinitialiser tout le planning ?")) return;
-  if (entries.value) {
-    entries.value = entries.value.map((e) => ({ ...e, recipe: null }));
-  }
-  await $fetch("/api/planning/clear", { method: "POST" });
+  planning.clear();
 };
 
-// Fermer le menu déplacer au clic extérieur
 const closeMoveMenu = () => { activeMoveDay.value = null; };
 onMounted(() => { document.addEventListener("click", closeMoveMenu); });
 onUnmounted(() => { document.removeEventListener("click", closeMoveMenu); });

@@ -10,6 +10,7 @@ export default defineEventHandler(async (event) => {
     supabase.from("planning").update({ recipe_id: null }).eq("day", fromDay).eq("user_id", user.id),
   ]);
 
-  await recomputeShoppingTotals(user.id, supabase);
+  // Fire-and-forget — client already updated optimistically
+  recomputeShoppingTotals(user.id, supabase).catch(() => {});
   return { ok: true };
 });

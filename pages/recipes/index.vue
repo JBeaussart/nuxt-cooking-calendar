@@ -204,6 +204,8 @@ definePageMeta({ layout: "default", middleware: "auth" });
 
 const route = useRoute();
 const { isPremium, isAdmin, isFree } = useAuth();
+const planning = usePlanningStore();
+const toast = useToast();
 
 const dayParam = computed(() => (route.query.day as string || "").toLowerCase());
 const slotParam = computed(() => (route.query.slot as string || "").toLowerCase());
@@ -227,7 +229,19 @@ watch(searchQuery, (val) => {
   debounceTimer = setTimeout(() => { debouncedQuery.value = val; }, 300);
 });
 
-const { data: recipes, pending } = await useFetch<any[]>("/api/recipes");
+// Pas de await → page s'affiche immédiatement
+const { data: recipes } = useFetch<any[]>("/api/recipes");
+
+// Ingrédients chargés en arrière-plan pour la recherche (ne bloque pas le rendu)
+const ingredientsMap = ref<Map<string, any[]>>(new Map());
+const ingredientsLoaded = ref(false);
+onMounted(async () => {
+  const data = await $fetch<{ id: string; ingredients: any[] }[]>("/api/recipes/ingredients");
+  const map = new Map<string, any[]>();
+  for (const r of data) map.set(r.id, r.ingredients || []);
+  ingredientsMap.value = map;
+  ingredientsLoaded.value = true;
+});
 
 const normalize = (s: string) =>
   String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
@@ -239,7 +253,9 @@ const filteredRecipes = computed(() => {
   if (q) {
     list = list.filter((r) => {
       if (normalize(r.title).includes(q)) return true;
-      const ing = Array.isArray(r.ingredients) ? r.ingredients : [];
+      // Ingredient search available once loaded
+      if (!ingredientsLoaded.value) return false;
+      const ing = ingredientsMap.value.get(r.id) || [];
       return ing.some((i: any) => normalize(typeof i === "string" ? i : i?.item || "").includes(q));
     });
   }
@@ -256,19 +272,15 @@ const handleCardClick = (r: any) => {
   navigateTo(`/recipes/${r.id}${q}`);
 };
 
-const toast = useToast();
-
-const assignRecipe = async (r: any) => {
-  try {
-    if (dayParam.value) {
-      await $fetch("/api/planning/assign", { method: "POST", body: { day: dayParam.value, id: r.id } });
-      await navigateTo("/planning");
-    } else if (slotParam.value) {
-      await $fetch("/api/reception/assign", { method: "POST", body: { slot: slotParam.value, id: r.id } });
-      await navigateTo("/reception");
-    }
-  } catch {
-    toast.show("Impossible d'assigner la recette");
+const assignRecipe = (r: any) => {
+  if (dayParam.value) {
+    // Mise à jour du store immédiate → planning déjà à jour au retour
+    planning.assign(dayParam.value, { id: r.id, title: r.title, image: r.image });
+    navigateTo("/planning");
+  } else if (slotParam.value) {
+    $fetch("/api/reception/assign", { method: "POST", body: { slot: slotParam.value, id: r.id } })
+      .catch(() => toast.show("Impossible d'assigner la recette"));
+    navigateTo("/reception");
   }
 };
 

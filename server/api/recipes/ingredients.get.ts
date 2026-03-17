@@ -6,9 +6,8 @@ export default defineEventHandler(async (event) => {
 
   const { data, error } = await supabase
     .from("recipes")
-    .select("id, title, salt, maman")
-    .eq("user_id", user.id)
-    .order("title", { ascending: true });
+    .select("id, ingredients")
+    .eq("user_id", user.id);
 
   if (error) throw createError({ statusCode: 500, statusMessage: error.message });
   return data || [];
