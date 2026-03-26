@@ -6,13 +6,23 @@ export default defineEventHandler(async (event) => {
   const { action, item, quantity, id, checked } = body;
 
   if (action === "add") {
-    const { data, error } = await supabase
-      .from("shopping_custom")
-      .insert({ user_id: user.id, item, quantity: quantity || 0, checked: false })
-      .select("*")
-      .single();
-    if (error) throw createError({ statusCode: 500, statusMessage: error.message });
-    return { ok: true, item: data };
+    const payloadWithQuantity = { user_id: user.id, item, quantity: quantity || 0, checked: false };
+    const { data, error } = await supabase.from("shopping_custom").insert(payloadWithQuantity).select("*").single();
+
+    if (!error) return { ok: true, item: data };
+
+    // Compatibility fallback for databases that do not have `quantity` on shopping_custom.
+    if (error.message.includes("Could not find the 'quantity' column")) {
+      const { data: fallbackData, error: fallbackError } = await supabase
+        .from("shopping_custom")
+        .insert({ user_id: user.id, item, checked: false })
+        .select("*")
+        .single();
+      if (fallbackError) throw createError({ statusCode: 500, statusMessage: fallbackError.message });
+      return { ok: true, item: fallbackData };
+    }
+
+    throw createError({ statusCode: 500, statusMessage: error.message });
   }
 
   if (action === "delete") {
