@@ -8,7 +8,7 @@
 
       <div class="mb-8 space-y-6">
         <!-- Formulaire ajout -->
-        <form @submit.prevent="addCustomItem" class="flex flex-col sm:flex-row gap-3">
+        <form @submit.prevent="addCustomItem" class="grid grid-cols-[minmax(0,1fr)_88px_auto] gap-2 sm:gap-3 items-stretch">
           <div class="relative flex-1">
             <input v-model="newItem" type="text" placeholder="Ajouter un article..." required
               class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 pl-11 text-sm focus:outline-none focus:ring-2 focus:ring-sage-300 shadow-sm" />
@@ -19,24 +19,31 @@
             </div>
           </div>
           <input v-model.number="newQty" type="number" step="any" placeholder="Qté"
-            class="w-full sm:w-24 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-sage-300 shadow-sm" />
+            class="w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-sage-300 shadow-sm" />
           <button type="submit"
-            class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-sage-300 to-sage-500 px-6 py-3 text-sm font-bold text-white shadow-lg hover:from-sage-300 hover:to-sage-600 hover:scale-105 active:scale-95 transition-all">
+            class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-sage-300 to-sage-500 px-4 sm:px-6 py-3 text-sm font-bold text-white shadow-lg hover:from-sage-300 hover:to-sage-600 hover:scale-105 active:scale-95 transition-all whitespace-nowrap">
             Ajouter
           </button>
         </form>
 
         <!-- Actions groupées -->
-        <div class="flex flex-row justify-center items-center gap-3">
+        <div class="grid w-full grid-cols-3 gap-2 sm:flex sm:w-auto sm:justify-center sm:items-center sm:gap-3">
           <button @click="checkAll"
-            class="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-slate-200 hover:bg-sage-50 hover:text-sage-300 transition whitespace-nowrap">
+            class="inline-flex w-full sm:w-auto justify-center items-center gap-1 sm:gap-2 rounded-xl bg-white px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium text-slate-700 shadow-sm ring-1 ring-slate-200 hover:bg-sage-50 hover:text-sage-300 transition">
             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
             Tout cocher
           </button>
           <button @click="uncheckAll"
-            class="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-slate-200 hover:bg-sage-50 hover:text-sage-300 transition whitespace-nowrap">
+            class="inline-flex w-full sm:w-auto justify-center items-center gap-1 sm:gap-2 rounded-xl bg-white px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium text-slate-700 shadow-sm ring-1 ring-slate-200 hover:bg-sage-50 hover:text-sage-300 transition">
             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
             Tout décocher
+          </button>
+          <button
+            @click="clearCustomItems"
+            :disabled="custom.length === 0"
+            class="inline-flex w-full sm:w-auto justify-center items-center gap-1 sm:gap-2 rounded-xl bg-white px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium text-rose-500 shadow-sm ring-1 ring-rose-200 hover:bg-rose-50 disabled:opacity-50 disabled:cursor-not-allowed transition">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m-7 0a1 1 0 011-1h4a1 1 0 011 1m-6 0h8" /></svg>
+            Effacer ajouts
           </button>
         </div>
       </div>
@@ -160,6 +167,18 @@ const deleteCustomItem = (item: any) => {
   const [removed] = shoppingData.value.custom.splice(i, 1);
   $fetch("/api/shopping/custom", { method: "POST", body: { action: "delete", id: removed.id } })
     .catch(() => { if (shoppingData.value) shoppingData.value.custom.splice(i, 0, removed); });
+};
+
+const clearCustomItems = () => {
+  if (!shoppingData.value || shoppingData.value.custom.length === 0) return;
+  const backup = [...shoppingData.value.custom];
+  shoppingData.value.custom = [];
+  $fetch("/api/shopping/custom", { method: "POST", body: { action: "clear" } })
+    .catch(() => {
+      if (!shoppingData.value) return;
+      shoppingData.value.custom = backup;
+      toast.show("Erreur lors de la suppression des ajouts");
+    });
 };
 
 const checkAll = () => {

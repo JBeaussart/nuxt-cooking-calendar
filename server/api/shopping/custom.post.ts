@@ -30,6 +30,11 @@ export default defineEventHandler(async (event) => {
     return { ok: true };
   }
 
+  if (action === "clear") {
+    await supabase.from("shopping_custom").delete().eq("user_id", user.id);
+    return { ok: true };
+  }
+
   if (action === "toggle") {
     // Client sends the desired checked state directly — no SELECT needed
     await supabase.from("shopping_custom").update({ checked: !!checked }).eq("id", id).eq("user_id", user.id);
