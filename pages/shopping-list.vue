@@ -70,10 +70,18 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <span class="flex-1 text-sm font-medium transition" :class="item.checked ? 'line-through text-slate-400' : 'text-slate-800'">
-              {{ item.item }}
-              <span v-if="item.quantity" class="text-slate-500 ml-1">× {{ item.quantity }} {{ item.unit || '' }}</span>
-            </span>
+            <div class="flex-1 min-w-0">
+              <span class="text-sm font-medium transition block" :class="item.checked ? 'line-through text-slate-400' : 'text-slate-800'">
+                {{ item.item }}
+                <span v-if="item.quantity" class="text-slate-500 ml-1">× {{ item.quantity }} {{ item.unit || '' }}</span>
+                <span
+                v-if="item._type === 'total' && Array.isArray(item.recipes) && item.recipes.length"
+                class="text-slate-400 ml-1"
+              >
+                ({{ item.recipes.join(", ") }})
+              </span>
+              </span>
+            </div>
             <span v-if="item._type === 'custom'" class="text-xs font-medium text-slate-400 mr-1">ajouté</span>
             <button v-if="item._type === 'custom'" @click.stop="deleteCustomItem(item)"
               class="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-500 transition">
@@ -100,6 +108,8 @@
 </template>
 
 <script setup lang="ts">
+import type { ShoppingCustomItem, ShoppingDataResponse, ShoppingTotalItem } from "~/types/shopping";
+
 definePageMeta({ layout: "default", middleware: "auth" });
 
 const newItem = ref("");
@@ -110,15 +120,15 @@ const supabase = useSupabaseClient();
 let shoppingRealtimeChannel: ReturnType<typeof supabase.channel> | null = null;
 
 // Pas de await → la page s'affiche immédiatement avec un skeleton
-const { data: shoppingData, pending, refresh } = useFetch<{ totals: any[]; custom: any[] }>("/api/shopping/data");
+const { data: shoppingData, pending, refresh } = useFetch<ShoppingDataResponse>("/api/shopping/data");
 
 const totals = computed(() => shoppingData.value?.totals || []);
 const custom = computed(() => shoppingData.value?.custom || []);
 const allItems = computed(() => [...totals.value, ...custom.value]);
 
 const sortedItems = computed(() => {
-  const ts = totals.value.map((t: any) => ({ ...t, _type: 'total', _key: `t-${t.item}` }));
-  const cs = custom.value.map((c: any) => ({ ...c, _type: 'custom', _key: `c-${c.id}` }));
+  const ts = totals.value.map((t: ShoppingTotalItem) => ({ ...t, _type: 'total' as const, _key: `t-${t.item}` }));
+  const cs = custom.value.map((c: ShoppingCustomItem) => ({ ...c, _type: 'custom' as const, _key: `c-${c.id}` }));
   return [...ts, ...cs].sort((a, b) => (a.checked ? 1 : 0) - (b.checked ? 1 : 0));
 });
 
@@ -129,7 +139,7 @@ const addCustomItem = async () => {
   newItem.value = "";
   newQty.value = "";
   try {
-    const { item } = await $fetch<{ ok: boolean; item: any }>("/api/shopping/custom", {
+    const { item } = await $fetch<{ ok: boolean; item: ShoppingCustomItem }>("/api/shopping/custom", {
       method: "POST",
       body: { action: "add", item: itemName, quantity: qty },
     });
@@ -149,10 +159,10 @@ const saveTotals = () => {
 const toggleItem = (item: any) => {
   if (!shoppingData.value) return;
   if (item._type === 'total') {
-    const original = shoppingData.value.totals.find((t: any) => t.item === item.item);
+    const original = shoppingData.value.totals.find((t: ShoppingTotalItem) => t.item === item.item);
     if (original) { original.checked = !original.checked; saveTotals(); }
   } else {
-    const original = shoppingData.value.custom.find((c: any) => c.id === item.id);
+    const original = shoppingData.value.custom.find((c: ShoppingCustomItem) => c.id === item.id);
     if (!original) return;
     original.checked = !original.checked;
     $fetch("/api/shopping/custom", { method: "POST", body: { action: "toggle", id: original.id, checked: original.checked } })
@@ -162,7 +172,7 @@ const toggleItem = (item: any) => {
 
 const deleteCustomItem = (item: any) => {
   if (!shoppingData.value) return;
-  const i = shoppingData.value.custom.findIndex((c: any) => c.id === item.id);
+  const i = shoppingData.value.custom.findIndex((c: ShoppingCustomItem) => c.id === item.id);
   if (i === -1) return;
   const [removed] = shoppingData.value.custom.splice(i, 1);
   $fetch("/api/shopping/custom", { method: "POST", body: { action: "delete", id: removed.id } })
@@ -183,13 +193,13 @@ const clearCustomItems = () => {
 
 const checkAll = () => {
   if (!shoppingData.value) return;
-  shoppingData.value.totals.forEach((t: any) => (t.checked = true));
+  shoppingData.value.totals.forEach((t: ShoppingTotalItem) => (t.checked = true));
   saveTotals();
 };
 
 const uncheckAll = () => {
   if (!shoppingData.value) return;
-  shoppingData.value.totals.forEach((t: any) => (t.checked = false));
+  shoppingData.value.totals.forEach((t: ShoppingTotalItem) => (t.checked = false));
   saveTotals();
 };
 

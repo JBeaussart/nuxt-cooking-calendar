@@ -1,3 +1,5 @@
+import type { ShoppingTotalItem } from "~/types/shopping";
+
 export default defineEventHandler(async (event) => {
   const { user, supabase } = await getServerUser(event);
   if (!user || !supabase) throw createError({ statusCode: 401, statusMessage: "Non authentifié" });
@@ -30,13 +32,13 @@ export default defineEventHandler(async (event) => {
 
   const { data: recipes } = await supabase
     .from("recipes")
-    .select("id, ingredients")
+    .select("id, title, ingredients")
     .in("id", allRecipeIds);
 
   const normalize = (s: string) =>
     String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 
-  const totalsMap = new Map<string, { item: string; quantity: number | undefined; unit: string; checked: boolean }>();
+  const totalsMap = new Map<string, ShoppingTotalItem>();
 
   for (const recipe of recipes || []) {
     const count = recipeCount[recipe.id] || 1;
@@ -54,13 +56,20 @@ export default defineEventHandler(async (event) => {
 
       const prev = totalsMap.get(key);
       if (!prev) {
-        totalsMap.set(key, { item: item.trim(), quantity: Number.isFinite(qty) ? qty : undefined, unit: unit.trim(), checked: false });
+        totalsMap.set(key, {
+          item: item.trim(),
+          quantity: Number.isFinite(qty) ? qty : undefined,
+          unit: unit.trim(),
+          checked: false,
+          recipes: recipe.title ? [recipe.title] : [],
+        });
       } else {
         if (Number.isFinite(prev.quantity) && Number.isFinite(qty)) {
           prev.quantity = (prev.quantity as number) + (qty as number);
         } else if (!Number.isFinite(prev.quantity) && Number.isFinite(qty)) {
           prev.quantity = qty;
         }
+        if (recipe.title && !prev.recipes.includes(recipe.title)) prev.recipes.push(recipe.title);
       }
     }
   }
