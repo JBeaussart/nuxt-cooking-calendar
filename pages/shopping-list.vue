@@ -98,9 +98,12 @@ definePageMeta({ layout: "default", middleware: "auth" });
 const newItem = ref("");
 const newQty = ref<number | "">("");
 const toast = useToast();
+const user = useSupabaseUser();
+const supabase = useSupabaseClient();
+let shoppingRealtimeChannel: ReturnType<typeof supabase.channel> | null = null;
 
 // Pas de await → la page s'affiche immédiatement avec un skeleton
-const { data: shoppingData, pending } = useFetch<{ totals: any[]; custom: any[] }>("/api/shopping/data");
+const { data: shoppingData, pending, refresh } = useFetch<{ totals: any[]; custom: any[] }>("/api/shopping/data");
 
 const totals = computed(() => shoppingData.value?.totals || []);
 const custom = computed(() => shoppingData.value?.custom || []);
@@ -170,6 +173,88 @@ const uncheckAll = () => {
   shoppingData.value.totals.forEach((t: any) => (t.checked = false));
   saveTotals();
 };
+
+const teardownShoppingRealtime = () => {
+  if (!shoppingRealtimeChannel) return;
+  supabase.removeChannel(shoppingRealtimeChannel);
+  shoppingRealtimeChannel = null;
+};
+
+const setupShoppingRealtime = () => {
+  if (!user.value?.id || shoppingRealtimeChannel) return;
+
+  const userId = user.value.id;
+  shoppingRealtimeChannel = supabase
+    .channel(`shopping-list-${userId}`)
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "shopping_custom", filter: `user_id=eq.${userId}` },
+      (payload: any) => {
+        if (!shoppingData.value) return;
+
+        const incoming = payload.new || payload.old;
+        if (!incoming?.id) {
+          refresh();
+          return;
+        }
+
+        const idx = shoppingData.value.custom.findIndex((c: any) => c.id === incoming.id);
+
+        if (payload.eventType === "DELETE") {
+          if (idx !== -1) shoppingData.value.custom.splice(idx, 1);
+          return;
+        }
+
+        if (payload.eventType === "INSERT") {
+          if (idx === -1) shoppingData.value.custom.push(incoming);
+          else shoppingData.value.custom[idx] = incoming;
+          return;
+        }
+
+        if (payload.eventType === "UPDATE") {
+          if (idx !== -1) shoppingData.value.custom[idx] = incoming;
+          else shoppingData.value.custom.push(incoming);
+          return;
+        }
+
+        refresh();
+      },
+    )
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "shopping_totals", filter: `user_id=eq.${userId}` },
+      (payload: any) => {
+        if (!shoppingData.value) return;
+
+        if (payload.eventType === "DELETE") {
+          shoppingData.value.totals = [];
+          return;
+        }
+
+        const items = payload.new?.data?.items;
+        if (Array.isArray(items)) {
+          shoppingData.value.totals = items;
+          return;
+        }
+
+        refresh();
+      },
+    )
+    .subscribe();
+};
+
+watch(
+  () => user.value?.id,
+  (id) => {
+    teardownShoppingRealtime();
+    if (id) setupShoppingRealtime();
+  },
+  { immediate: true },
+);
+
+onBeforeUnmount(() => {
+  teardownShoppingRealtime();
+});
 </script>
 
 <style scoped>
