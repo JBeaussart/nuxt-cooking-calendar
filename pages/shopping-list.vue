@@ -20,8 +20,10 @@
           </div>
           <input v-model.number="newQty" type="number" step="any" placeholder="Qté"
             class="w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-sage-300 shadow-sm" />
-          <button type="submit"
-            class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-sage-300 to-sage-500 px-4 sm:px-6 py-3 text-sm font-bold text-white shadow-lg hover:from-sage-300 hover:to-sage-600 hover:scale-105 active:scale-95 transition-all whitespace-nowrap">
+          <button
+            type="submit"
+            :disabled="isAddingCustomItem"
+            class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-sage-300 to-sage-500 px-4 sm:px-6 py-3 text-sm font-bold text-white shadow-lg hover:from-sage-300 hover:to-sage-600 hover:scale-105 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed transition-all whitespace-nowrap">
             Ajouter
           </button>
         </form>
@@ -114,10 +116,12 @@ definePageMeta({ layout: "default", middleware: "auth" });
 
 const newItem = ref("");
 const newQty = ref<number | "">("");
+const isAddingCustomItem = ref(false);
 const toast = useToast();
 const user = useSupabaseUser();
 const supabase = useSupabaseClient();
 let shoppingRealtimeChannel: ReturnType<typeof supabase.channel> | null = null;
+const pendingCustomToggleIds = new Set<string>();
 
 // Pas de await → la page s'affiche immédiatement avec un skeleton
 const { data: shoppingData, pending, refresh } = useFetch<ShoppingDataResponse>("/api/shopping/data");
@@ -126,14 +130,37 @@ const totals = computed(() => shoppingData.value?.totals || []);
 const custom = computed(() => shoppingData.value?.custom || []);
 const allItems = computed(() => [...totals.value, ...custom.value]);
 
+const sameId = (a: unknown, b: unknown) => String(a) === String(b);
+
+const upsertCustomItem = (incoming: ShoppingCustomItem) => {
+  if (!shoppingData.value) return;
+  const idx = shoppingData.value.custom.findIndex((c: ShoppingCustomItem) => sameId(c.id, incoming.id));
+  if (idx === -1) shoppingData.value.custom.push(incoming);
+  else shoppingData.value.custom[idx] = incoming;
+};
+
+const removeCustomItemById = (id: unknown) => {
+  if (!shoppingData.value) return;
+  const idx = shoppingData.value.custom.findIndex((c: ShoppingCustomItem) => sameId(c.id, id));
+  if (idx !== -1) shoppingData.value.custom.splice(idx, 1);
+};
+
+const totalIdentity = (item: Pick<ShoppingTotalItem, "item" | "unit">) => `${item.item}__${item.unit || ""}`;
+
 const sortedItems = computed(() => {
-  const ts = totals.value.map((t: ShoppingTotalItem) => ({ ...t, _type: 'total' as const, _key: `t-${t.item}` }));
+  const ts = totals.value.map((t: ShoppingTotalItem) => ({
+    ...t,
+    _type: 'total' as const,
+    // Include unit in key to avoid vnode collisions on same item name.
+    _key: `t-${totalIdentity(t)}`,
+  }));
   const cs = custom.value.map((c: ShoppingCustomItem) => ({ ...c, _type: 'custom' as const, _key: `c-${c.id}` }));
   return [...ts, ...cs].sort((a, b) => (a.checked ? 1 : 0) - (b.checked ? 1 : 0));
 });
 
 const addCustomItem = async () => {
-  if (!newItem.value.trim()) return;
+  if (!newItem.value.trim() || isAddingCustomItem.value) return;
+  isAddingCustomItem.value = true;
   const itemName = newItem.value.trim();
   const qty = newQty.value || 0;
   newItem.value = "";
@@ -143,9 +170,10 @@ const addCustomItem = async () => {
       method: "POST",
       body: { action: "add", item: itemName, quantity: qty },
     });
-    // Optimistic: add to local list
-    if (shoppingData.value) shoppingData.value.custom.push(item);
+    // Realtime and HTTP response may arrive in any order: upsert avoids duplicates.
+    upsertCustomItem(item);
   } catch { toast.show("Erreur lors de l'ajout"); }
+  finally { isAddingCustomItem.value = false; }
 };
 
 let saveTimer: ReturnType<typeof setTimeout>;
@@ -159,20 +187,24 @@ const saveTotals = () => {
 const toggleItem = (item: any) => {
   if (!shoppingData.value) return;
   if (item._type === 'total') {
-    const original = shoppingData.value.totals.find((t: ShoppingTotalItem) => t.item === item.item);
+    const original = shoppingData.value.totals.find((t: ShoppingTotalItem) => totalIdentity(t) === totalIdentity(item));
     if (original) { original.checked = !original.checked; saveTotals(); }
   } else {
-    const original = shoppingData.value.custom.find((c: ShoppingCustomItem) => c.id === item.id);
+    const id = String(item.id || "");
+    if (!id || pendingCustomToggleIds.has(id)) return;
+    const original = shoppingData.value.custom.find((c: ShoppingCustomItem) => sameId(c.id, id));
     if (!original) return;
+    pendingCustomToggleIds.add(id);
     original.checked = !original.checked;
     $fetch("/api/shopping/custom", { method: "POST", body: { action: "toggle", id: original.id, checked: original.checked } })
-      .catch(() => { original.checked = !original.checked; });
+      .catch(() => { original.checked = !original.checked; })
+      .finally(() => { pendingCustomToggleIds.delete(id); });
   }
 };
 
 const deleteCustomItem = (item: any) => {
   if (!shoppingData.value) return;
-  const i = shoppingData.value.custom.findIndex((c: ShoppingCustomItem) => c.id === item.id);
+  const i = shoppingData.value.custom.findIndex((c: ShoppingCustomItem) => sameId(c.id, item.id));
   if (i === -1) return;
   const [removed] = shoppingData.value.custom.splice(i, 1);
   $fetch("/api/shopping/custom", { method: "POST", body: { action: "delete", id: removed.id } })
@@ -227,22 +259,18 @@ const setupShoppingRealtime = () => {
           return;
         }
 
-        const idx = shoppingData.value.custom.findIndex((c: any) => c.id === incoming.id);
-
         if (payload.eventType === "DELETE") {
-          if (idx !== -1) shoppingData.value.custom.splice(idx, 1);
+          removeCustomItemById(incoming.id);
           return;
         }
 
         if (payload.eventType === "INSERT") {
-          if (idx === -1) shoppingData.value.custom.push(incoming);
-          else shoppingData.value.custom[idx] = incoming;
+          upsertCustomItem(incoming as ShoppingCustomItem);
           return;
         }
 
         if (payload.eventType === "UPDATE") {
-          if (idx !== -1) shoppingData.value.custom[idx] = incoming;
-          else shoppingData.value.custom.push(incoming);
+          upsertCustomItem(incoming as ShoppingCustomItem);
           return;
         }
 
