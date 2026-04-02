@@ -86,8 +86,12 @@
                 class="w-full rounded-lg border-slate-200 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200" />
               <input v-model.number="ing.quantity" type="number" step="any" placeholder="Qté"
                 class="w-20 rounded-lg border-slate-200 bg-white px-3 py-2 text-sm" />
-              <input v-model="ing.unit" type="text" placeholder="Unité"
-                class="w-20 rounded-lg border-slate-200 bg-white px-3 py-2 text-sm" />
+              <select v-model="ing.unit" class="w-24 rounded-lg border-slate-200 bg-white px-2 py-2 text-sm">
+                <option value="">Unité</option>
+                <option v-for="unit in ingredientUnits" :key="unit" :value="unit">
+                  {{ unit }}
+                </option>
+              </select>
               <button type="button" @click="form.ingredients.splice(i, 1)" class="p-2 text-slate-400 hover:text-rose-500">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m1 0H8m8 0l-1-3H9L8 7" /></svg>
               </button>
@@ -159,6 +163,25 @@ const form = reactive({
 const statusMsg = ref("");
 const statusClass = ref("");
 const submitting = ref(false);
+const ingredientUnits = [
+  "g",
+  "kg",
+  "ml",
+  "cl",
+  "l",
+  "c. a cafe",
+  "c. a soupe",
+  "pincée",
+  "tranche",
+  "botte",
+  "sachet",
+  "verre",
+  "zeste",
+  "boîte",
+  "gousse",
+  "feuille",
+  "poignée",
+];
 
 const addIngredient = () => form.ingredients.push({ item: "", quantity: "", unit: "" });
 const addStep = () => form.steps.push("");
