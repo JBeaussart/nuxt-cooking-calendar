@@ -16,7 +16,18 @@ export function isAdmin(userRole: string): boolean {
 }
 
 export async function getServerUser(event: H3Event) {
-  const user = await serverSupabaseUser(event);
+  let user = null as Awaited<ReturnType<typeof serverSupabaseUser>> | null;
+  try {
+    user = await serverSupabaseUser(event);
+  } catch (e: any) {
+    // Nuxt Supabase server helpers throw when session cookie is missing.
+    // We want callers to consistently get a 401 (not a 500) in that case.
+    const msg = String(e?.message || "");
+    if (msg.includes("Auth session missing")) {
+      return { user: null, profile: null, supabase: null, userRole: "free" };
+    }
+    throw e;
+  }
   if (!user) return { user: null, profile: null, supabase: null, userRole: "free" };
 
   const supabase = await serverSupabaseClient(event);

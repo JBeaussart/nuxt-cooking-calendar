@@ -76,12 +76,6 @@
               <span class="text-sm font-medium transition block" :class="item.checked ? 'line-through text-slate-400' : 'text-slate-800'">
                 {{ item.item }}
                 <span v-if="item.quantity" class="text-slate-500 ml-1">× {{ item.quantity }} {{ item.unit || '' }}</span>
-                <span
-                v-if="item._type === 'total' && Array.isArray(item.recipes) && item.recipes.length"
-                class="text-slate-400 ml-1"
-              >
-                ({{ item.recipes.join(", ") }})
-              </span>
               </span>
             </div>
             <span v-if="item._type === 'custom'" class="text-xs font-medium text-slate-400 mr-1">ajouté</span>
