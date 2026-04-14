@@ -33,10 +33,10 @@
         >
           <!-- Bandeau jour -->
           <div
-            class="rounded-t-xl border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white px-2 py-1.5 sm:px-2.5 sm:py-2"
+            class="rounded-t-xl border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white px-2.5 py-2 sm:px-3 sm:py-2.5"
           >
             <p
-              class="truncate text-[9px] font-semibold uppercase tracking-[0.14em] text-sage-600 sm:text-[10px]"
+              class="truncate text-base font-bold uppercase tracking-[0.12em] text-sage-700 sm:text-lg md:text-xl"
             >
               {{ entry.day }}
             </p>
@@ -156,7 +156,7 @@
         </article>
       </div>
 
-      <div class="mt-6 flex flex-col items-center gap-2.5 pb-4 sm:mt-8 sm:pb-0">
+      <div class="mt-6 flex justify-center pb-4 sm:mt-8 sm:pb-0">
         <button
           type="button"
           class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-red-200 hover:bg-red-50 hover:text-red-700 sm:text-sm"
@@ -164,9 +164,6 @@
         >
           Réinitialiser le planning
         </button>
-        <p class="text-center text-xs text-slate-400">
-          Astuce : déplacez un repas avec les flèches sur la carte.
-        </p>
       </div>
       </template>
 
