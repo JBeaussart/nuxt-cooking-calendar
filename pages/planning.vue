@@ -33,24 +33,13 @@
         >
           <!-- Bandeau jour -->
           <div
-            class="flex items-center justify-between gap-1.5 rounded-t-xl border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white px-2 py-1.5 sm:px-2.5 sm:py-2"
+            class="rounded-t-xl border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white px-2 py-1.5 sm:px-2.5 sm:py-2"
           >
-            <div class="min-w-0">
-              <p class="truncate text-[9px] font-semibold uppercase tracking-wider text-sage-600 sm:text-[10px]">
-                {{ dayMeta(entry.day).short }}
-              </p>
-              <p class="truncate text-xs font-bold capitalize text-slate-900 sm:text-sm">
-                {{ entry.day }}
-              </p>
-            </div>
-            <span
-              class="shrink-0 rounded-full px-1.5 py-px text-[9px] font-semibold uppercase tracking-wide sm:px-2 sm:text-[10px]"
-              :class="entry.recipe
-                ? 'bg-sage-100 text-sage-800'
-                : 'bg-amber-50 text-amber-800'"
+            <p
+              class="truncate text-[9px] font-semibold uppercase tracking-[0.14em] text-sage-600 sm:text-[10px]"
             >
-              {{ entry.recipe ? "Prêt" : "Libre" }}
-            </span>
+              {{ entry.day }}
+            </p>
           </div>
 
           <!-- Avec recette -->
@@ -77,10 +66,10 @@
               </div>
             </NuxtLink>
 
-            <div class="mt-auto flex flex-wrap items-center justify-between gap-1 rounded-b-xl border-t border-slate-100 bg-slate-50/40 px-1.5 py-1 sm:px-2">
+            <div class="mt-auto flex flex-wrap items-center gap-1 rounded-b-xl border-t border-slate-100 bg-slate-50/40 px-1.5 py-1 sm:px-2">
               <NuxtLink
                 :to="`/recipes/${entry.recipe.id}`"
-                class="inline-flex min-h-[40px] min-w-0 flex-1 items-center justify-center gap-1.5 rounded-lg px-2 text-xs font-semibold text-slate-700 transition hover:bg-white hover:text-sage-700 sm:flex-none sm:justify-start sm:text-[13px]"
+                class="inline-flex min-h-[40px] min-w-0 items-center justify-start gap-1.5 rounded-lg px-2 text-xs font-semibold text-slate-700 transition hover:bg-white hover:text-sage-700 sm:text-[13px]"
               >
                 <svg class="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -90,7 +79,7 @@
                 <span class="sm:hidden">Voir</span>
               </NuxtLink>
 
-              <div class="flex items-center gap-1">
+              <div class="ml-auto flex shrink-0 items-center gap-1">
                 <div class="relative">
                   <button
                     type="button"
@@ -248,20 +237,6 @@ const { getOptimizedImageUrl } = useImageOptimizer();
 const planning = usePlanningStore();
 
 const days = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
-
-const dayShortLabels: Record<string, string> = {
-  lundi: "Lun.",
-  mardi: "Mar.",
-  mercredi: "Mer.",
-  jeudi: "Jeu.",
-  vendredi: "Ven.",
-  samedi: "Sam.",
-  dimanche: "Dim.",
-};
-
-function dayMeta(day: string) {
-  return { short: dayShortLabels[day] ?? day };
-}
 
 if (!planning.loaded) {
   const { data } = await useFetch<
