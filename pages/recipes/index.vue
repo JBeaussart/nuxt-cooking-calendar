@@ -120,7 +120,7 @@
       </div>
 
       <!-- Grille -->
-      <div class="grid grid-cols-3 gap-1.5 sm:gap-3 md:gap-6">
+      <div class="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 md:gap-6">
         <template v-if="filteredRecipes.length === 0">
           <div class="col-span-full text-center py-12">
             <p v-if="recipes.length === 0" class="text-lg text-slate-600 mb-6">La cuisine est encore vide, le chef n'est pas passé par là 😉</p>
@@ -141,10 +141,10 @@
         <div
           v-for="r in filteredRecipes"
           :key="r.id"
-          class="group flex aspect-square w-full max-w-full min-w-0 cursor-pointer flex-col overflow-hidden rounded-xl bg-white shadow-[0_6px_24px_rgba(15,23,42,0.06)] transition-shadow duration-200 hover:shadow-[0_10px_32px_rgba(15,23,42,0.1)] sm:rounded-[18px]"
+          class="group grid aspect-square w-full max-w-full min-w-0 cursor-pointer grid-rows-[minmax(0,7fr)_minmax(0,3fr)] overflow-hidden rounded-xl bg-white shadow-[0_6px_24px_rgba(15,23,42,0.06)] transition-shadow duration-200 hover:shadow-[0_10px_32px_rgba(15,23,42,0.1)] sm:rounded-[18px]"
           @click="handleCardClick(r)"
         >
-          <div class="relative min-h-0 w-full flex-1 overflow-hidden bg-slate-100">
+          <div class="relative min-h-0 min-w-0 overflow-hidden bg-slate-100">
             <img
               v-if="!imageLoadFailed[r.id]"
               :src="recipeCardImageSrc(r)"
@@ -184,9 +184,9 @@
             </button>
           </div>
 
-          <div class="flex shrink-0 flex-col px-1.5 pb-1.5 pt-1 sm:px-3 sm:pb-3 sm:pt-2.5">
-            <div class="flex items-start justify-between gap-0.5 sm:gap-2">
-              <h3 class="min-w-0 flex-1 font-bold leading-tight text-slate-900 line-clamp-2 text-[10px] tracking-tight sm:text-xs md:text-[15px] md:leading-snug">
+          <div class="flex min-h-0 min-w-0 flex-col justify-center overflow-hidden px-1.5 pb-1.5 pt-1 sm:px-3 sm:pb-3 sm:pt-2.5">
+            <div class="flex min-h-0 items-start justify-between gap-0.5 sm:gap-2">
+              <h3 class="min-h-0 min-w-0 flex-1 font-bold leading-tight text-slate-900 line-clamp-2 text-[10px] tracking-tight sm:text-xs md:text-[15px] md:leading-snug">
                 {{ r.title }}
               </h3>
               <span
