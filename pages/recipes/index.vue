@@ -186,18 +186,18 @@
 
           <div class="flex min-h-0 min-w-0 flex-col justify-center overflow-hidden px-1.5 pb-1.5 pt-1 sm:px-3 sm:pb-3 sm:pt-2.5">
             <div class="flex min-h-0 items-start justify-between gap-0.5 sm:gap-2">
-              <h3 class="min-h-0 min-w-0 flex-1 font-bold leading-tight text-slate-900 line-clamp-2 text-[10px] tracking-tight sm:text-xs md:text-[15px] md:leading-snug">
+              <h3 class="min-h-0 min-w-0 flex-1 font-bold leading-tight text-slate-900 line-clamp-2 text-[12px] tracking-tight sm:text-xs md:text-[15px] md:leading-snug">
                 {{ r.title }}
               </h3>
               <span
                 v-if="formatCookTime(r)"
-                class="shrink-0 pt-0.5 text-[9px] font-bold tabular-nums leading-none text-slate-900 sm:text-xs md:text-[15px]"
+                class="shrink-0 pt-0.5 text-[10px] font-bold tabular-nums leading-none text-slate-900 sm:text-xs md:text-[15px]"
               >
                 {{ formatCookTime(r) }}
               </span>
             </div>
             <div class="mt-0.5 flex min-h-0 items-center justify-between gap-0.5 sm:mt-1 sm:gap-2">
-              <p class="min-w-0 truncate text-[9px] font-normal text-slate-500 sm:text-sm">
+              <p class="min-w-0 truncate text-[10px] font-normal text-slate-500 sm:text-sm">
                 {{ recipeCardSubtitle(r) }}
               </p>
               <svg
