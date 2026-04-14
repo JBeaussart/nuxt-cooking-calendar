@@ -120,7 +120,7 @@
       </div>
 
       <!-- Grille -->
-      <div class="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 md:gap-6">
+      <div class="grid grid-cols-3 gap-1.5 sm:gap-3 md:gap-6">
         <template v-if="filteredRecipes.length === 0">
           <div class="col-span-full text-center py-12">
             <p v-if="recipes.length === 0" class="text-lg text-slate-600 mb-6">La cuisine est encore vide, le chef n'est pas passé par là 😉</p>
@@ -141,10 +141,10 @@
         <div
           v-for="r in filteredRecipes"
           :key="r.id"
-          class="group flex h-full w-full max-w-full min-w-0 cursor-pointer flex-col overflow-hidden rounded-[18px] bg-white shadow-[0_6px_24px_rgba(15,23,42,0.06)] transition-shadow duration-200 hover:shadow-[0_10px_32px_rgba(15,23,42,0.1)]"
+          class="group flex aspect-square w-full max-w-full min-w-0 cursor-pointer flex-col overflow-hidden rounded-xl bg-white shadow-[0_6px_24px_rgba(15,23,42,0.06)] transition-shadow duration-200 hover:shadow-[0_10px_32px_rgba(15,23,42,0.1)] sm:rounded-[18px]"
           @click="handleCardClick(r)"
         >
-          <div class="relative aspect-[5/4] w-full shrink-0 overflow-hidden bg-slate-100">
+          <div class="relative min-h-0 w-full flex-1 overflow-hidden bg-slate-100">
             <img
               v-if="!imageLoadFailed[r.id]"
               :src="recipeCardImageSrc(r)"
@@ -156,43 +156,53 @@
             />
             <div
               v-else
-              class="absolute inset-0 flex items-center justify-center text-5xl select-none"
+              class="absolute inset-0 flex items-center justify-center text-3xl select-none sm:text-5xl"
               :class="r.salt === false ? 'bg-amber-50' : 'bg-sage-50'"
             >
               {{ r.salt === false ? '🍰' : '🧂' }}
             </div>
 
+            <span
+              v-if="r.maman"
+              class="absolute left-1 top-1 z-[1] flex h-6 w-6 items-center justify-center rounded-full bg-white/95 text-pink-500 shadow-md ring-1 ring-pink-100 sm:left-2 sm:top-2 sm:h-8 sm:w-8"
+              title="Recette Ninette"
+            >
+              <svg class="h-3 w-3 sm:h-4 sm:w-4" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true">
+                <path d="M226.5 92.9c14.3 42.9-.3 86.2-32.6 96.8s-70.1-15.6-84.4-58.5.3-86.2 32.6-96.8 70.1 15.6 84.4 58.5zM100.4 198.6c18.9 32.4 14.3 70.1-10.2 84.1s-59.7-.9-78.5-33.3S-2.7 179.3 21.8 165.3s59.7.9 78.6 33.3zM69.2 401.2C121.6 259.9 214.7 224 256 224s134.4 35.9 186.8 177.2c3.6 9.7 5.2 20.1 5.2 30.5v1.6c0 25.8-20.9 46.7-46.7 46.7-11.5 0-22.9-1.4-34-4.2l-88-22c-15.3-3.8-31.3-3.8-46.6 0l-88 22c-11.1 2.8-22.5 4.2-34 4.2-25.8 0-46.7-20.9-46.7-46.7v-1.6c0-10.4 1.6-20.8 5.2-30.5zM324.5 92.9c14.3-42.9 51.7-73.1 84.4-58.5s46.9 53.9 32.6 96.8-51.7 73.1-84.4 58.5-46.9-53.9-32.6-96.8zM400.1 165.3c24.5 14 29.1 51.7 10.2 84.1s-54 48.2-78.5 33.3-29.1-51.7-10.2-84.1 54-48.2 78.5-33.3z" />
+              </svg>
+            </span>
+
             <button
               v-if="dayParam || slotParam"
               type="button"
-              class="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-sage-500 shadow-md backdrop-blur-sm transition-all hover:bg-sage-300 hover:text-white"
+              class="absolute right-1 top-1 z-[1] flex h-7 w-7 items-center justify-center rounded-full bg-white/95 text-sage-500 shadow-md backdrop-blur-sm transition-all hover:bg-sage-300 hover:text-white sm:right-2 sm:top-2 sm:h-9 sm:w-9 md:h-10 md:w-10"
               @click.stop="assignRecipe(r)"
             >
-              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <svg class="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16M20 12H4" />
               </svg>
             </button>
           </div>
 
-          <div class="flex flex-col px-4 pb-4 pt-3.5">
-            <div class="flex items-start justify-between gap-3">
-              <h3 class="min-w-0 flex-1 font-bold leading-snug text-slate-900 line-clamp-2 text-[15px] tracking-tight">
+          <div class="flex shrink-0 flex-col px-1.5 pb-1.5 pt-1 sm:px-3 sm:pb-3 sm:pt-2.5">
+            <div class="flex items-start justify-between gap-0.5 sm:gap-2">
+              <h3 class="min-w-0 flex-1 font-bold leading-tight text-slate-900 line-clamp-2 text-[10px] tracking-tight sm:text-xs md:text-[15px] md:leading-snug">
                 {{ r.title }}
               </h3>
               <span
                 v-if="formatCookTime(r)"
-                class="shrink-0 pt-0.5 text-[15px] font-bold tabular-nums text-slate-900"
+                class="shrink-0 pt-0.5 text-[9px] font-bold tabular-nums leading-none text-slate-900 sm:text-xs md:text-[15px]"
               >
                 {{ formatCookTime(r) }}
               </span>
             </div>
-            <div class="mt-1 flex items-center justify-between gap-2">
-              <p class="min-w-0 truncate text-sm font-normal text-slate-500">
+            <div class="mt-0.5 flex min-h-0 items-center justify-between gap-0.5 sm:mt-1 sm:gap-2">
+              <p class="min-w-0 truncate text-[9px] font-normal text-slate-500 sm:text-sm">
                 {{ recipeCardSubtitle(r) }}
               </p>
               <svg
                 v-if="!dayParam && !slotParam"
-                class="h-4 w-4 shrink-0 text-slate-300 opacity-0 transition-opacity group-hover:opacity-100"
+                class="hidden h-3 w-3 shrink-0 text-slate-300 opacity-0 transition-opacity group-hover:opacity-100 sm:block sm:h-4 sm:w-4"
                 fill="none" stroke="currentColor" viewBox="0 0 24 24"
               >
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -256,10 +266,8 @@ const formatCookTime = (r: { cook_minutes?: number; duration_minutes?: number; t
   return "";
 };
 
-const recipeCardSubtitle = (r: { maman?: boolean; salt?: boolean }) => {
-  if (r.maman) return "Ninette";
-  return r.salt === false ? "Sucré" : "Salé";
-};
+/** Salé / Sucré (l’icône pastille indique Ninette quand `maman`) */
+const recipeCardSubtitle = (r: { salt?: boolean }) => (r.salt === false ? "Sucré" : "Salé");
 
 const saltFilters = [
   { value: "all", label: "Tous" },
