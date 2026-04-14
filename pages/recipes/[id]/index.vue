@@ -4,7 +4,7 @@
       <div v-if="recipe">
         <!-- Navigation -->
         <div class="mb-6 flex items-center justify-between">
-          <NuxtLink to="/recipes" class="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm ring-1 ring-slate-200 hover:bg-sage-50 hover:text-sage-300 transition">
+          <NuxtLink :to="recipesIndexHref" class="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm ring-1 ring-slate-200 hover:bg-sage-50 hover:text-sage-300 transition">
             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
             Retour
           </NuxtLink>
@@ -122,6 +122,16 @@ const { getOptimizedImageUrl } = useImageOptimizer();
 const planning = usePlanningStore();
 const id = route.params.id as string;
 const dayParam = computed(() => (route.query.day as string || "").toLowerCase());
+const slotParam = computed(() => (route.query.slot as string || "").toLowerCase());
+
+/** Conserve ?day= / ?slot= pour retrouver le mode « assigner » sur la liste des recettes */
+const recipesIndexHref = computed(() => {
+  const q = new URLSearchParams();
+  if (dayParam.value) q.set("day", dayParam.value);
+  if (slotParam.value) q.set("slot", slotParam.value);
+  const s = q.toString();
+  return s ? `/recipes?${s}` : "/recipes";
+});
 
 const { data: recipe } = await useFetch<any>(`/api/recipes/${id}`).catch(() => ({ data: ref(null) }));
 
