@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-sage-50/30 via-sage-50/20 to-slate-50 pb-20">
+  <div class="min-h-screen pb-20">
     <div class="mx-auto max-w-2xl px-4 py-8 sm:py-12">
       <div class="mb-6 flex items-center justify-between">
         <NuxtLink to="/recipes" class="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm ring-1 ring-slate-200 hover:bg-sage-50 hover:text-sage-300 transition">
@@ -10,7 +10,10 @@
         </NuxtLink>
       </div>
 
-      <h1 class="text-2xl font-bold text-slate-900 mb-6">Nouvelle recette</h1>
+      <PageHeader
+        align="left"
+        title="Nouvelle recette"
+      />
 
       <!-- Limite atteinte -->
       <div v-if="limitReached" class="rounded-xl border p-5 text-center" style="background-color: #E0F7FA; border-color: #B2EBF2;">

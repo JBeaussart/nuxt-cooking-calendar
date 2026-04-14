@@ -1,10 +1,10 @@
 <template>
-  <div class="min-h-screen bg-sage-50 pb-24">
+  <div class="min-h-screen pb-24">
     <div class="max-w-3xl mx-auto px-4 py-10 space-y-10">
-      <header>
-        <h1 class="text-3xl font-bold text-gray-900 mb-1">Mon compte</h1>
-        <p class="text-gray-600">Vos informations et paramètres essentiels</p>
-      </header>
+      <PageHeader
+        title="Mon compte"
+        description="Vos informations et paramètres essentiels"
+      />
 
       <div v-if="pending" class="text-center py-10 text-slate-400">Chargement...</div>
 

@@ -1,10 +1,10 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-sage-50/30 via-sage-50/20 to-slate-50">
+  <div class="min-h-screen">
     <div class="mx-auto max-w-3xl px-4 py-12">
-      <div class="mb-8 text-center">
-        <h1 class="text-4xl font-bold text-slate-900 mb-2">Menu de réception</h1>
-        <p class="text-slate-600">Composez votre menu parfait</p>
-      </div>
+      <PageHeader
+        title="Menu de réception"
+        description="Composez votre menu parfait"
+      />
 
       <div v-if="pending" class="text-center py-20 text-slate-400">Chargement...</div>
       <div v-else class="grid grid-cols-1 gap-6 pb-16 sm:pb-0">

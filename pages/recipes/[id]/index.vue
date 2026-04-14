@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-sage-50/30 via-sage-50/20 to-slate-50 pb-20">
+  <div class="min-h-screen pb-20">
     <div class="mx-auto max-w-4xl px-4 py-8 sm:py-12">
       <div v-if="recipe">
         <!-- Navigation -->
@@ -56,7 +56,9 @@
 
             <!-- Titre -->
             <div class="absolute bottom-0 left-0 right-0 p-6 sm:p-8">
-              <h1 class="text-3xl sm:text-4xl font-bold text-white drop-shadow-md">{{ recipe.title }}</h1>
+              <h1 class="text-3xl font-bold tracking-tight text-white drop-shadow-md sm:text-4xl lg:text-5xl">
+                {{ recipe.title }}
+              </h1>
             </div>
           </div>
 

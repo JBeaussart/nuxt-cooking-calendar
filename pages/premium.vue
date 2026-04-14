@@ -1,10 +1,14 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-sage-50/30 via-sage-50/20 to-slate-50 flex items-center justify-center px-4 py-12">
+  <div class="min-h-screen flex items-center justify-center px-4 py-12">
     <div class="w-full max-w-lg text-center">
       <div class="bg-white rounded-3xl shadow-xl p-8 sm:p-12">
-        <span class="text-5xl mb-6 block">⭐</span>
-        <h1 class="text-3xl font-bold text-slate-900 mb-4">Passez à Premium</h1>
-        <p class="text-slate-600 mb-8">Débloquez toutes les fonctionnalités pour profiter pleinement de Cooking Calendar.</p>
+        <span class="mb-6 block text-5xl">⭐</span>
+        <PageHeader
+          no-margin
+          class="mb-8"
+          title="Passez à Premium"
+          description="Débloquez toutes les fonctionnalités pour profiter pleinement de Cooking Calendar."
+        />
 
         <div class="space-y-4 text-left mb-8">
           <div class="flex items-center gap-3">

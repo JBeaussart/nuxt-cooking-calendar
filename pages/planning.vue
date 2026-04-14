@@ -1,18 +1,10 @@
 <template>
-  <div class="min-h-screen w-full bg-[#f7f4ef]">
+  <div class="min-h-screen w-full">
     <div class="mx-auto max-w-7xl overflow-x-clip px-3 pb-24 pt-8 sm:px-4 sm:pb-16 sm:pt-10">
-      <!-- En-tête -->
-      <header class="mb-5 text-center sm:mb-6">
-        <p class="mb-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-sage-600/90 sm:text-xs">
-          Planning
-        </p>
-        <h1 class="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-          Ma semaine
-        </h1>
-        <p class="mx-auto mt-1.5 max-w-lg text-xs text-slate-600 sm:text-sm">
-          Organisez vos repas jour par jour. Touchez une case vide pour choisir une recette.
-        </p>
-      </header>
+      <PageHeader
+        title="Ma semaine"
+        description="Organisez vos repas jour par jour. Touchez une case vide pour choisir une recette."
+      />
 
       <div
         v-if="planning.pending && !planning.loaded"

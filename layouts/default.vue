@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="min-h-dvh bg-[#f7f4ef]">
     <AppNavbar />
     <main>
       <slot />

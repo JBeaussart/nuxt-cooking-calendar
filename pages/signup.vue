@@ -1,11 +1,13 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-sage-50/30 via-sage-50/20 to-slate-50 flex items-center justify-center px-4 py-12">
+  <div class="min-h-screen flex items-center justify-center px-4 py-12">
     <div class="w-full max-w-md">
       <div class="bg-white rounded-2xl shadow-xl p-8">
-        <div class="text-center mb-8">
-          <h1 class="text-3xl font-bold text-slate-900 mb-2">Créer un compte</h1>
-          <p class="text-slate-600">Rejoignez Cooking Calendar</p>
-        </div>
+        <PageHeader
+          no-margin
+          class="mb-8"
+          title="Créer un compte"
+          description="Rejoignez Cooking Calendar"
+        />
 
         <form @submit.prevent="handleSignup" class="space-y-6">
           <div>

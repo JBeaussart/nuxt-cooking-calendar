@@ -1,19 +1,19 @@
 <template>
-  <div class="min-h-screen w-full overflow-x-hidden bg-[#f7f4ef]">
+  <div class="min-h-screen w-full overflow-x-hidden">
     <div class="w-full max-w-6xl mx-auto px-4 pt-12 pb-32">
-      <!-- Header -->
-      <div class="mb-8 text-center">
-        <div class="flex items-center justify-center gap-3 mb-2">
-          <h1 class="text-4xl font-bold text-slate-900">Mes recettes</h1>
+      <PageHeader
+        title="Mes recettes"
+        description="Découvrez et gérez votre collection"
+      >
+        <template #after-title>
           <span
             v-if="isFree && recipes.length === 20"
-            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200"
+            class="inline-flex max-w-full items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700"
           >
             20/20 recettes – Limite atteinte
           </span>
-        </div>
-        <p class="text-slate-600">Découvrez et gérez votre collection</p>
-      </div>
+        </template>
+      </PageHeader>
 
       <!-- Bannière limite -->
       <div

@@ -1,10 +1,10 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-sage-50/30 via-sage-50/20 to-slate-50">
+  <div class="min-h-screen">
     <div class="mx-auto max-w-3xl px-4 py-12">
-      <div class="mb-8 text-center">
-        <h1 class="text-4xl font-bold text-slate-900 mb-2">Ma liste</h1>
-        <p class="text-slate-600">N'oubliez rien pour vos recettes !</p>
-      </div>
+      <PageHeader
+        title="Ma liste"
+        description="N'oubliez rien pour vos recettes !"
+      />
 
       <div class="mb-8 space-y-6">
         <!-- Formulaire ajout -->

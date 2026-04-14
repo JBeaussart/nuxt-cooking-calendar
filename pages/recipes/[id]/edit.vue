@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-sage-50/30 via-sage-50/20 to-slate-50 pb-20">
+  <div class="min-h-screen pb-20">
     <div class="mx-auto max-w-2xl px-4 py-8 sm:py-12">
       <div class="mb-6 flex items-center justify-between">
         <NuxtLink :to="`/recipes/${id}`" class="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm ring-1 ring-slate-200 hover:bg-sage-50 hover:text-sage-300 transition">
@@ -8,7 +8,10 @@
         </NuxtLink>
       </div>
 
-      <h1 class="text-2xl font-bold text-slate-900 mb-6">Modifier la recette</h1>
+      <PageHeader
+        align="left"
+        title="Modifier la recette"
+      />
 
       <div v-if="pending" class="text-center py-10 text-slate-400">Chargement...</div>
 

@@ -1,13 +1,18 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-sage-50/30 via-sage-50/20 to-slate-50 flex items-center justify-center px-4">
+  <div class="min-h-screen flex items-center justify-center px-4">
     <div class="text-center max-w-lg">
-      <div class="mb-8">
+      <div class="mb-6">
         <span class="text-6xl">🍽️</span>
       </div>
-      <h1 class="text-4xl font-bold text-slate-900 mb-4">Cooking Calendar</h1>
-      <p class="text-lg text-slate-600 mb-10">
-        Planifiez vos repas, gérez vos recettes et générez vos listes de courses automatiquement.
-      </p>
+      <div class="mb-10">
+        <PageHeader no-margin title="Cooking Calendar">
+          <template #description>
+            <p class="mx-auto mt-1.5 max-w-lg text-base text-slate-600 sm:text-lg">
+              Planifiez vos repas, gérez vos recettes et générez vos listes de courses automatiquement.
+            </p>
+          </template>
+        </PageHeader>
+      </div>
       <div class="flex flex-col sm:flex-row gap-4 justify-center">
         <NuxtLink
           to="/login"
