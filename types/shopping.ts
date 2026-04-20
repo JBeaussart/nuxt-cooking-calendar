@@ -14,7 +14,22 @@ export interface ShoppingCustomItem {
   checked: boolean;
 }
 
+export interface ShoppingRecipeIngredient {
+  item: string;
+  quantity?: number;
+  unit?: string;
+}
+
+export interface ShoppingRecipeEntry {
+  day: string;
+  recipeId: string;
+  title: string;
+  image?: string;
+  ingredients: ShoppingRecipeIngredient[];
+}
+
 export interface ShoppingDataResponse {
   totals: ShoppingTotalItem[];
   custom: ShoppingCustomItem[];
+  recipes: ShoppingRecipeEntry[];
 }

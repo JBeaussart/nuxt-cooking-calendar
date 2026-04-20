@@ -53,38 +53,84 @@
       <!-- Liste -->
       <div class="rounded-3xl bg-white shadow-xl shadow-slate-200/50 ring-1 ring-slate-100 mb-20 sm:mb-0">
         <!-- Skeleton pendant le chargement initial -->
-        <template v-if="pending && allItems.length === 0">
-          <ul class="divide-y divide-slate-100">
-            <li v-for="n in 5" :key="n" class="flex items-center gap-4 px-4 py-3">
-              <div class="h-5 w-5 flex-none rounded bg-slate-100 animate-pulse" />
-              <div class="h-4 flex-1 rounded bg-slate-100 animate-pulse" :style="`width: ${50 + n * 8}%`" />
+        <template v-if="pending && !hasAnyDisplayItem">
+          <ul class="divide-y divide-slate-100 px-4 py-3">
+            <li v-for="n in 4" :key="n" class="rounded-xl border border-slate-100 p-4 mb-3 last:mb-0">
+              <div class="h-4 w-40 rounded bg-slate-100 animate-pulse mb-4" />
+              <div class="space-y-2">
+                <div v-for="i in 3" :key="i" class="h-3 rounded bg-slate-100 animate-pulse" :style="`width: ${55 + i * 10}%`" />
+              </div>
             </li>
           </ul>
         </template>
 
-        <TransitionGroup v-else-if="allItems.length > 0" tag="ul" name="list" class="divide-y divide-slate-100 relative">
-          <li v-for="item in sortedItems" :key="item._key"
-            class="flex items-center gap-4 px-4 py-3 transition hover:bg-slate-50 group cursor-pointer"
-            @click="toggleItem(item)">
-            <div class="flex h-5 w-5 flex-none items-center justify-center rounded border-2 transition"
-              :class="item.checked ? 'border-sage-300 bg-sage-300' : 'border-slate-300'">
-              <svg v-if="item.checked" class="h-3 w-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <div class="flex-1 min-w-0">
-              <span class="text-sm font-medium transition block" :class="item.checked ? 'line-through text-slate-400' : 'text-slate-800'">
-                {{ item.item }}
-                <span v-if="item.quantity" class="text-slate-500 ml-1">× {{ item.quantity }} {{ item.unit || '' }}</span>
-              </span>
-            </div>
-            <span v-if="item._type === 'custom'" class="text-xs font-medium text-slate-400 mr-1">ajouté</span>
-            <button v-if="item._type === 'custom'" @click.stop="deleteCustomItem(item)"
-              class="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-500 transition">
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
-          </li>
-        </TransitionGroup>
+        <div v-else-if="hasAnyDisplayItem" class="divide-y divide-slate-100">
+          <section v-for="recipe in recipes" :key="`${recipe.day}-${recipe.recipeId}`" class="px-4 py-4">
+            <h3 class="text-sm font-semibold text-slate-900 capitalize">
+               {{ recipe.title }}
+               <span class="text-slate-500 text-xs">({{ recipe.day }})</span>
+            </h3>
+            <ul class="mt-2 space-y-1.5">
+              <li
+                v-for="(ingredient, index) in recipe.ingredients"
+                :key="`${recipe.day}-${recipe.recipeId}-${ingredient.item}-${ingredient.unit || ''}-${index}`"
+                class="flex items-center gap-3 rounded-lg px-2 py-1.5 transition hover:bg-slate-50 cursor-pointer"
+                @click="toggleRecipeIngredient(ingredient)"
+              >
+                <div
+                  class="flex h-5 w-5 flex-none items-center justify-center rounded border-2 transition"
+                  :class="isRecipeIngredientChecked(ingredient) ? 'border-sage-300 bg-sage-300' : 'border-slate-300'"
+                >
+                  <svg v-if="isRecipeIngredientChecked(ingredient)" class="h-3 w-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <span
+                  class="text-sm transition"
+                  :class="isRecipeIngredientChecked(ingredient) ? 'line-through text-slate-400' : 'text-slate-800'"
+                >
+                  {{ ingredient.item }}
+                  <span v-if="ingredient.quantity" class="text-slate-500 ml-1">
+                    × {{ ingredient.quantity }} {{ ingredient.unit || "" }}
+                  </span>
+                </span>
+              </li>
+            </ul>
+          </section>
+
+          <section v-if="custom.length > 0" class="px-4 py-4">
+            <h3 class="text-sm font-semibold text-slate-900">Ajouts manuels</h3>
+            <ul class="mt-2 space-y-1.5">
+              <li
+                v-for="item in custom"
+                :key="`custom-${item.id}`"
+                class="flex items-center gap-3 rounded-lg px-2 py-1.5 transition hover:bg-slate-50 group"
+              >
+                <button
+                  type="button"
+                  class="flex h-5 w-5 flex-none items-center justify-center rounded border-2 transition"
+                  :class="item.checked ? 'border-sage-300 bg-sage-300' : 'border-slate-300'"
+                  @click="toggleItem(item)"
+                >
+                  <svg v-if="item.checked" class="h-3 w-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                  </svg>
+                </button>
+                <span class="flex-1 text-sm transition" :class="item.checked ? 'line-through text-slate-400' : 'text-slate-800'">
+                  {{ item.item }}
+                  <span v-if="item.quantity" class="text-slate-500 ml-1">× {{ item.quantity }} {{ item.unit || "" }}</span>
+                </span>
+                <button
+                  type="button"
+                  class="text-slate-400 hover:text-rose-500 transition opacity-0 group-hover:opacity-100"
+                  @click="deleteCustomItem(item)"
+                >
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+              </li>
+            </ul>
+          </section>
+        </div>
 
         <!-- État vide -->
         <div v-else class="p-12 text-center">
@@ -104,7 +150,12 @@
 </template>
 
 <script setup lang="ts">
-import type { ShoppingCustomItem, ShoppingDataResponse, ShoppingTotalItem } from "~/types/shopping";
+import type {
+  ShoppingCustomItem,
+  ShoppingDataResponse,
+  ShoppingRecipeIngredient,
+  ShoppingTotalItem,
+} from "~/types/shopping";
 
 definePageMeta({ layout: "default", middleware: "auth" });
 
@@ -122,7 +173,8 @@ const { data: shoppingData, pending, refresh } = useFetch<ShoppingDataResponse>(
 
 const totals = computed(() => shoppingData.value?.totals || []);
 const custom = computed(() => shoppingData.value?.custom || []);
-const allItems = computed(() => [...totals.value, ...custom.value]);
+const recipes = computed(() => shoppingData.value?.recipes || []);
+const hasAnyDisplayItem = computed(() => recipes.value.length > 0 || custom.value.length > 0);
 
 const sameId = (a: unknown, b: unknown) => String(a) === String(b);
 
@@ -139,18 +191,20 @@ const removeCustomItemById = (id: unknown) => {
   if (idx !== -1) shoppingData.value.custom.splice(idx, 1);
 };
 
-const totalIdentity = (item: Pick<ShoppingTotalItem, "item" | "unit">) => `${item.item}__${item.unit || ""}`;
+const totalIdentity = (item: Pick<ShoppingTotalItem, "item" | "unit">) =>
+  `${String(item.item || "").trim().toLowerCase()}__${String(item.unit || "").trim().toLowerCase()}`;
 
-const sortedItems = computed(() => {
-  const ts = totals.value.map((t: ShoppingTotalItem) => ({
-    ...t,
-    _type: 'total' as const,
-    // Include unit in key to avoid vnode collisions on same item name.
-    _key: `t-${totalIdentity(t)}`,
-  }));
-  const cs = custom.value.map((c: ShoppingCustomItem) => ({ ...c, _type: 'custom' as const, _key: `c-${c.id}` }));
-  return [...ts, ...cs].sort((a, b) => (a.checked ? 1 : 0) - (b.checked ? 1 : 0));
+const totalsByIdentity = computed(() => {
+  const map = new Map<string, ShoppingTotalItem>();
+  for (const item of totals.value) map.set(totalIdentity(item), item);
+  return map;
 });
+
+const isRecipeIngredientChecked = (ingredient: ShoppingRecipeIngredient) =>
+  !!totalsByIdentity.value.get(totalIdentity({
+    item: ingredient.item,
+    unit: ingredient.unit || "",
+  }))?.checked;
 
 const addCustomItem = async () => {
   if (!newItem.value.trim() || isAddingCustomItem.value) return;
@@ -180,20 +234,24 @@ const saveTotals = () => {
 
 const toggleItem = (item: any) => {
   if (!shoppingData.value) return;
-  if (item._type === 'total') {
-    const original = shoppingData.value.totals.find((t: ShoppingTotalItem) => totalIdentity(t) === totalIdentity(item));
-    if (original) { original.checked = !original.checked; saveTotals(); }
-  } else {
-    const id = String(item.id || "");
-    if (!id || pendingCustomToggleIds.has(id)) return;
-    const original = shoppingData.value.custom.find((c: ShoppingCustomItem) => sameId(c.id, id));
-    if (!original) return;
-    pendingCustomToggleIds.add(id);
-    original.checked = !original.checked;
-    $fetch("/api/shopping/custom", { method: "POST", body: { action: "toggle", id: original.id, checked: original.checked } })
-      .catch(() => { original.checked = !original.checked; })
-      .finally(() => { pendingCustomToggleIds.delete(id); });
-  }
+  const id = String(item.id || "");
+  if (!id || pendingCustomToggleIds.has(id)) return;
+  const original = shoppingData.value.custom.find((c: ShoppingCustomItem) => sameId(c.id, id));
+  if (!original) return;
+  pendingCustomToggleIds.add(id);
+  original.checked = !original.checked;
+  $fetch("/api/shopping/custom", { method: "POST", body: { action: "toggle", id: original.id, checked: original.checked } })
+    .catch(() => { original.checked = !original.checked; })
+    .finally(() => { pendingCustomToggleIds.delete(id); });
+};
+
+const toggleRecipeIngredient = (ingredient: ShoppingRecipeIngredient) => {
+  if (!shoppingData.value) return;
+  const identity = totalIdentity({ item: ingredient.item, unit: ingredient.unit || "" });
+  const original = shoppingData.value.totals.find((t: ShoppingTotalItem) => totalIdentity(t) === identity);
+  if (!original) return;
+  original.checked = !original.checked;
+  saveTotals();
 };
 
 const deleteCustomItem = (item: any) => {
