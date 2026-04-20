@@ -123,7 +123,7 @@ const route = useRoute();
 const id = route.params.id as string;
 const { isAdmin } = useAuth();
 
-const { data: recipe, pending } = await useFetch<any>(`/api/recipes/${id}`);
+const { data: recipe, pending } = useFetch<any>(`/api/recipes/${id}`);
 
 const form = reactive<{
   title: string;

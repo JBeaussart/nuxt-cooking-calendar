@@ -7,6 +7,7 @@
         <li>
           <NuxtLink
             to="/planning"
+            prefetch
             class="text-sm font-medium px-3 py-2 rounded-lg"
             :class="isActive('/planning') ? 'bg-sage-100 text-sage-700' : 'text-gray-700 hover:bg-gray-100'"
           >
@@ -16,6 +17,7 @@
         <li>
           <NuxtLink
             to="/recipes"
+            prefetch
             class="text-sm font-medium px-3 py-2 rounded-lg"
             :class="isActive('/recipes') ? 'bg-sage-100 text-sage-700' : 'text-gray-700 hover:bg-gray-100'"
           >
@@ -25,6 +27,7 @@
         <li>
           <NuxtLink
             to="/shopping-list"
+            prefetch
             class="text-sm font-medium px-3 py-2 rounded-lg"
             :class="isActive('/shopping-list') ? 'bg-sage-100 text-sage-700' : 'text-gray-700 hover:bg-gray-100'"
           >
@@ -115,7 +118,7 @@
   <nav class="sm:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40">
     <ul v-if="user" class="flex justify-around h-16">
       <li class="flex-1">
-        <NuxtLink to="/planning" class="flex flex-col items-center justify-center h-full text-xs" :class="isActive('/planning') ? 'text-sage-600' : 'text-gray-500'">
+        <NuxtLink to="/planning" prefetch class="flex flex-col items-center justify-center h-full text-xs" :class="isActive('/planning') ? 'text-sage-600' : 'text-gray-500'">
           <svg class="w-5 h-5 mb-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M8 7V3m8 4V3M3 9h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
@@ -123,7 +126,7 @@
         </NuxtLink>
       </li>
       <li class="flex-1">
-        <NuxtLink to="/recipes" class="flex flex-col items-center justify-center h-full text-xs" :class="isActive('/recipes') ? 'text-sage-600' : 'text-gray-500'">
+        <NuxtLink to="/recipes" prefetch class="flex flex-col items-center justify-center h-full text-xs" :class="isActive('/recipes') ? 'text-sage-600' : 'text-gray-500'">
           <svg class="w-5 h-5 mb-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
           </svg>
@@ -131,7 +134,7 @@
         </NuxtLink>
       </li>
       <li class="flex-1">
-        <NuxtLink to="/shopping-list" class="flex flex-col items-center justify-center h-full text-xs" :class="isActive('/shopping-list') ? 'text-sage-600' : 'text-gray-500'">
+        <NuxtLink to="/shopping-list" prefetch class="flex flex-col items-center justify-center h-full text-xs" :class="isActive('/shopping-list') ? 'text-sage-600' : 'text-gray-500'">
           <svg class="w-5 h-5 mb-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" /><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
           </svg>

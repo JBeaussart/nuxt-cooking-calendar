@@ -282,7 +282,9 @@ watch(searchQuery, (val) => {
 });
 
 // Pas de await → page s'affiche immédiatement
-const { data: recipes } = useFetch<any[]>("/api/recipes");
+const { data: recipes } = useFetch<any[]>("/api/recipes", {
+  default: () => [],
+});
 
 // Ingrédients chargés en arrière-plan pour la recherche (ne bloque pas le rendu)
 const ingredientsMap = ref<Map<string, any[]>>(new Map());

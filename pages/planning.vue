@@ -227,11 +227,11 @@ const planning = usePlanningStore();
 
 const days = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
 
-if (!planning.loaded) {
-  const { data } = await useFetch<
-    { day: string; recipe: { id: string; title: string; image?: string } | null }[]
-  >("/api/planning");
-  if (data.value) planning.hydrate(data.value);
+const { data: planningData } = await useFetch<
+  { day: string; recipe: { id: string; title: string; image?: string } | null }[]
+>("/api/planning");
+if (!planning.loaded && planningData.value) {
+  planning.hydrate(planningData.value);
 }
 
 const activeMoveDay = ref<string | null>(null);

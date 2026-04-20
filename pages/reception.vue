@@ -98,7 +98,7 @@ const slots = [
   { key: "dessert", label: "Dessert" },
 ];
 
-const { data: receptionData, pending, refresh } = await useFetch<Record<string, any>>("/api/reception");
+const { data: receptionData, pending, refresh } = useFetch<Record<string, any>>("/api/reception");
 
 const clearSlot = async (slot: string) => {
   await $fetch("/api/reception/assign", { method: "POST", body: { slot, id: null } });

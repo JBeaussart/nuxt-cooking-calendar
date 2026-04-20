@@ -15,8 +15,12 @@
         title="Nouvelle recette"
       />
 
+      <div v-if="countPending" class="rounded-xl border border-slate-200 bg-white p-5 text-center text-sm text-slate-500">
+        Chargement...
+      </div>
+
       <!-- Limite atteinte -->
-      <div v-if="limitReached" class="rounded-xl border p-5 text-center" style="background-color: #E0F7FA; border-color: #B2EBF2;">
+      <div v-else-if="limitReached" class="rounded-xl border p-5 text-center" style="background-color: #E0F7FA; border-color: #B2EBF2;">
         <span class="text-2xl block mb-2">🎉</span>
         <h3 class="text-lg font-semibold text-slate-800 mb-2">Limite de 20 recettes atteinte</h3>
         <p class="text-sm text-slate-700 mb-4">Passez à Premium pour créer des recettes illimitées.</p>
@@ -151,7 +155,7 @@ definePageMeta({ layout: "default", middleware: "auth" });
 const { isAdmin, isFree } = useAuth();
 
 // Vérifier la limite (count seulement, sans charger toutes les recettes)
-const { data: recipesCount } = await useFetch<{ count: number }>("/api/recipes/count");
+const { data: recipesCount, pending: countPending } = useFetch<{ count: number }>("/api/recipes/count");
 const limitReached = computed(() => isFree.value && (recipesCount.value?.count || 0) >= 20);
 
 const form = reactive({

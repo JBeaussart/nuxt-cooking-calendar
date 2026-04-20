@@ -84,7 +84,7 @@ definePageMeta({ layout: "default", middleware: "auth" });
 
 const { logout } = useAuth();
 const supabase = useSupabaseClient();
-const { data: stats, pending } = await useFetch<{
+const { data: stats, pending } = useFetch<{
   recipesCount: number; planningCount: number; email: string; role: string; createdAt: string;
 }>("/api/account/stats");
 

@@ -1,7 +1,11 @@
 <template>
   <div class="min-h-screen pb-20">
     <div class="mx-auto max-w-4xl px-4 py-8 sm:py-12">
-      <div v-if="recipe">
+      <div v-if="pending" class="flex min-h-[50vh] items-center justify-center text-slate-400">
+        Chargement...
+      </div>
+
+      <div v-else-if="recipe">
         <!-- Navigation -->
         <div class="mb-6 flex items-center justify-between">
           <NuxtLink :to="recipesIndexHref" class="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm ring-1 ring-slate-200 hover:bg-sage-50 hover:text-sage-300 transition">
@@ -71,7 +75,7 @@
                 Ingrédients
               </h2>
               <ul class="space-y-3 pl-2">
-                <li v-for="(ing, i) in recipe.ingredients" :key="i" class="flex items-start gap-3 text-slate-700">
+                <li v-for="(ing, i) in recipeIngredients" :key="i" class="flex items-start gap-3 text-slate-700">
                   <div class="mt-1.5 h-1.5 w-1.5 flex-none rounded-full bg-slate-400" />
                   <span class="text-sm font-medium leading-relaxed">
                     <template v-if="typeof ing === 'object' && ing.quantity">
@@ -91,8 +95,8 @@
                 Préparation
               </h2>
               <div class="space-y-8">
-                <div v-for="(step, i) in recipe.steps" :key="i" class="relative pl-8">
-                  <div v-if="i !== recipe.steps.length - 1" class="absolute left-[11px] top-8 bottom-[-32px] w-px bg-slate-200" />
+                <div v-for="(step, i) in recipeSteps" :key="i" class="relative pl-8">
+                  <div v-if="i !== recipeSteps.length - 1" class="absolute left-[11px] top-8 bottom-[-32px] w-px bg-slate-200" />
                   <span class="absolute left-0 top-0 flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-600 ring-4 ring-white">
                     {{ i + 1 }}
                   </span>
@@ -135,7 +139,11 @@ const recipesIndexHref = computed(() => {
   return s ? `/recipes?${s}` : "/recipes";
 });
 
-const { data: recipe } = await useFetch<any>(`/api/recipes/${id}`).catch(() => ({ data: ref(null) }));
+const { data: recipe, pending } = useFetch<any>(`/api/recipes/${id}`, {
+  default: () => null,
+});
+const recipeIngredients = computed(() => recipe.value?.ingredients ?? []);
+const recipeSteps = computed(() => recipe.value?.steps ?? []);
 
 const deleteRecipe = async () => {
   if (!confirm("Supprimer définitivement cette recette ?")) return;
