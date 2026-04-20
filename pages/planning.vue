@@ -7,7 +7,7 @@
       />
 
       <div
-        v-if="planning.pending && !planning.loaded"
+        v-if="isPlanningLoading"
         class="flex min-h-[32vh] flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-slate-200 bg-white/60 py-12 text-slate-500"
       >
         <span class="inline-flex h-8 w-8 animate-pulse rounded-full bg-sage-200/60" />
@@ -227,12 +227,25 @@ const planning = usePlanningStore();
 
 const days = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
 
-const { data: planningData } = await useFetch<
+const { data: planningData, pending: planningFetchPending } = useFetch<
   { day: string; recipe: { id: string; title: string; image?: string } | null }[]
->("/api/planning");
-if (!planning.loaded && planningData.value) {
-  planning.hydrate(planningData.value);
-}
+>("/api/planning", {
+  default: () => [],
+});
+
+watch(
+  planningData,
+  (value) => {
+    if (!planning.loaded && value.length > 0) {
+      planning.hydrate(value);
+    }
+  },
+  { immediate: true },
+);
+
+const isPlanningLoading = computed(
+  () => planningFetchPending.value && !planning.loaded,
+);
 
 const activeMoveDay = ref<string | null>(null);
 
