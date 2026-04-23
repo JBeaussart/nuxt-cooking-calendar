@@ -11,6 +11,15 @@ export default defineEventHandler(async (event) => {
     item: String(i.item || "").trim(),
     unit: String(i.unit || "").trim(),
     checked: !!i.checked,
+    ...(Array.isArray(i.checkedOccurrences)
+      ? {
+          checkedOccurrences: [...new Set(
+            i.checkedOccurrences
+              .map((occurrence) => String(occurrence || "").trim())
+              .filter((occurrence) => !!occurrence),
+          )],
+        }
+      : {}),
     ...(Number.isFinite(Number(i.quantity)) && i.quantity !== null ? { quantity: Number(i.quantity) } : {}),
     ...(Array.isArray(i.recipes)
       ? {

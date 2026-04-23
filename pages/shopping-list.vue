@@ -65,7 +65,7 @@
         </template>
 
         <div v-else-if="hasAnyDisplayItem" class="divide-y divide-slate-100">
-          <section v-for="recipe in recipes" :key="`${recipe.day}-${recipe.recipeId}`" class="px-4 py-4">
+          <section v-for="(recipe, recipeIndex) in recipes" :key="`${recipe.day}-${recipe.recipeId}-${recipeIndex}`" class="px-4 py-4">
             <h3 class="text-sm font-semibold text-slate-900 capitalize">
                {{ recipe.title }}
                <span class="text-slate-500 text-xs">({{ recipe.day }})</span>
@@ -73,21 +73,21 @@
             <ul class="mt-2 space-y-1.5">
               <li
                 v-for="(ingredient, index) in recipe.ingredients"
-                :key="`${recipe.day}-${recipe.recipeId}-${ingredient.item}-${ingredient.unit || ''}-${index}`"
+                :key="`${recipe.day}-${recipe.recipeId}-${recipeIndex}-${ingredient.item}-${ingredient.unit || ''}-${index}`"
                 class="flex items-center gap-3 rounded-lg px-2 py-1.5 transition hover:bg-slate-50 cursor-pointer"
-                @click="toggleRecipeIngredient(ingredient)"
+                @click="toggleRecipeIngredient(recipe, recipeIndex, ingredient, index)"
               >
                 <div
                   class="flex h-5 w-5 flex-none items-center justify-center rounded border-2 transition"
-                  :class="isRecipeIngredientChecked(ingredient) ? 'border-sage-300 bg-sage-300' : 'border-slate-300'"
+                  :class="isRecipeIngredientChecked(recipe, recipeIndex, ingredient, index) ? 'border-sage-300 bg-sage-300' : 'border-slate-300'"
                 >
-                  <svg v-if="isRecipeIngredientChecked(ingredient)" class="h-3 w-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <svg v-if="isRecipeIngredientChecked(recipe, recipeIndex, ingredient, index)" class="h-3 w-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
                 <span
                   class="text-sm transition"
-                  :class="isRecipeIngredientChecked(ingredient) ? 'line-through text-slate-400' : 'text-slate-800'"
+                  :class="isRecipeIngredientChecked(recipe, recipeIndex, ingredient, index) ? 'line-through text-slate-400' : 'text-slate-800'"
                 >
                   {{ ingredient.item }}
                   <span v-if="ingredient.quantity" class="text-slate-500 ml-1">
@@ -200,11 +200,50 @@ const totalsByIdentity = computed(() => {
   return map;
 });
 
-const isRecipeIngredientChecked = (ingredient: ShoppingRecipeIngredient) =>
-  !!totalsByIdentity.value.get(totalIdentity({
+const recipeIngredientOccurrenceId = (
+  recipe: { day: string; recipeId: string },
+  recipeIndex: number,
+  ingredient: ShoppingRecipeIngredient,
+  ingredientIndex: number,
+) =>
+  `${recipe.day}__${recipe.recipeId}__${recipeIndex}__${String(ingredient.item || "").trim().toLowerCase()}__${String(ingredient.unit || "").trim().toLowerCase()}__${ingredientIndex}`;
+
+const recipeOccurrenceIdsByIdentity = computed(() => {
+  const map = new Map<string, string[]>();
+  recipes.value.forEach((recipe, recipeIndex) => {
+    recipe.ingredients.forEach((ingredient, ingredientIndex) => {
+      const identity = totalIdentity({ item: ingredient.item, unit: ingredient.unit || "" });
+      const occurrenceId = recipeIngredientOccurrenceId(recipe, recipeIndex, ingredient, ingredientIndex);
+      const list = map.get(identity) || [];
+      list.push(occurrenceId);
+      map.set(identity, list);
+    });
+  });
+  return map;
+});
+
+const normalizeTotalCheckedState = (total: ShoppingTotalItem) => {
+  if (!Array.isArray(total.checkedOccurrences)) {
+    total.checkedOccurrences = total.checked ? [...(recipeOccurrenceIdsByIdentity.value.get(totalIdentity(total)) || [])] : [];
+  }
+  total.checked = total.checkedOccurrences.length > 0;
+};
+
+const isRecipeIngredientChecked = (
+  recipe: { day: string; recipeId: string },
+  recipeIndex: number,
+  ingredient: ShoppingRecipeIngredient,
+  ingredientIndex: number,
+) => {
+  const total = totalsByIdentity.value.get(totalIdentity({
     item: ingredient.item,
     unit: ingredient.unit || "",
-  }))?.checked;
+  }));
+  if (!total) return false;
+  normalizeTotalCheckedState(total);
+  const occurrenceId = recipeIngredientOccurrenceId(recipe, recipeIndex, ingredient, ingredientIndex);
+  return total.checkedOccurrences?.includes(occurrenceId) || false;
+};
 
 const addCustomItem = async () => {
   if (!newItem.value.trim() || isAddingCustomItem.value) return;
@@ -245,12 +284,23 @@ const toggleItem = (item: any) => {
     .finally(() => { pendingCustomToggleIds.delete(id); });
 };
 
-const toggleRecipeIngredient = (ingredient: ShoppingRecipeIngredient) => {
+const toggleRecipeIngredient = (
+  recipe: { day: string; recipeId: string },
+  recipeIndex: number,
+  ingredient: ShoppingRecipeIngredient,
+  ingredientIndex: number,
+) => {
   if (!shoppingData.value) return;
   const identity = totalIdentity({ item: ingredient.item, unit: ingredient.unit || "" });
   const original = shoppingData.value.totals.find((t: ShoppingTotalItem) => totalIdentity(t) === identity);
   if (!original) return;
-  original.checked = !original.checked;
+  normalizeTotalCheckedState(original);
+  const occurrenceId = recipeIngredientOccurrenceId(recipe, recipeIndex, ingredient, ingredientIndex);
+  const next = new Set(original.checkedOccurrences || []);
+  if (next.has(occurrenceId)) next.delete(occurrenceId);
+  else next.add(occurrenceId);
+  original.checkedOccurrences = [...next];
+  original.checked = original.checkedOccurrences.length > 0;
   saveTotals();
 };
 
@@ -277,13 +327,20 @@ const clearCustomItems = () => {
 
 const checkAll = () => {
   if (!shoppingData.value) return;
-  shoppingData.value.totals.forEach((t: ShoppingTotalItem) => (t.checked = true));
+  shoppingData.value.totals.forEach((t: ShoppingTotalItem) => {
+    const occurrences = recipeOccurrenceIdsByIdentity.value.get(totalIdentity(t)) || [];
+    t.checkedOccurrences = [...occurrences];
+    t.checked = true;
+  });
   saveTotals();
 };
 
 const uncheckAll = () => {
   if (!shoppingData.value) return;
-  shoppingData.value.totals.forEach((t: ShoppingTotalItem) => (t.checked = false));
+  shoppingData.value.totals.forEach((t: ShoppingTotalItem) => {
+    t.checkedOccurrences = [];
+    t.checked = false;
+  });
   saveTotals();
 };
 

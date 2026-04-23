@@ -3,6 +3,7 @@ export interface ShoppingTotalItem {
   quantity?: number;
   unit: string;
   checked: boolean;
+  checkedOccurrences?: string[];
   recipes: string[];
 }
 
