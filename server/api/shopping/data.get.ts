@@ -15,7 +15,10 @@ export default defineEventHandler(async (event) => {
   ]);
 
   const totals: ShoppingTotalItem[] = Array.isArray(savedRow?.data?.items) ? savedRow.data.items : [];
-  const planning = planningRows || [];
+  const daysOrder = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
+  const planning = (planningRows || []).sort(
+    (a: any, b: any) => daysOrder.indexOf(a.day) - daysOrder.indexOf(b.day)
+  );
   const recipeIds = [...new Set(planning.map((row: any) => row.recipe_id).filter(Boolean))];
   const recipes: ShoppingRecipeEntry[] = [];
 

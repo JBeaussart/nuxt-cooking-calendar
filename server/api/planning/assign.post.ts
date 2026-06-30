@@ -12,6 +12,6 @@ export default defineEventHandler(async (event) => {
   if (error) throw createError({ statusCode: 500, statusMessage: error.message });
 
   // Fire-and-forget — client already updated optimistically
-  recomputeShoppingTotals(user.id, supabase).catch(() => {});
+  await recomputeShoppingTotals(user.id, supabase).catch(() => {});
   return { ok: true };
 });

@@ -73,21 +73,21 @@
             <ul class="mt-2 space-y-1.5">
               <li
                 v-for="(ingredient, index) in recipe.ingredients"
-                :key="`${recipe.day}-${recipe.recipeId}-${recipeIndex}-${ingredient.item}-${ingredient.unit || ''}-${index}`"
+                :key="`${recipe.day}-${recipe.recipeId}-${ingredient.item}-${ingredient.unit || ''}-${index}`"
                 class="flex items-center gap-3 rounded-lg px-2 py-1.5 transition hover:bg-slate-50 cursor-pointer"
-                @click="toggleRecipeIngredient(recipe, recipeIndex, ingredient, index)"
+                @click="toggleRecipeIngredient(recipe, ingredient, index)"
               >
                 <div
                   class="flex h-5 w-5 flex-none items-center justify-center rounded border-2 transition"
-                  :class="isRecipeIngredientChecked(recipe, recipeIndex, ingredient, index) ? 'border-sage-300 bg-sage-300' : 'border-slate-300'"
+                  :class="isRecipeIngredientChecked(recipe, ingredient, index) ? 'border-sage-300 bg-sage-300' : 'border-slate-300'"
                 >
-                  <svg v-if="isRecipeIngredientChecked(recipe, recipeIndex, ingredient, index)" class="h-3 w-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <svg v-if="isRecipeIngredientChecked(recipe, ingredient, index)" class="h-3 w-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
                 <span
                   class="text-sm transition"
-                  :class="isRecipeIngredientChecked(recipe, recipeIndex, ingredient, index) ? 'line-through text-slate-400' : 'text-slate-800'"
+                  :class="isRecipeIngredientChecked(recipe, ingredient, index) ? 'line-through text-slate-400' : 'text-slate-800'"
                 >
                   {{ ingredient.item }}
                   <span v-if="ingredient.quantity" class="text-slate-500 ml-1">
@@ -191,8 +191,11 @@ const removeCustomItemById = (id: unknown) => {
   if (idx !== -1) shoppingData.value.custom.splice(idx, 1);
 };
 
+const normalize = (s: string) =>
+  String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+
 const totalIdentity = (item: Pick<ShoppingTotalItem, "item" | "unit">) =>
-  `${String(item.item || "").trim().toLowerCase()}__${String(item.unit || "").trim().toLowerCase()}`;
+  `${normalize(item.item)}__${normalize(item.unit || "")}`;
 
 const totalsByIdentity = computed(() => {
   const map = new Map<string, ShoppingTotalItem>();
@@ -202,18 +205,17 @@ const totalsByIdentity = computed(() => {
 
 const recipeIngredientOccurrenceId = (
   recipe: { day: string; recipeId: string },
-  recipeIndex: number,
   ingredient: ShoppingRecipeIngredient,
   ingredientIndex: number,
 ) =>
-  `${recipe.day}__${recipe.recipeId}__${recipeIndex}__${String(ingredient.item || "").trim().toLowerCase()}__${String(ingredient.unit || "").trim().toLowerCase()}__${ingredientIndex}`;
+  `${recipe.day}__${recipe.recipeId}__${String(ingredient.item || "").trim().toLowerCase()}__${String(ingredient.unit || "").trim().toLowerCase()}__${ingredientIndex}`;
 
 const recipeOccurrenceIdsByIdentity = computed(() => {
   const map = new Map<string, string[]>();
-  recipes.value.forEach((recipe, recipeIndex) => {
+  recipes.value.forEach((recipe) => {
     recipe.ingredients.forEach((ingredient, ingredientIndex) => {
       const identity = totalIdentity({ item: ingredient.item, unit: ingredient.unit || "" });
-      const occurrenceId = recipeIngredientOccurrenceId(recipe, recipeIndex, ingredient, ingredientIndex);
+      const occurrenceId = recipeIngredientOccurrenceId(recipe, ingredient, ingredientIndex);
       const list = map.get(identity) || [];
       list.push(occurrenceId);
       map.set(identity, list);
@@ -231,7 +233,6 @@ const normalizeTotalCheckedState = (total: ShoppingTotalItem) => {
 
 const isRecipeIngredientChecked = (
   recipe: { day: string; recipeId: string },
-  recipeIndex: number,
   ingredient: ShoppingRecipeIngredient,
   ingredientIndex: number,
 ) => {
@@ -241,7 +242,7 @@ const isRecipeIngredientChecked = (
   }));
   if (!total) return false;
   normalizeTotalCheckedState(total);
-  const occurrenceId = recipeIngredientOccurrenceId(recipe, recipeIndex, ingredient, ingredientIndex);
+  const occurrenceId = recipeIngredientOccurrenceId(recipe, ingredient, ingredientIndex);
   return total.checkedOccurrences?.includes(occurrenceId) || false;
 };
 
@@ -286,7 +287,6 @@ const toggleItem = (item: any) => {
 
 const toggleRecipeIngredient = (
   recipe: { day: string; recipeId: string },
-  recipeIndex: number,
   ingredient: ShoppingRecipeIngredient,
   ingredientIndex: number,
 ) => {
@@ -295,7 +295,7 @@ const toggleRecipeIngredient = (
   const original = shoppingData.value.totals.find((t: ShoppingTotalItem) => totalIdentity(t) === identity);
   if (!original) return;
   normalizeTotalCheckedState(original);
-  const occurrenceId = recipeIngredientOccurrenceId(recipe, recipeIndex, ingredient, ingredientIndex);
+  const occurrenceId = recipeIngredientOccurrenceId(recipe, ingredient, ingredientIndex);
   const next = new Set(original.checkedOccurrences || []);
   if (next.has(occurrenceId)) next.delete(occurrenceId);
   else next.add(occurrenceId);

@@ -11,6 +11,6 @@ export default defineEventHandler(async (event) => {
   ]);
 
   // Fire-and-forget — client already updated optimistically
-  recomputeShoppingTotals(user.id, supabase).catch(() => {});
+  await recomputeShoppingTotals(user.id, supabase).catch(() => {});
   return { ok: true };
 });

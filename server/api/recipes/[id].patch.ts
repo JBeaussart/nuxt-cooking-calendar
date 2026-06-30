@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
   if (error) throw createError({ statusCode: 500, statusMessage: error.message });
 
   // Refresh shopping list in case this recipe is in the planning
-  recomputeShoppingTotals(user.id, supabase).catch(() => {});
+  await recomputeShoppingTotals(user.id, supabase).catch(() => {});
 
   return { ok: true };
 });
