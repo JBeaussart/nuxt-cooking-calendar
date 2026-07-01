@@ -3,7 +3,7 @@
   "short_name": "CookCal",
   "description": "Planifiez vos repas et gérez vos recettes facilement",
   "start_url": "/",
-  "display": "standalone",
+  "display": "browser",
   "background_color": "#f0f7f5",
   "icons": [
     {
