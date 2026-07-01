@@ -1,0 +1,23 @@
+{
+  "name": "Cooking Calendar",
+  "short_name": "CookCal",
+  "description": "Planifiez vos repas et gérez vos recettes facilement",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f0f7f5",
+  "theme_color": "#7BAE9D",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

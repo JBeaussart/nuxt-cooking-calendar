@@ -3,6 +3,26 @@ export default defineNuxtConfig({
   compatibilityDate: "2024-11-01",
   devtools: { enabled: process.env.NODE_ENV === "development" },
 
+  app: {
+    head: {
+      title: "Cooking Calendar",
+      meta: [
+        { name: "theme-color", content: "#7BAE9D" },
+        { name: "mobile-web-app-capable", content: "yes" },
+        { name: "apple-mobile-web-app-capable", content: "yes" },
+        { name: "apple-mobile-web-app-status-bar-style", content: "default" },
+        { name: "apple-mobile-web-app-title", content: "CookCal" },
+      ],
+      link: [
+        { rel: "icon", type: "image/png", sizes: "32x32", href: "/icon-32x32.png" },
+        { rel: "icon", type: "image/png", sizes: "16x16", href: "/icon-16x16.png" },
+        { rel: "icon", type: "image/png", sizes: "192x192", href: "/icon-192x192.png" },
+        { rel: "apple-touch-icon", sizes: "180x180", href: "/icon-180x180.png" },
+        { rel: "manifest", href: "/manifest.json" },
+      ],
+    },
+  },
+
   modules: ["@nuxtjs/supabase", "@nuxtjs/tailwindcss", "@pinia/nuxt"],
 
   // @nuxtjs/supabase lit automatiquement SUPABASE_URL et SUPABASE_KEY depuis .env
