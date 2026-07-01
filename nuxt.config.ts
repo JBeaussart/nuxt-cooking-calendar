@@ -6,13 +6,7 @@ export default defineNuxtConfig({
   app: {
     head: {
       title: "Cooking Calendar",
-      meta: [
-        { name: "theme-color", content: "#7BAE9D" },
-        { name: "mobile-web-app-capable", content: "yes" },
-        { name: "apple-mobile-web-app-capable", content: "yes" },
-        { name: "apple-mobile-web-app-status-bar-style", content: "default" },
-        { name: "apple-mobile-web-app-title", content: "CookCal" },
-      ],
+      meta: [],
       link: [
         { rel: "icon", type: "image/png", sizes: "32x32", href: "/icon-32x32.png" },
         { rel: "icon", type: "image/png", sizes: "16x16", href: "/icon-16x16.png" },
