@@ -18,7 +18,7 @@
               </svg>
             </div>
           </div>
-          <input v-model.number="newQty" type="number" step="any" placeholder="Qté"
+          <input v-model.number="newQty" type="number" inputmode="decimal" step="any" placeholder="Qté"
             class="w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-sage-300 shadow-sm" />
           <button
             type="submit"
@@ -42,7 +42,7 @@
           </button>
           <button
             @click="clearCustomItems"
-            :disabled="custom.length === 0"
+            :disabled="!custom.some(c => c.checked)"
             class="inline-flex w-full sm:w-auto justify-center items-center gap-1 sm:gap-2 rounded-xl bg-white px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium text-rose-500 shadow-sm ring-1 ring-rose-200 hover:bg-rose-50 disabled:opacity-50 disabled:cursor-not-allowed transition">
             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m-7 0a1 1 0 011-1h4a1 1 0 011 1m-6 0h8" /></svg>
             Effacer ajouts
@@ -314,14 +314,14 @@ const deleteCustomItem = (item: any) => {
 };
 
 const clearCustomItems = () => {
-  if (!shoppingData.value || shoppingData.value.custom.length === 0) return;
+  if (!shoppingData.value || !shoppingData.value.custom.some((c: ShoppingCustomItem) => c.checked)) return;
   const backup = [...shoppingData.value.custom];
-  shoppingData.value.custom = [];
+  shoppingData.value.custom = shoppingData.value.custom.filter((c: ShoppingCustomItem) => !c.checked);
   $fetch("/api/shopping/custom", { method: "POST", body: { action: "clear" } })
     .catch(() => {
       if (!shoppingData.value) return;
       shoppingData.value.custom = backup;
-      toast.show("Erreur lors de la suppression des ajouts");
+      toast.show("Erreur lors de la suppression des ajouts cochés");
     });
 };
 

@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
   }
 
   if (action === "clear") {
-    await supabase.from("shopping_custom").delete().eq("user_id", user.id);
+    await supabase.from("shopping_custom").delete().eq("user_id", user.id).eq("checked", true);
     return { ok: true };
   }
 
