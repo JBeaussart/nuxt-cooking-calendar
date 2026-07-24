@@ -229,10 +229,10 @@ const toast = useToast();
 const dayParam = computed(() => (route.query.day as string || "").toLowerCase());
 const slotParam = computed(() => (route.query.slot as string || "").toLowerCase());
 
-const searchQuery = ref("");
-const debouncedQuery = ref("");
-const saltFilter = ref("all");
-const mamanFilter = ref(false);
+const searchQuery = useState("recipes_search_query", () => (route.query.q as string) || "");
+const debouncedQuery = ref(searchQuery.value);
+const saltFilter = useState("recipes_salt_filter", () => (route.query.salt as string) || "all");
+const mamanFilter = useState("recipes_maman_filter", () => route.query.maman === "true");
 const bannerDismissed = ref(false);
 const exportLoading = ref(false);
 const DEFAULT_RECIPE_IMAGE = "/images/default-recipe.jpg";

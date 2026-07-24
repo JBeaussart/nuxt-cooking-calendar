@@ -7,3 +7,12 @@
     padding-bottom: 64px;
   }
 }
+
+/* Empêcher iOS Safari de zoomer automatiquement lors du clic sur un champ de texte (input / select / textarea) */
+@media screen and (max-width: 767px) {
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
