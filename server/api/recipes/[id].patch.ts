@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-  const { user, supabase, userRole } = await getServerUser(event);
+  const { user, supabase, getUserRole } = await getServerUser(event);
   if (!user || !supabase) throw createError({ statusCode: 401, statusMessage: "Non authentifié" });
 
   const id = getRouterParam(event, "id");
@@ -7,6 +7,8 @@ export default defineEventHandler(async (event) => {
   const { title, image, ingredients, steps, maman, salt } = body;
 
   if (!title) throw createError({ statusCode: 400, statusMessage: "Titre requis" });
+
+  const userRole = await getUserRole();
 
   const cleanIngredients = (ingredients || [])
     .map((i: any) => {

@@ -108,6 +108,19 @@
         </div>
       </div>
 
+      <!-- Échec de chargement (réseau, timeout...) : à ne pas confondre avec une suppression -->
+      <div v-else-if="loadError" class="flex min-h-[50vh] flex-col items-center justify-center text-center">
+        <h2 class="text-xl font-semibold text-slate-900">Erreur de chargement</h2>
+        <p class="mt-2 text-slate-500">Impossible de charger cette recette pour le moment. Vérifiez votre connexion.</p>
+        <button
+          type="button"
+          @click="refresh"
+          class="mt-6 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-sage-300 to-sage-500 px-6 py-3 text-sm font-bold text-white shadow-lg"
+        >
+          Réessayer
+        </button>
+      </div>
+
       <!-- Recette introuvable -->
       <div v-else class="flex min-h-[50vh] flex-col items-center justify-center text-center">
         <h2 class="text-xl font-semibold text-slate-900">Recette introuvable</h2>
@@ -139,9 +152,14 @@ const recipesIndexHref = computed(() => {
   return s ? `/recipes?${s}` : "/recipes";
 });
 
-const { data: recipe, pending } = useFetch<any>(`/api/recipes/${id}`, {
+const { data: recipe, pending, error, refresh } = useFetch<any>(`/api/recipes/${id}`, {
   default: () => null,
+  // Un cold start / aléa réseau ne doit pas afficher "recette introuvable".
+  retry: 2,
+  retryDelay: 400,
 });
+// Un vrai 404 (recette supprimée) n'est pas une erreur de chargement à réessayer.
+const loadError = computed(() => !!error.value && (error.value as any)?.statusCode !== 404);
 const recipeIngredients = computed(() => recipe.value?.ingredients ?? []);
 const recipeSteps = computed(() => recipe.value?.steps ?? []);
 

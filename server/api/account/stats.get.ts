@@ -1,10 +1,11 @@
 export default defineEventHandler(async (event) => {
-  const { user, supabase, profile } = await getServerUser(event);
+  const { user, supabase, getProfile } = await getServerUser(event);
   if (!user || !supabase) throw createError({ statusCode: 401, statusMessage: "Non authentifié" });
 
-  const [{ count: recipesCount }, { count: planningCount }] = await Promise.all([
+  const [{ count: recipesCount }, { count: planningCount }, profile] = await Promise.all([
     supabase.from("recipes").select("*", { count: "exact", head: true }).eq("user_id", user.id),
     supabase.from("planning").select("*", { count: "exact", head: true }).eq("user_id", user.id).not("recipe_id", "is", null),
+    getProfile(),
   ]);
 
   return {

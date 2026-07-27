@@ -24,26 +24,42 @@ export async function getServerUser(event: H3Event) {
     // We want callers to consistently get a 401 (not a 500) in that case.
     const msg = String(e?.message || "");
     if (msg.includes("Auth session missing")) {
-      return { user: null, profile: null, supabase: null, userRole: "free" };
+      return {
+        user: null,
+        supabase: null,
+        getProfile: async () => null,
+        getUserRole: async () => "free",
+      };
     }
     throw e;
   }
-  if (!user) return { user: null, profile: null, supabase: null, userRole: "free" };
+  if (!user) {
+    return {
+      user: null,
+      supabase: null,
+      getProfile: async () => null,
+      getUserRole: async () => "free",
+    };
+  }
 
   const supabase = await serverSupabaseClient(event);
 
-  const { data: profile } = await supabase
-    .from("user_profiles")
-    .select("user_role, created_at")
-    .eq("id", user.id)
-    .single();
-
-  const userRole = profile?.user_role || "free";
-
-  return {
-    user: { ...user, role: userRole },
-    profile,
-    supabase,
-    userRole,
+  // La plupart des routes n'ont pas besoin du rôle : on ne va le chercher en
+  // base que si un appelant le demande (getProfile/getUserRole), pour éviter
+  // un aller-retour Supabase inutile sur chaque requête authentifiée.
+  let profilePromise: Promise<{ user_role: string; created_at?: string } | null> | null = null;
+  const getProfile = () => {
+    if (!profilePromise) {
+      profilePromise = supabase
+        .from("user_profiles")
+        .select("user_role, created_at")
+        .eq("id", user!.id)
+        .single()
+        .then(({ data }: any) => data ?? null);
+    }
+    return profilePromise;
   };
+  const getUserRole = async () => (await getProfile())?.user_role || "free";
+
+  return { user, supabase, getProfile, getUserRole };
 }

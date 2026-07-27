@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-  const { user, supabase, userRole } = await getServerUser(event);
+  const { user, supabase, getUserRole } = await getServerUser(event);
   if (!user || !supabase) {
     throw createError({ statusCode: 401, statusMessage: "Non authentifié" });
   }
@@ -10,6 +10,8 @@ export default defineEventHandler(async (event) => {
   if (!title || !Array.isArray(ingredients) || ingredients.length === 0) {
     throw createError({ statusCode: 400, statusMessage: "Champs requis manquants" });
   }
+
+  const userRole = await getUserRole();
 
   // Vérifier la limite pour les utilisateurs free
   if (!["admin", "premium"].includes(userRole)) {

@@ -1,7 +1,7 @@
 export default defineEventHandler(async (event) => {
-  const { user, supabase, userRole } = await getServerUser(event);
+  const { user, supabase, getUserRole } = await getServerUser(event);
   if (!user || !supabase) throw createError({ statusCode: 401, statusMessage: "Non authentifié" });
-  if (!isPremiumOrAdmin(userRole)) throw createError({ statusCode: 403, statusMessage: "Accès réservé aux utilisateurs Premium" });
+  if (!isPremiumOrAdmin(await getUserRole())) throw createError({ statusCode: 403, statusMessage: "Accès réservé aux utilisateurs Premium" });
 
   const { slot, id } = await readBody(event);
   const validSlots = ["aperitif", "entree", "plat", "dessert"];
