@@ -29,12 +29,45 @@
         </NuxtLink>
       </div>
 
-      <form v-else @submit.prevent="submit" class="space-y-6">
+      <template v-else>
         <!-- Statut -->
-        <div v-if="statusMsg" class="rounded-xl border-2 p-4 text-sm font-medium text-center" :class="statusClass">
+        <div v-if="statusMsg" class="mb-6 rounded-xl border-2 p-4 text-sm font-medium text-center" :class="statusClass">
           {{ statusMsg }}
         </div>
 
+        <!-- Mode formulaire / import JSON -->
+        <div class="mb-6 flex items-center p-1 bg-slate-100 rounded-xl border border-slate-200 w-fit">
+          <button type="button" @click="mode = 'form'"
+            class="px-3 sm:px-4 py-1.5 text-xs sm:text-sm rounded-lg transition-all"
+            :class="mode === 'form' ? 'bg-white font-bold text-sage-300 shadow-sm' : 'font-medium text-slate-500'">
+            Formulaire
+          </button>
+          <button type="button" @click="mode = 'json'"
+            class="px-3 sm:px-4 py-1.5 text-xs sm:text-sm rounded-lg transition-all"
+            :class="mode === 'json' ? 'bg-white font-bold text-sage-300 shadow-sm' : 'font-medium text-slate-500'">
+            Importer JSON
+          </button>
+        </div>
+
+        <!-- Import JSON -->
+        <div v-if="mode === 'json'" class="rounded-2xl bg-slate-50 p-5 ring-1 ring-slate-100">
+          <label class="block text-sm font-bold text-slate-900 mb-2">Coller le JSON de la recette</label>
+          <textarea v-model="jsonInput" rows="14" placeholder="Collez ici le JSON de la recette..."
+            class="w-full rounded-lg border-slate-200 bg-white px-3 py-2 text-sm font-mono focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-200" />
+          <p v-if="jsonError" class="mt-2 text-sm font-medium text-rose-600">{{ jsonError }}</p>
+          <details class="mt-3 text-xs text-slate-500">
+            <summary class="cursor-pointer font-medium text-slate-600">Format attendu</summary>
+            <pre class="mt-2 overflow-x-auto whitespace-pre rounded-lg bg-white p-3 ring-1 ring-slate-100">{{ jsonExample }}</pre>
+          </details>
+          <div class="mt-4 flex justify-end">
+            <button type="button" @click="loadJson"
+              class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-sage-300 to-sage-500 px-6 py-2.5 text-sm font-bold text-white shadow-lg hover:from-sage-300 hover:to-sage-600 hover:scale-105 transition-all">
+              Charger dans le formulaire
+            </button>
+          </div>
+        </div>
+
+      <form v-else @submit.prevent="submit" class="space-y-6">
         <!-- Infos générales -->
         <div class="grid gap-6 sm:grid-cols-2">
           <div class="sm:col-span-2">
@@ -145,6 +178,7 @@
           </button>
         </div>
       </form>
+      </template>
     </div>
   </div>
 </template>
@@ -170,6 +204,78 @@ const form = reactive({
 const statusMsg = ref("");
 const statusClass = ref("");
 const submitting = ref(false);
+
+const mode = ref<"form" | "json">("form");
+const jsonInput = ref("");
+const jsonError = ref("");
+const jsonExample = JSON.stringify(
+  {
+    title: "Lasagnes à la bolognaise",
+    image: "https://exemple.com/image.jpg",
+    salt: true,
+    ingredients: [
+      { item: "Farine", quantity: 200, unit: "g" },
+      { item: "Sel" },
+    ],
+    steps: ["Préchauffer le four à 200°C", "Mélanger les ingrédients..."],
+  },
+  null,
+  2
+);
+
+const loadJson = () => {
+  jsonError.value = "";
+  let parsed: any;
+  try {
+    parsed = JSON.parse(jsonInput.value);
+  } catch {
+    jsonError.value = "JSON invalide : vérifiez la syntaxe.";
+    return;
+  }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    jsonError.value = "Le JSON doit être un objet.";
+    return;
+  }
+
+  const title = String(parsed.title || "").trim();
+  if (!title) {
+    jsonError.value = 'Le champ "title" est requis.';
+    return;
+  }
+
+  const ingredients = (Array.isArray(parsed.ingredients) ? parsed.ingredients : [])
+    .map((i: any) => {
+      if (typeof i === "string") {
+        const item = i.trim();
+        return item ? { item, quantity: "", unit: "" } : null;
+      }
+      const item = String(i?.item || "").trim();
+      if (!item) return null;
+      return {
+        item,
+        quantity: i?.quantity === undefined || i?.quantity === null ? "" : i.quantity,
+        unit: String(i?.unit || ""),
+      };
+    })
+    .filter(Boolean);
+  if (!ingredients.length) {
+    jsonError.value = "Au moins un ingrédient est requis.";
+    return;
+  }
+
+  const steps = (Array.isArray(parsed.steps) ? parsed.steps : []).map((s: any) => String(s || ""));
+
+  form.title = title;
+  form.image = String(parsed.image || "");
+  form.salt = parsed.salt !== false;
+  form.maman = isAdmin.value ? !!parsed.maman : false;
+  form.ingredients = ingredients;
+  form.steps = steps.length ? steps : [""];
+
+  mode.value = "form";
+  statusMsg.value = "JSON chargé : vérifiez la recette puis enregistrez.";
+  statusClass.value = "border-blue-200 bg-blue-50 text-blue-700";
+};
 const ingredientUnits = [
   "g",
   "kg",
