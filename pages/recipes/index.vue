@@ -282,19 +282,16 @@ watch(searchQuery, (val) => {
 });
 
 // Pas de await → page s'affiche immédiatement
+// L'endpoint renvoie aussi les ingrédients (utilisés pour la recherche) :
+// un seul aller-retour serveur au lieu de deux.
 const { data: recipes } = useFetch<any[]>("/api/recipes", {
   default: () => [],
 });
 
-// Ingrédients chargés en arrière-plan pour la recherche (ne bloque pas le rendu)
-const ingredientsMap = ref<Map<string, any[]>>(new Map());
-const ingredientsLoaded = ref(false);
-onMounted(async () => {
-  const data = await $fetch<{ id: string; ingredients: any[] }[]>("/api/recipes/ingredients");
+const ingredientsMap = computed(() => {
   const map = new Map<string, any[]>();
-  for (const r of data) map.set(r.id, r.ingredients || []);
-  ingredientsMap.value = map;
-  ingredientsLoaded.value = true;
+  for (const r of recipes.value || []) map.set(r.id, r.ingredients || []);
+  return map;
 });
 
 const normalize = (s: string) =>
@@ -307,8 +304,6 @@ const filteredRecipes = computed(() => {
   if (q) {
     list = list.filter((r) => {
       if (normalize(r.title).includes(q)) return true;
-      // Ingredient search available once loaded
-      if (!ingredientsLoaded.value) return false;
       const ing = ingredientsMap.value.get(r.id) || [];
       return ing.some((i: any) => normalize(typeof i === "string" ? i : i?.item || "").includes(q));
     });
