@@ -150,29 +150,15 @@ const statusMsg = ref("");
 const statusClass = ref("");
 const submitting = ref(false);
 
-const addIngredient = () => form.ingredients.push({ item: "", quantity: "", unit: "" });
-const addStep = () => form.steps.push("");
-const moveStep = (i: number, dir: number) => {
-  const j = i + dir;
-  if (j < 0 || j >= form.steps.length) return;
-  [form.steps[i], form.steps[j]] = [form.steps[j], form.steps[i]];
-};
+const { addIngredient, addStep, moveStep, cleanIngredients, cleanSteps } = useRecipeFormHelpers(form);
 
 const submit = async () => {
   submitting.value = true;
   statusMsg.value = "Enregistrement…";
   statusClass.value = "border-blue-200 bg-blue-50 text-blue-700";
 
-  const ingredients = form.ingredients
-    .map((i) => {
-      const item = i.item.trim();
-      if (!item) return null;
-      const qty = i.quantity === "" || i.quantity === null ? undefined : Number(i.quantity);
-      return { item, ...(Number.isFinite(qty) ? { quantity: qty } : {}), ...(i.unit ? { unit: i.unit } : {}) };
-    })
-    .filter(Boolean);
-
-  const steps = form.steps.map((s) => s.trim()).filter(Boolean);
+  const ingredients = cleanIngredients();
+  const steps = cleanSteps();
 
   try {
     await $fetch(`/api/recipes/${id}`, {

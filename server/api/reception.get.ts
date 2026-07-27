@@ -7,8 +7,7 @@ export default defineEventHandler(async (event) => {
     .from("reception")
     .select("data")
     .eq("user_id", user.id)
-    .limit(1)
-    .single();
+    .maybeSingle();
 
   const data = receptionData?.data || {};
   const recipeIds = [data.aperitifId, data.entreeId, data.platId, data.dessertId].filter(Boolean);

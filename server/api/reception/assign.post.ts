@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
     .from("reception")
     .select("data")
     .eq("user_id", user.id)
-    .single();
+    .maybeSingle();
 
   const currentData = existing?.data || {};
   const fieldMap: Record<string, string> = {

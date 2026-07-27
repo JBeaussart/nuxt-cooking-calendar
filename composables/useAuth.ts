@@ -19,17 +19,21 @@ export const useAuth = () => {
     () => !["premium", "admin"].includes(userRole.value)
   );
 
-  const fetchProfile = async (force = false) => {
-    if (!user.value) {
+  const fetchProfile = async (force = false, userId?: string) => {
+    // useSupabaseUser() n'est mis à jour que par l'écouteur onAuthStateChange :
+    // juste après une validation de session via getSession(), user.value peut
+    // encore être vide. On accepte donc un id explicite dans ce cas précis.
+    const id = userId || user.value?.id;
+    if (!id) {
       profile.value = null;
       return;
     }
     // Skip if already loaded for this user
-    if (!force && profile.value?.id === user.value.id) return;
+    if (!force && profile.value?.id === id) return;
     const { data } = await supabase
       .from("user_profiles")
       .select("*")
-      .eq("id", user.value.id)
+      .eq("id", id)
       .single();
     profile.value = data;
   };
