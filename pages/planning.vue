@@ -8,7 +8,7 @@
 
       <div
         v-if="isPlanningLoading"
-        class="flex min-h-[32vh] flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-slate-200 bg-white/60 py-12 text-slate-500"
+        class="flex min-h-[32vh] flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-slate-200 dark:border-slate-700 bg-white/60 dark:bg-slate-800/60 py-12 text-slate-500 dark:text-slate-400"
       >
         <span class="inline-flex h-8 w-8 animate-pulse rounded-full bg-sage-200/60" />
         <p class="text-xs font-medium sm:text-sm">Chargement de votre semaine…</p>
@@ -21,14 +21,14 @@
         <article
           v-for="entry in planning.entries"
           :key="entry.day"
-          class="group relative flex min-h-0 flex-col rounded-xl border border-slate-200/90 bg-white shadow-sm transition-shadow duration-200 hover:shadow-md"
+          class="group relative flex min-h-0 flex-col rounded-xl border border-slate-200/90 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm transition-shadow duration-200 hover:shadow-md"
         >
           <!-- Bandeau jour -->
           <div
-            class="rounded-t-xl border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white px-2.5 py-2 sm:px-3 sm:py-2.5"
+            class="rounded-t-xl border-b border-slate-100 dark:border-slate-700 bg-gradient-to-r from-slate-50 to-white dark:from-slate-800 dark:to-slate-800 px-2.5 py-2 sm:px-3 sm:py-2.5"
           >
             <p
-              class="truncate text-base font-bold uppercase tracking-[0.12em] text-sage-700 sm:text-lg md:text-xl"
+              class="truncate text-base font-bold uppercase tracking-[0.12em] text-sage-700 dark:text-sage-400 sm:text-lg md:text-xl"
             >
               {{ entry.day }}
             </p>
@@ -58,10 +58,10 @@
               </div>
             </NuxtLink>
 
-            <div class="mt-auto flex flex-wrap items-center gap-1 rounded-b-xl border-t border-slate-100 bg-slate-50/40 px-1.5 py-1 sm:px-2">
+            <div class="mt-auto flex flex-wrap items-center gap-1 rounded-b-xl border-t border-slate-100 dark:border-slate-700 bg-slate-50/40 dark:bg-slate-900/40 px-1.5 py-1 sm:px-2">
               <NuxtLink
                 :to="`/recipes/${entry.recipe.id}`"
-                class="inline-flex min-h-[40px] min-w-0 items-center justify-start gap-1.5 rounded-lg px-2 text-xs font-semibold text-slate-700 transition hover:bg-white hover:text-sage-700 sm:text-[13px]"
+                class="inline-flex min-h-[40px] min-w-0 items-center justify-start gap-1.5 rounded-lg px-2 text-xs font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-white dark:hover:bg-slate-700 hover:text-sage-700 dark:hover:text-sage-300 sm:text-[13px]"
               >
                 <svg class="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -76,7 +76,7 @@
                   <button
                     type="button"
                     title="Déplacer vers un autre jour"
-                    class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 transition hover:bg-white hover:text-sage-700 sm:h-10 sm:w-10"
+                    class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 dark:text-slate-400 transition hover:bg-white dark:hover:bg-slate-700 hover:text-sage-700 dark:hover:text-sage-300 sm:h-10 sm:w-10"
                     aria-haspopup="true"
                     :aria-expanded="activeMoveDay === entry.day"
                     @click.stop="toggleMoveMenu(entry.day)"
@@ -87,11 +87,11 @@
                   </button>
                   <div
                     v-if="activeMoveDay === entry.day"
-                    class="absolute right-0 top-full z-[100] mt-0.5 hidden w-40 max-h-56 overflow-y-auto rounded-lg border border-slate-200 bg-white py-0.5 shadow-xl md:block"
+                    class="absolute right-0 top-full z-[100] mt-0.5 hidden w-40 max-h-56 overflow-y-auto rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 py-0.5 shadow-xl md:block"
                     role="menu"
                     @click.stop
                   >
-                    <p class="px-2 py-1.5 text-[10px] font-medium uppercase tracking-wide text-slate-400">
+                    <p class="px-2 py-1.5 text-[10px] font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
                       Déplacer vers
                     </p>
                     <button
@@ -101,8 +101,8 @@
                       role="menuitem"
                       class="flex w-full items-center px-2 py-2 text-left text-sm capitalize transition"
                       :class="targetDay === entry.day || hasRecipeOnDay(targetDay)
-                        ? 'cursor-not-allowed bg-slate-50 text-slate-400'
-                        : 'text-slate-800 hover:bg-sage-50'"
+                        ? 'cursor-not-allowed bg-slate-50 dark:bg-slate-900/40 text-slate-400 dark:text-slate-600'
+                        : 'text-slate-800 dark:text-slate-200 hover:bg-sage-50 dark:hover:bg-sage-900/30'"
                       :disabled="targetDay === entry.day || hasRecipeOnDay(targetDay)"
                       @click="moveRecipe(entry.day, targetDay, entry.recipe!.id)"
                     >
@@ -114,7 +114,7 @@
                 <button
                   type="button"
                   title="Retirer du planning"
-                  class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 transition hover:bg-red-50 hover:text-red-600 sm:h-10 sm:w-10"
+                  class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 dark:text-slate-400 transition hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-400 sm:h-10 sm:w-10"
                   @click="planning.remove(entry.day)"
                 >
                   <svg class="h-4 w-4 sm:h-[18px] sm:w-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -129,18 +129,18 @@
           <NuxtLink
             v-else
             :to="`/recipes?day=${entry.day}`"
-            class="flex flex-1 flex-col items-stretch justify-center gap-2 rounded-b-xl px-3 py-3 text-center outline-none transition hover:bg-sage-50/40 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sage-300 sm:py-3.5"
+            class="flex flex-1 flex-col items-stretch justify-center gap-2 rounded-b-xl px-3 py-3 text-center outline-none transition hover:bg-sage-50/40 dark:hover:bg-sage-900/20 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sage-300 sm:py-3.5"
           >
             <div
-              class="mx-auto flex h-10 w-10 items-center justify-center rounded-xl border-2 border-dashed border-sage-300/70 bg-white text-sage-600 transition group-hover:border-sage-400 group-hover:bg-sage-50 sm:h-11 sm:w-11"
+              class="mx-auto flex h-10 w-10 items-center justify-center rounded-xl border-2 border-dashed border-sage-300/70 dark:border-sage-700 bg-white dark:bg-slate-800 text-sage-600 dark:text-sage-400 transition group-hover:border-sage-400 group-hover:bg-sage-50 dark:group-hover:bg-sage-900/30 sm:h-11 sm:w-11"
             >
               <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
               </svg>
             </div>
             <div>
-              <p class="text-xs font-semibold text-slate-800 sm:text-sm">Choisir une recette</p>
-              <p class="mt-0.5 text-[11px] leading-snug text-slate-500 sm:text-xs">
+              <p class="text-xs font-semibold text-slate-800 dark:text-slate-200 sm:text-sm">Choisir une recette</p>
+              <p class="mt-0.5 text-[11px] leading-snug text-slate-500 dark:text-slate-400 sm:text-xs">
                 Parcourir vos recettes et assigner à {{ entry.day }}
               </p>
             </div>
@@ -151,7 +151,7 @@
       <div class="mt-6 flex justify-center pb-4 sm:mt-8 sm:pb-0">
         <button
           type="button"
-          class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-red-200 hover:bg-red-50 hover:text-red-700 sm:text-sm"
+          class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 shadow-sm transition hover:border-red-200 dark:hover:border-red-900 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-700 dark:hover:text-red-400 sm:text-sm"
           @click="confirmClear"
         >
           Réinitialiser le planning
@@ -171,24 +171,24 @@
             @click="closeMoveMenu"
           />
           <div
-            class="absolute bottom-16 left-0 right-0 max-h-[min(70vh,28rem)] overflow-y-auto rounded-t-2xl border border-slate-200 border-b-0 bg-white shadow-2xl"
+            class="absolute bottom-16 left-0 right-0 max-h-[min(70vh,28rem)] overflow-y-auto rounded-t-2xl border border-slate-200 dark:border-slate-700 border-b-0 bg-white dark:bg-slate-800 shadow-2xl"
             role="dialog"
             aria-modal="true"
             aria-labelledby="move-sheet-title"
             @click.stop
           >
-            <div class="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-slate-100 bg-white px-4 py-3">
+            <div class="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3">
               <div class="min-w-0 flex-1">
-                <p id="move-sheet-title" class="text-sm font-semibold text-slate-900">
+                <p id="move-sheet-title" class="text-sm font-semibold text-slate-900 dark:text-slate-100">
                   Déplacer vers un jour
                 </p>
-                <p v-if="moveMenuEntry.recipe" class="mt-0.5 truncate text-xs text-slate-500">
+                <p v-if="moveMenuEntry.recipe" class="mt-0.5 truncate text-xs text-slate-500 dark:text-slate-400">
                   {{ moveMenuEntry.recipe.title }}
                 </p>
               </div>
               <button
                 type="button"
-                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-800"
+                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-slate-200"
                 aria-label="Fermer"
                 @click="closeMoveMenu"
               >
@@ -204,8 +204,8 @@
                 type="button"
                 class="flex w-full px-4 py-3 text-left text-base capitalize transition"
                 :class="targetDay === activeMoveDay || hasRecipeOnDay(targetDay)
-                  ? 'cursor-not-allowed bg-slate-50 text-slate-400'
-                  : 'text-slate-900 active:bg-sage-100'"
+                  ? 'cursor-not-allowed bg-slate-50 dark:bg-slate-900/40 text-slate-400 dark:text-slate-600'
+                  : 'text-slate-900 dark:text-slate-100 active:bg-sage-100 dark:active:bg-sage-900/40'"
                 :disabled="targetDay === activeMoveDay || hasRecipeOnDay(targetDay)"
                 @click="moveRecipe(activeMoveDay!, targetDay, moveMenuEntry.recipe!.id)"
               >

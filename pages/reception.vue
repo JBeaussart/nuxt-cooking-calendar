@@ -6,12 +6,12 @@
         description="Composez votre menu parfait"
       />
 
-      <div v-if="pending" class="text-center py-20 text-slate-400">Chargement...</div>
+      <div v-if="pending" class="text-center py-20 text-slate-400 dark:text-slate-500">Chargement...</div>
       <div v-else class="grid grid-cols-1 gap-6 pb-16 sm:pb-0">
         <section
           v-for="slot in slots"
           :key="slot.key"
-          class="group relative rounded-3xl bg-white shadow-lg shadow-slate-200/50 transition-all duration-300 hover:shadow-xl overflow-hidden"
+          class="group relative rounded-3xl bg-white dark:bg-slate-800 shadow-lg shadow-slate-200/50 dark:shadow-black/20 transition-all duration-300 hover:shadow-xl overflow-hidden"
         >
           <template v-if="receptionData && receptionData[slot.key]">
             <div class="relative h-28 overflow-hidden rounded-t-3xl">
@@ -35,9 +35,9 @@
                 </NuxtLink>
               </div>
             </div>
-            <div class="flex items-center justify-between border-t border-slate-100 bg-slate-50/50 px-3 py-2">
+            <div class="flex items-center justify-between border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/40 px-3 py-2">
               <NuxtLink :to="`/recipes/${receptionData[slot.key]?.id}`"
-                class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-sage-300 transition">
+                class="flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-sage-300 transition">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -46,13 +46,13 @@
               </NuxtLink>
               <div class="flex items-center gap-1">
                 <NuxtLink :to="`/recipes?slot=${slot.key}`"
-                  class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-200/50 transition">
+                  class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-slate-700 transition">
                   <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
                   </svg>
                 </NuxtLink>
                 <button @click="clearSlot(slot.key)"
-                  class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-600 hover:bg-red-50 hover:text-red-600 transition">
+                  class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-600 dark:text-slate-300 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-400 transition">
                   <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                   </svg>
@@ -63,7 +63,7 @@
 
           <template v-else>
             <NuxtLink :to="`/recipes?slot=${slot.key}`" class="block">
-              <div class="relative h-28 overflow-hidden rounded-3xl bg-gradient-to-br from-slate-100 to-slate-200 transition hover:from-slate-200 hover:to-slate-300">
+              <div class="relative h-28 overflow-hidden rounded-3xl bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 transition hover:from-slate-200 hover:to-slate-300 dark:hover:from-slate-600 dark:hover:to-slate-700">
                 <div class="absolute top-2 left-2">
                   <div class="rounded-full bg-white/95 backdrop-blur-sm px-3 py-1 shadow-lg">
                     <span class="text-xs font-bold text-slate-900">{{ slot.label }}</span>

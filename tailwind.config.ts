@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
 
 export default {
+  darkMode: "media",
   content: [
     "./components/**/*.{vue,ts}",
     "./layouts/**/*.vue",

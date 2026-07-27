@@ -51,33 +51,33 @@
             v-model="searchQuery"
             type="text"
             placeholder="Rechercher une recette ou un ingrédient"
-            class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 pl-11 text-sm focus:outline-none focus:ring-2 focus:ring-sage-300 shadow-sm"
+            class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-slate-100 px-4 py-3 pl-11 text-sm focus:outline-none focus:ring-2 focus:ring-sage-300 shadow-sm"
           />
-          <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
         </div>
 
         <div class="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
           <div class="flex flex-wrap items-center gap-4 flex-1">
-            <div class="flex items-center p-1 bg-slate-100 rounded-xl border border-slate-200">
+            <div class="flex items-center p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
               <button
                 v-for="f in saltFilters"
                 :key="f.value"
                 @click="saltFilter = f.value"
                 class="px-3 sm:px-4 py-1.5 text-xs sm:text-sm rounded-lg transition-all"
                 :class="saltFilter === f.value
-                  ? 'bg-white font-bold text-sage-300 shadow-sm'
-                  : 'font-medium text-slate-500 hover:text-sage-300 hover:bg-sage-50'"
+                  ? 'bg-white dark:bg-slate-700 font-bold text-sage-300 shadow-sm'
+                  : 'font-medium text-slate-500 dark:text-slate-400 hover:text-sage-300 hover:bg-sage-50 dark:hover:bg-sage-900/30'"
               >
                 {{ f.label }}
               </button>
             </div>
-            <div v-if="isAdmin" class="flex items-center p-1 bg-slate-100 rounded-xl border border-slate-200">
+            <div v-if="isAdmin" class="flex items-center p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
               <button
                 @click="mamanFilter = !mamanFilter"
                 class="px-3 sm:px-4 py-1.5 text-xs sm:text-sm rounded-lg transition-all flex items-center gap-1"
-                :class="mamanFilter ? 'bg-white font-bold text-pink-600 shadow-sm' : 'font-medium text-slate-500'"
+                :class="mamanFilter ? 'bg-white dark:bg-slate-700 font-bold text-pink-600 shadow-sm' : 'font-medium text-slate-500 dark:text-slate-400'"
               >
                 <svg class="w-4 h-4 text-pink-400" viewBox="0 0 512 512" fill="currentColor"><path d="M226.5 92.9c14.3 42.9-.3 86.2-32.6 96.8s-70.1-15.6-84.4-58.5.3-86.2 32.6-96.8 70.1 15.6 84.4 58.5zM100.4 198.6c18.9 32.4 14.3 70.1-10.2 84.1s-59.7-.9-78.5-33.3S-2.7 179.3 21.8 165.3s59.7.9 78.6 33.3zM69.2 401.2C121.6 259.9 214.7 224 256 224s134.4 35.9 186.8 177.2c3.6 9.7 5.2 20.1 5.2 30.5v1.6c0 25.8-20.9 46.7-46.7 46.7-11.5 0-22.9-1.4-34-4.2l-88-22c-15.3-3.8-31.3-3.8-46.6 0l-88 22c-11.1 2.8-22.5 4.2-34 4.2-25.8 0-46.7-20.9-46.7-46.7v-1.6c0-10.4 1.6-20.8 5.2-30.5zM324.5 92.9c14.3-42.9 51.7-73.1 84.4-58.5s46.9 53.9 32.6 96.8-51.7 73.1-84.4 58.5-46.9-53.9-32.6-96.8zM400.1 165.3c24.5 14 29.1 51.7 10.2 84.1s-54 48.2-78.5 33.3-29.1-51.7-10.2-84.1 54-48.2 78.5-33.3z"/></svg>
                 Ninette
@@ -96,7 +96,7 @@
                 </svg>
                 Ajouter
               </NuxtLink>
-              <span v-if="isFree && recipes.length < 20" class="absolute top-full left-0 mt-2 text-xs font-medium text-slate-500">
+              <span v-if="isFree && recipes.length < 20" class="absolute top-full left-0 mt-2 text-xs font-medium text-slate-500 dark:text-slate-400">
                 {{ recipes.length }}/20 recettes
               </span>
             </div>
@@ -106,7 +106,7 @@
               @click="exportPdf"
               :disabled="!isPremium"
               class="inline-flex items-center justify-center gap-2 rounded-xl px-4 sm:px-6 py-3 text-sm font-semibold shadow-lg transition-all"
-              :class="isPremium ? 'bg-slate-700 text-white hover:bg-slate-800 hover:scale-105' : 'bg-slate-300 text-slate-500 opacity-50 cursor-not-allowed'"
+              :class="isPremium ? 'bg-slate-700 text-white hover:bg-slate-800 hover:scale-105' : 'bg-slate-300 dark:bg-slate-700 text-slate-500 dark:text-slate-400 opacity-50 cursor-not-allowed'"
               :title="!isPremium ? 'Export PDF réservé aux utilisateurs Premium' : ''"
             >
               <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -123,7 +123,7 @@
       <div class="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 md:gap-6">
         <template v-if="filteredRecipes.length === 0">
           <div class="col-span-full text-center py-12">
-            <p v-if="recipes.length === 0" class="text-lg text-slate-600 mb-6">La cuisine est encore vide, le chef n'est pas passé par là 😉</p>
+            <p v-if="recipes.length === 0" class="text-lg text-slate-600 dark:text-slate-400 mb-6">La cuisine est encore vide, le chef n'est pas passé par là 😉</p>
             <NuxtLink
               v-if="recipes.length === 0"
               to="/recipes/new"
@@ -134,17 +134,17 @@
               </svg>
               Créer ma première recette
             </NuxtLink>
-            <p v-else class="text-lg text-slate-600">Aucune recette trouvée.</p>
+            <p v-else class="text-lg text-slate-600 dark:text-slate-400">Aucune recette trouvée.</p>
           </div>
         </template>
 
         <div
           v-for="r in filteredRecipes"
           :key="r.id"
-          class="group grid aspect-square w-full max-w-full min-w-0 cursor-pointer grid-rows-[minmax(0,7fr)_minmax(0,3fr)] overflow-hidden rounded-xl bg-white shadow-[0_6px_24px_rgba(15,23,42,0.06)] transition-shadow duration-200 hover:shadow-[0_10px_32px_rgba(15,23,42,0.1)] sm:rounded-[18px]"
+          class="group grid aspect-square w-full max-w-full min-w-0 cursor-pointer grid-rows-[minmax(0,7fr)_minmax(0,3fr)] overflow-hidden rounded-xl bg-white dark:bg-slate-800 shadow-[0_6px_24px_rgba(15,23,42,0.06)] dark:shadow-[0_6px_24px_rgba(0,0,0,0.3)] transition-shadow duration-200 hover:shadow-[0_10px_32px_rgba(15,23,42,0.1)] sm:rounded-[18px]"
           @click="handleCardClick(r)"
         >
-          <div class="relative min-h-0 min-w-0 overflow-hidden bg-slate-100">
+          <div class="relative min-h-0 min-w-0 overflow-hidden bg-slate-100 dark:bg-slate-700">
             <img
               v-if="!imageLoadFailed[r.id]"
               :src="recipeCardImageSrc(r)"
@@ -186,23 +186,23 @@
 
           <div class="flex min-h-0 min-w-0 flex-col justify-center overflow-hidden px-1.5 pb-1.5 pt-1 sm:px-3 sm:pb-3 sm:pt-2.5">
             <div class="flex min-h-0 items-start justify-between gap-0.5 sm:gap-2">
-              <h3 class="min-h-0 min-w-0 flex-1 font-bold leading-tight text-slate-900 line-clamp-2 text-[12px] tracking-tight sm:text-xs md:text-[15px] md:leading-snug">
+              <h3 class="min-h-0 min-w-0 flex-1 font-bold leading-tight text-slate-900 dark:text-slate-100 line-clamp-2 text-[12px] tracking-tight sm:text-xs md:text-[15px] md:leading-snug">
                 {{ r.title }}
               </h3>
               <span
                 v-if="formatCookTime(r)"
-                class="shrink-0 pt-0.5 text-[10px] font-bold tabular-nums leading-none text-slate-900 sm:text-xs md:text-[15px]"
+                class="shrink-0 pt-0.5 text-[10px] font-bold tabular-nums leading-none text-slate-900 dark:text-slate-100 sm:text-xs md:text-[15px]"
               >
                 {{ formatCookTime(r) }}
               </span>
             </div>
             <div class="mt-0.5 flex min-h-0 items-center justify-between gap-0.5 sm:mt-1 sm:gap-2">
-              <p class="min-w-0 truncate text-[10px] font-normal text-slate-500 sm:text-sm">
+              <p class="min-w-0 truncate text-[10px] font-normal text-slate-500 dark:text-slate-400 sm:text-sm">
                 {{ recipeCardSubtitle(r) }}
               </p>
               <svg
                 v-if="!dayParam && !slotParam"
-                class="hidden h-3 w-3 shrink-0 text-slate-300 opacity-0 transition-opacity group-hover:opacity-100 sm:block sm:h-4 sm:w-4"
+                class="hidden h-3 w-3 shrink-0 text-slate-300 dark:text-slate-600 opacity-0 transition-opacity group-hover:opacity-100 sm:block sm:h-4 sm:w-4"
                 fill="none" stroke="currentColor" viewBox="0 0 24 24"
               >
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />

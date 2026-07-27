@@ -11,7 +11,7 @@
         align === 'center' ? 'justify-center' : 'justify-start',
       ]"
     >
-      <h1 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
+      <h1 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-4xl lg:text-5xl">
         {{ title }}
       </h1>
       <slot name="after-title" />
@@ -20,7 +20,7 @@
       <p
         v-if="description"
         :class="[
-          'mt-1.5 max-w-lg text-xs text-slate-600 sm:text-sm',
+          'mt-1.5 max-w-lg text-xs text-slate-600 dark:text-slate-400 sm:text-sm',
           align === 'center' ? 'mx-auto' : '',
         ]"
       >
