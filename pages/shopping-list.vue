@@ -265,10 +265,22 @@ const addCustomItem = async () => {
 };
 
 let saveTimer: ReturnType<typeof setTimeout>;
+// Tant qu'une sauvegarde des coches est programmée ou en vol, l'état local
+// est plus récent que la base : on ignore les échos realtime pour éviter
+// qu'une sauvegarde en retard n'écrase une coche plus récente (cases qui
+// se cochent/décochent toutes seules).
+let pendingTotalsSave = false;
 const saveTotals = () => {
   clearTimeout(saveTimer);
+  pendingTotalsSave = true;
   saveTimer = setTimeout(async () => {
-    await $fetch("/api/shopping/save", { method: "POST", body: { items: totals.value } });
+    try {
+      await $fetch("/api/shopping/save", { method: "POST", body: { items: totals.value } });
+    } catch {
+      toast.show("Erreur lors de l'enregistrement des coches");
+    } finally {
+      pendingTotalsSave = false;
+    }
   }, 800);
 };
 
@@ -391,6 +403,9 @@ const setupShoppingRealtime = () => {
       { event: "*", schema: "public", table: "shopping_totals", filter: `user_id=eq.${userId}` },
       (payload: any) => {
         if (!shoppingData.value) return;
+        // Des coches locales n'ont pas encore été confirmées en base :
+        // cet évènement reflète un état plus ancien, on l'ignore.
+        if (pendingTotalsSave) return;
 
         if (payload.eventType === "DELETE") {
           shoppingData.value.totals = [];
