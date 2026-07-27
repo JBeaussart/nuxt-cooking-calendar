@@ -96,7 +96,9 @@ const handleSignup = async () => {
     if (authError) throw new Error(authError.message);
     await fetchProfile();
     success.value = "Compte créé ! Redirection...";
-    setTimeout(() => navigateTo("/planning"), 1000);
+    // Navigation "dure" pour forcer une requête SSR fraîche avec le cookie
+    // de session déjà posé (voir login.vue).
+    setTimeout(() => { window.location.href = "/planning"; }, 1000);
   } catch (err: any) {
     error.value = err.message || "Erreur lors de la création du compte";
   } finally {

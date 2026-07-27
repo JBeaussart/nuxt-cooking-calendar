@@ -81,7 +81,10 @@ const handleLogin = async () => {
     });
     if (authError) throw new Error(authError.message);
     await fetchProfile();
-    await navigateTo("/planning");
+    // Navigation "dure" pour forcer une requête SSR fraîche avec le cookie
+    // de session déjà posé (évite une page vide tant que le cookie n'a pas
+    // encore été pris en compte par une navigation SPA classique).
+    window.location.href = "/planning";
   } catch (err: any) {
     error.value = err.message || "Erreur de connexion";
   } finally {
