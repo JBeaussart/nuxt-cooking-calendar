@@ -332,19 +332,28 @@ const filteredRecipes = computed(() => {
 });
 
 const handleCardClick = (r: any) => {
-  const q = dayParam.value ? `?day=${encodeURIComponent(dayParam.value)}` : "";
-  navigateTo(`/recipes/${r.id}${q}`);
+  const params = new URLSearchParams();
+  if (dayParam.value) params.set("day", dayParam.value);
+  else if (slotParam.value) params.set("slot", slotParam.value);
+  const q = params.toString();
+  navigateTo(`/recipes/${r.id}${q ? `?${q}` : ""}`);
 };
 
-const assignRecipe = (r: any) => {
+const assignRecipe = async (r: any) => {
   if (dayParam.value) {
     // Mise à jour du store immédiate → planning déjà à jour au retour
     planning.assign(dayParam.value, { id: r.id, title: r.title, image: r.image });
     navigateTo("/planning");
   } else if (slotParam.value) {
-    $fetch("/api/reception/assign", { method: "POST", body: { slot: slotParam.value, id: r.id } })
-      .catch(() => toast.show("Impossible d'assigner la recette"));
-    navigateTo("/reception");
+    // On attend la confirmation serveur avant de naviguer : /reception refait
+    // un fetch frais au montage, donc naviguer trop tôt affichait l'ancien
+    // état (il fallait recharger la page pour voir la recette assignée).
+    try {
+      await $fetch("/api/reception/assign", { method: "POST", body: { slot: slotParam.value, id: r.id } });
+      navigateTo("/reception");
+    } catch {
+      toast.show("Impossible d'assigner la recette");
+    }
   }
 };
 
