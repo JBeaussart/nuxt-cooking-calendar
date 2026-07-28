@@ -175,7 +175,7 @@
             </span>
 
             <button
-              v-if="dateParam || slotParam"
+              v-if="dateParam"
               type="button"
               class="absolute right-1 top-1 z-[1] flex h-7 w-7 items-center justify-center rounded-full bg-white/95 text-saffron-500 shadow-md backdrop-blur-sm transition-all hover:bg-saffron-300 hover:text-white sm:right-2 sm:top-2 sm:h-9 sm:w-9 md:h-10 md:w-10"
               @click.stop="assignRecipe(r)"
@@ -203,7 +203,7 @@
                 {{ recipeCardSubtitle(r) }}
               </p>
               <svg
-                v-if="!dateParam && !slotParam"
+                v-if="!dateParam"
                 class="hidden h-3 w-3 shrink-0 text-stone-300 dark:text-stone-600 opacity-0 transition-opacity group-hover:opacity-100 sm:block sm:h-4 sm:w-4"
                 fill="none" stroke="currentColor" viewBox="0 0 24 24"
               >
@@ -229,7 +229,6 @@ const planning = usePlanningStore();
 const toast = useToast();
 
 const dateParam = computed(() => (route.query.date as string) || "");
-const slotParam = computed(() => (route.query.slot as string || "").toLowerCase());
 
 const searchQuery = useState("recipes_search_query", () => (route.query.q as string) || "");
 const debouncedQuery = ref(searchQuery.value);
@@ -332,31 +331,17 @@ const filteredRecipes = computed(() => {
 });
 
 const handleCardClick = (r: any) => {
-  const params = new URLSearchParams();
-  if (dateParam.value) params.set("date", dateParam.value);
-  else if (slotParam.value) params.set("slot", slotParam.value);
-  const q = params.toString();
-  navigateTo(`/recipes/${r.id}${q ? `?${q}` : ""}`);
+  const q = dateParam.value ? `?date=${encodeURIComponent(dateParam.value)}` : "";
+  navigateTo(`/recipes/${r.id}${q}`);
 };
 
 const assignRecipe = async (r: any) => {
-  if (dateParam.value) {
-    try {
-      await planning.assign(dateParam.value, { id: r.id, title: r.title, image: r.image });
-      navigateTo("/planning");
-    } catch {
-      toast.show("Impossible d'assigner la recette");
-    }
-  } else if (slotParam.value) {
-    // On attend la confirmation serveur avant de naviguer : /reception refait
-    // un fetch frais au montage, donc naviguer trop tôt affichait l'ancien
-    // état (il fallait recharger la page pour voir la recette assignée).
-    try {
-      await $fetch("/api/reception/assign", { method: "POST", body: { slot: slotParam.value, id: r.id } });
-      navigateTo("/reception");
-    } catch {
-      toast.show("Impossible d'assigner la recette");
-    }
+  if (!dateParam.value) return;
+  try {
+    await planning.assign(dateParam.value, { id: r.id, title: r.title, image: r.image });
+    navigateTo("/planning");
+  } catch {
+    toast.show("Impossible d'assigner la recette");
   }
 };
 

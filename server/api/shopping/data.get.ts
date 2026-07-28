@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
   if (!user || !supabase) throw createError({ statusCode: 401, statusMessage: "Non authentifié" });
 
   const today = new Date().toISOString().slice(0, 10);
-  const [{ data: savedRow }, { data: custom }, { data: planningRows }, { data: receptionRow }] = await Promise.all([
+  const [{ data: savedRow }, { data: custom }, { data: planningRows }] = await Promise.all([
     supabase.from("shopping_totals").select("data").eq("user_id", user.id).maybeSingle(),
     supabase.from("shopping_custom").select("*").eq("user_id", user.id),
     supabase
@@ -14,7 +14,6 @@ export default defineEventHandler(async (event) => {
       .eq("user_id", user.id)
       .gte("date", today)
       .order("date", { ascending: true }),
-    supabase.from("reception").select("data").eq("user_id", user.id).maybeSingle(),
   ]);
 
   const totals: ShoppingTotalItem[] = Array.isArray(savedRow?.data?.items) ? savedRow.data.items : [];
@@ -24,22 +23,7 @@ export default defineEventHandler(async (event) => {
     recipe_id: row.recipe_id,
   }));
 
-  // Les recettes assignées en réception (apéritif/entrée/plat/dessert) doivent
-  // aussi apparaître ici, sinon leurs ingrédients sont comptés dans les totaux
-  // (recomputeShoppingTotals) sans jamais être affichés/cochables.
-  const receptionSlots: { key: string; label: string }[] = [
-    { key: "aperitifId", label: "Apéritif" },
-    { key: "entreeId", label: "Entrée" },
-    { key: "platId", label: "Plat" },
-    { key: "dessertId", label: "Dessert" },
-  ];
-  const receptionData = receptionRow?.data || {};
-  const receptionEntries = receptionSlots
-    .filter((slot) => receptionData[slot.key])
-    .map((slot) => ({ day: slot.label, recipe_id: receptionData[slot.key] }));
-
-  const entries = [...planning, ...receptionEntries];
-  const recipeIds = [...new Set(entries.map((row: any) => row.recipe_id).filter(Boolean))];
+  const recipeIds = [...new Set(planning.map((row: any) => row.recipe_id).filter(Boolean))];
   const recipes: ShoppingRecipeEntry[] = [];
 
   if (recipeIds.length) {
@@ -50,7 +34,7 @@ export default defineEventHandler(async (event) => {
       .in("id", recipeIds);
 
     const byId = new Map((recipesRows || []).map((r: any) => [r.id, r]));
-    for (const row of entries) {
+    for (const row of planning) {
       const recipe = byId.get(row.recipe_id);
       if (!recipe) continue;
       const ingredients = Array.isArray(recipe.ingredients)

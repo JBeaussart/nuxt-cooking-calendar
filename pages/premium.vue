@@ -17,10 +17,6 @@
           </div>
           <div class="flex items-center gap-3">
             <span class="flex h-6 w-6 items-center justify-center rounded-full bg-saffron-100 dark:bg-saffron-900/40 text-saffron-600 dark:text-saffron-300 font-bold text-sm">✓</span>
-            <span class="text-stone-700 dark:text-stone-300">Menu de réception</span>
-          </div>
-          <div class="flex items-center gap-3">
-            <span class="flex h-6 w-6 items-center justify-center rounded-full bg-saffron-100 dark:bg-saffron-900/40 text-saffron-600 dark:text-saffron-300 font-bold text-sm">✓</span>
             <span class="text-stone-700 dark:text-stone-300">Export PDF de vos recettes</span>
           </div>
           <div class="flex items-center gap-3">

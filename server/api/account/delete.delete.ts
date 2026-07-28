@@ -7,7 +7,6 @@ export default defineEventHandler(async (event) => {
   // Supprimer les données utilisateur
   await Promise.all([
     supabase.from("planning_entries").delete().eq("user_id", user.id),
-    supabase.from("reception").delete().eq("user_id", user.id),
     supabase.from("shopping_totals").delete().eq("user_id", user.id),
     supabase.from("shopping_custom").delete().eq("user_id", user.id),
     supabase.from("recipes").delete().eq("user_id", user.id),

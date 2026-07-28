@@ -34,15 +34,6 @@
             Courses
           </NuxtLink>
         </li>
-        <li v-if="isPremium">
-          <NuxtLink
-            to="/reception"
-            class="text-sm font-medium px-3 py-2 rounded-lg"
-            :class="isActive('/reception') ? 'bg-saffron-100 text-saffron-700 dark:bg-saffron-900/40 dark:text-saffron-300' : 'text-gray-700 hover:bg-gray-100 dark:text-stone-300 dark:hover:bg-stone-700'"
-          >
-            Réception
-          </NuxtLink>
-        </li>
       </ul>
       <ul v-else class="flex items-center gap-4">
         <li>
@@ -141,14 +132,6 @@
           Courses
         </NuxtLink>
       </li>
-      <li v-if="isPremium" class="flex-1">
-        <NuxtLink to="/reception" class="flex flex-col items-center justify-center h-full text-xs" :class="isActive('/reception') ? 'text-saffron-600 dark:text-saffron-400' : 'text-gray-500 dark:text-stone-400'">
-          <svg class="w-5 h-5 mb-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
-          </svg>
-          Réception
-        </NuxtLink>
-      </li>
       <li class="flex-1">
         <NuxtLink to="/account" class="flex flex-col items-center justify-center h-full text-xs" :class="isActive('/account') ? 'text-saffron-600 dark:text-saffron-400' : 'text-gray-500 dark:text-stone-400'">
           <svg class="w-5 h-5 mb-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -189,7 +172,7 @@
 
 <script setup lang="ts">
 const route = useRoute();
-const { user, userRole, isPremium, isFree, logout } = useAuth();
+const { user, userRole, isFree, logout } = useAuth();
 
 const desktopMenuOpen = ref(false);
 

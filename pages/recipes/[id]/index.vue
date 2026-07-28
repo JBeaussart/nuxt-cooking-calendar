@@ -51,13 +51,9 @@
               </span>
             </div>
 
-            <!-- Bouton ajouter au planning / à la réception (si on vient de l'un des deux) -->
+            <!-- Bouton ajouter au planning (si on vient du planning) -->
             <div class="absolute right-4 top-4">
               <button v-if="dateParam" @click="assignToPlanning"
-                class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-green-600 ring-1 ring-green-200 shadow hover:bg-white hover:text-green-700 transition">
-                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16M20 12H4" /></svg>
-              </button>
-              <button v-else-if="slotParam" @click="assignToReception"
                 class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-green-600 ring-1 ring-green-200 shadow hover:bg-white hover:text-green-700 transition">
                 <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16M20 12H4" /></svg>
               </button>
@@ -146,15 +142,11 @@ const { getOptimizedImageUrl } = useImageOptimizer();
 const planning = usePlanningStore();
 const id = route.params.id as string;
 const dateParam = computed(() => (route.query.date as string) || "");
-const slotParam = computed(() => (route.query.slot as string || "").toLowerCase());
 
-/** Conserve ?date= / ?slot= pour retrouver le mode « assigner » sur la liste des recettes */
+/** Conserve ?date= pour retrouver le mode « assigner » sur la liste des recettes */
 const recipesIndexHref = computed(() => {
-  const q = new URLSearchParams();
-  if (dateParam.value) q.set("date", dateParam.value);
-  if (slotParam.value) q.set("slot", slotParam.value);
-  const s = q.toString();
-  return s ? `/recipes?${s}` : "/recipes";
+  if (!dateParam.value) return "/recipes";
+  return `/recipes?date=${encodeURIComponent(dateParam.value)}`;
 });
 
 const { data: recipe, pending, error, refresh } = useFetch<any>(`/api/recipes/${id}`, {
@@ -183,16 +175,6 @@ const assignToPlanning = async () => {
   try {
     await planning.assign(dateParam.value, { id, title: recipe.value.title, image: recipe.value.image });
     navigateTo("/planning");
-  } catch {
-    alert("Impossible d'assigner la recette.");
-  }
-};
-
-const assignToReception = async () => {
-  if (!recipe.value || !slotParam.value) return;
-  try {
-    await $fetch("/api/reception/assign", { method: "POST", body: { slot: slotParam.value, id } });
-    navigateTo("/reception");
   } catch {
     alert("Impossible d'assigner la recette.");
   }

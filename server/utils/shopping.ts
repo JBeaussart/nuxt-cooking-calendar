@@ -8,9 +8,8 @@ export async function recomputeShoppingTotals(userId: string, supabase: Supabase
   // Seules les recettes planifiées à venir (aujourd'hui inclus) comptent :
   // un repas déjà passé n'a plus besoin d'être acheté.
   const today = new Date().toISOString().slice(0, 10);
-  const [{ data: planningData }, { data: receptionRow }, { data: savedRow }] = await Promise.all([
+  const [{ data: planningData }, { data: savedRow }] = await Promise.all([
     supabase.from("planning_entries").select("recipe_id").eq("user_id", userId).gte("date", today),
-    supabase.from("reception").select("data").eq("user_id", userId).maybeSingle(),
     supabase.from("shopping_totals").select("data").eq("user_id", userId).maybeSingle(),
   ]);
 
@@ -18,14 +17,10 @@ export async function recomputeShoppingTotals(userId: string, supabase: Supabase
   const savedItems: ShoppingTotalItem[] = Array.isArray(savedRow?.data?.items) ? savedRow.data.items : [];
   const checkedMap = new Map(savedItems.map((i) => [`${i.item}|${i.unit || ""}`, i.checked]));
 
-  // Count recipe occurrences across planning + reception
-  const reception = receptionRow?.data || {};
+  // Count recipe occurrences across planning
   const recipeCount: Record<string, number> = {};
   for (const p of planningData || []) {
     if (p.recipe_id) recipeCount[p.recipe_id] = (recipeCount[p.recipe_id] || 0) + 1;
-  }
-  for (const k of ["aperitifId", "entreeId", "platId", "dessertId"]) {
-    if (reception[k]) recipeCount[reception[k]] = (recipeCount[reception[k]] || 0) + 1;
   }
 
   const allRecipeIds = Object.keys(recipeCount);
