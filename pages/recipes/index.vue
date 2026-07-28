@@ -120,7 +120,7 @@
       </div>
 
       <!-- Grille -->
-      <div class="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 md:gap-6">
+      <div class="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4">
         <template v-if="filteredRecipes.length === 0">
           <div class="col-span-full text-center py-12">
             <p v-if="recipes.length === 0" class="text-lg text-stone-600 dark:text-stone-400 mb-6">La cuisine est encore vide, le chef n'est pas passé par là 😉</p>
@@ -141,76 +141,69 @@
         <div
           v-for="r in filteredRecipes"
           :key="r.id"
-          class="group grid aspect-square w-full max-w-full min-w-0 cursor-pointer grid-rows-[minmax(0,7fr)_minmax(0,3fr)] overflow-hidden rounded-xl bg-white dark:bg-stone-800 shadow-[0_6px_24px_rgba(15,23,42,0.06)] dark:shadow-[0_6px_24px_rgba(0,0,0,0.3)] transition-shadow duration-200 hover:shadow-[0_10px_32px_rgba(15,23,42,0.1)] sm:rounded-[18px]"
+          class="group flex w-full min-w-0 cursor-pointer items-center gap-2.5 rounded-xl border border-stone-200/90 dark:border-stone-700 bg-white dark:bg-stone-800 p-2 transition-shadow duration-200 hover:shadow-sm sm:gap-3 sm:p-2.5"
           @click="handleCardClick(r)"
         >
-          <div class="relative min-h-0 min-w-0 overflow-hidden bg-stone-100 dark:bg-stone-700">
+          <div class="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-stone-100 dark:bg-stone-700 sm:h-14 sm:w-14">
             <img
               v-if="!imageLoadFailed[r.id]"
               :src="recipeCardImageSrc(r)"
               :srcset="recipeCardImageSrcset(r)"
-              sizes="(min-width: 640px) 360px, 46vw"
+              sizes="56px"
               :alt="r.title"
               loading="lazy"
               decoding="async"
-              class="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+              class="h-full w-full object-cover"
               @error="onRecipeCardImageError($event, r)"
             />
             <div
               v-else
-              class="absolute inset-0 flex items-center justify-center text-3xl select-none sm:text-5xl"
+              class="flex h-full w-full items-center justify-center text-lg select-none"
               :class="r.salt === false ? 'bg-amber-50' : 'bg-emerald-50'"
             >
               {{ r.salt === false ? '🍰' : '🧂' }}
             </div>
+          </div>
 
-            <span
-              v-if="r.maman"
-              class="absolute left-1 top-1 z-[1] flex h-6 w-6 items-center justify-center rounded-full bg-white/95 text-pink-500 shadow-md ring-1 ring-pink-100 sm:left-2 sm:top-2 sm:h-8 sm:w-8"
-              title="Recette Ninette"
-            >
-              <svg class="h-3 w-3 sm:h-4 sm:w-4" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true">
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-1">
+              <svg
+                v-if="r.maman"
+                class="h-3 w-3 shrink-0 text-pink-400"
+                viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"
+                title="Recette Ninette"
+              >
                 <path d="M226.5 92.9c14.3 42.9-.3 86.2-32.6 96.8s-70.1-15.6-84.4-58.5.3-86.2 32.6-96.8 70.1 15.6 84.4 58.5zM100.4 198.6c18.9 32.4 14.3 70.1-10.2 84.1s-59.7-.9-78.5-33.3S-2.7 179.3 21.8 165.3s59.7.9 78.6 33.3zM69.2 401.2C121.6 259.9 214.7 224 256 224s134.4 35.9 186.8 177.2c3.6 9.7 5.2 20.1 5.2 30.5v1.6c0 25.8-20.9 46.7-46.7 46.7-11.5 0-22.9-1.4-34-4.2l-88-22c-15.3-3.8-31.3-3.8-46.6 0l-88 22c-11.1 2.8-22.5 4.2-34 4.2-25.8 0-46.7-20.9-46.7-46.7v-1.6c0-10.4 1.6-20.8 5.2-30.5zM324.5 92.9c14.3-42.9 51.7-73.1 84.4-58.5s46.9 53.9 32.6 96.8-51.7 73.1-84.4 58.5-46.9-53.9-32.6-96.8zM400.1 165.3c24.5 14 29.1 51.7 10.2 84.1s-54 48.2-78.5 33.3-29.1-51.7-10.2-84.1 54-48.2 78.5-33.3z" />
               </svg>
-            </span>
-
-            <button
-              v-if="dateParam"
-              type="button"
-              class="absolute right-1 top-1 z-[1] flex h-7 w-7 items-center justify-center rounded-full bg-white/95 text-saffron-500 shadow-md backdrop-blur-sm transition-all hover:bg-saffron-300 hover:text-white sm:right-2 sm:top-2 sm:h-9 sm:w-9 md:h-10 md:w-10"
-              @click.stop="assignRecipe(r)"
-            >
-              <svg class="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16M20 12H4" />
-              </svg>
-            </button>
-          </div>
-
-          <div class="flex min-h-0 min-w-0 flex-col justify-center overflow-hidden px-1.5 pb-1.5 pt-1 sm:px-3 sm:pb-3 sm:pt-2.5">
-            <div class="flex min-h-0 items-start justify-between gap-0.5 sm:gap-2">
-              <h3 class="min-h-0 min-w-0 flex-1 font-bold leading-tight text-stone-900 dark:text-stone-100 line-clamp-2 text-[12px] tracking-tight sm:text-xs md:text-[15px] md:leading-snug">
+              <h3 class="min-w-0 line-clamp-2 text-xs font-bold leading-tight text-stone-900 dark:text-stone-100 sm:text-sm">
                 {{ r.title }}
               </h3>
-              <span
-                v-if="formatCookTime(r)"
-                class="shrink-0 pt-0.5 text-[10px] font-bold tabular-nums leading-none text-stone-900 dark:text-stone-100 sm:text-xs md:text-[15px]"
-              >
-                {{ formatCookTime(r) }}
-              </span>
             </div>
-            <div class="mt-0.5 flex min-h-0 items-center justify-between gap-0.5 sm:mt-1 sm:gap-2">
-              <p class="min-w-0 truncate text-[10px] font-normal text-stone-500 dark:text-stone-400 sm:text-sm">
-                {{ recipeCardSubtitle(r) }}
-              </p>
-              <svg
-                v-if="!dateParam"
-                class="hidden h-3 w-3 shrink-0 text-stone-300 dark:text-stone-600 opacity-0 transition-opacity group-hover:opacity-100 sm:block sm:h-4 sm:w-4"
-                fill="none" stroke="currentColor" viewBox="0 0 24 24"
-              >
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
+            <span
+              class="mt-1 inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-bold sm:text-[11px]"
+              :class="r.salt === false ? 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'"
+            >
+              {{ recipeCardSubtitle(r) }}<template v-if="formatCookTime(r)"> · {{ formatCookTime(r) }}</template>
+            </span>
           </div>
+
+          <button
+            v-if="dateParam"
+            type="button"
+            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-saffron-600 dark:text-saffron-400 transition hover:bg-saffron-50 dark:hover:bg-saffron-900/30"
+            @click.stop="assignRecipe(r)"
+          >
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16M20 12H4" />
+            </svg>
+          </button>
+          <svg
+            v-else
+            class="hidden h-4 w-4 shrink-0 text-stone-300 dark:text-stone-600 opacity-0 transition-opacity group-hover:opacity-100 sm:block"
+            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
         </div>
       </div>
 
@@ -246,12 +239,12 @@ const markImageFailed = (id: string) => {
 const recipeCardImageSrc = (r: { image?: string }) => {
   const u = String(r.image ?? "").trim();
   if (!u) return DEFAULT_RECIPE_IMAGE;
-  return getOptimizedImageUrl(u, 640, 78);
+  return getOptimizedImageUrl(u, 120, 78);
 };
 
-// Le navigateur choisit la variante adaptée à la taille réelle de la carte
-// (~46vw sur mobile en grille 2 colonnes) au lieu de toujours charger du 640px.
-const CARD_IMAGE_WIDTHS = [240, 360, 480, 640];
+// Les cartes n'affichent plus qu'une miniature de 48-56px : pas besoin de
+// charger des images larges comme avant.
+const CARD_IMAGE_WIDTHS = [80, 120, 160];
 const recipeCardImageSrcset = (r: { image?: string }) => {
   const u = String(r.image ?? "").trim();
   if (!u) return undefined;
