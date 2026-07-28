@@ -70,7 +70,7 @@
               {{ weekdayLabel(date) }}
             </span>
             <span class="text-xs font-semibold text-stone-400 dark:text-stone-500 sm:text-sm">
-              {{ date.getDate() }}
+              {{ dayMonthLabel(date) }}
             </span>
           </div>
 
@@ -264,6 +264,11 @@ function toISODateLocal(d: Date): string {
 function weekdayLabel(d: Date): string {
   const idx = (d.getDay() + 6) % 7; // getDay(): 0=dimanche -> réindexe sur lundi=0
   return WEEKDAY_LABELS[idx];
+}
+function dayMonthLabel(d: Date): string {
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  return `${day}/${month}`;
 }
 
 const weekStart = ref(mondayOf(new Date()));
