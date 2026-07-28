@@ -31,7 +31,8 @@
             <img
               :src="getOptimizedImageUrl(recipe.image, 800, 80)"
               :alt="recipe.title"
-              loading="lazy"
+              loading="eager"
+              fetchpriority="high"
               decoding="async"
               class="h-full w-full object-cover"
               @error="(e: Event) => (e.target as HTMLImageElement).src = '/images/default-recipe.jpg'"

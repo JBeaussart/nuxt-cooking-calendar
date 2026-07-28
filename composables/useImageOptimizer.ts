@@ -23,5 +23,24 @@ export const useImageOptimizer = () => {
     return `https://wsrv.nl/?${params.toString()}`;
   };
 
-  return { getOptimizedImageUrl };
+  // Génère un srcset pour laisser le navigateur choisir la taille adaptée
+  // à l'écran au lieu de toujours charger la plus grande variante.
+  const getOptimizedImageSrcset = (
+    originalUrl: string | null | undefined,
+    widths: number[],
+    quality = 75
+  ): string | undefined => {
+    if (
+      !originalUrl ||
+      originalUrl.startsWith("/") ||
+      originalUrl.startsWith("./")
+    ) {
+      return undefined;
+    }
+    return widths
+      .map((w) => `${getOptimizedImageUrl(originalUrl, w, quality)} ${w}w`)
+      .join(", ");
+  };
+
+  return { getOptimizedImageUrl, getOptimizedImageSrcset };
 };

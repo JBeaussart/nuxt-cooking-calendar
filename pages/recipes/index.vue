@@ -148,6 +148,8 @@
             <img
               v-if="!imageLoadFailed[r.id]"
               :src="recipeCardImageSrc(r)"
+              :srcset="recipeCardImageSrcset(r)"
+              sizes="(min-width: 640px) 360px, 46vw"
               :alt="r.title"
               loading="lazy"
               decoding="async"
@@ -221,7 +223,7 @@
 definePageMeta({ layout: "default", middleware: "auth" });
 
 const route = useRoute();
-const { getOptimizedImageUrl } = useImageOptimizer();
+const { getOptimizedImageUrl, getOptimizedImageSrcset } = useImageOptimizer();
 const { isPremium, isAdmin, isFree } = useAuth();
 const planning = usePlanningStore();
 const toast = useToast();
@@ -246,6 +248,15 @@ const recipeCardImageSrc = (r: { image?: string }) => {
   const u = String(r.image ?? "").trim();
   if (!u) return DEFAULT_RECIPE_IMAGE;
   return getOptimizedImageUrl(u, 640, 78);
+};
+
+// Le navigateur choisit la variante adaptée à la taille réelle de la carte
+// (~46vw sur mobile en grille 2 colonnes) au lieu de toujours charger du 640px.
+const CARD_IMAGE_WIDTHS = [240, 360, 480, 640];
+const recipeCardImageSrcset = (r: { image?: string }) => {
+  const u = String(r.image ?? "").trim();
+  if (!u) return undefined;
+  return getOptimizedImageSrcset(u, CARD_IMAGE_WIDTHS, 78);
 };
 
 const onRecipeCardImageError = (e: Event, r: { id: string; image?: string }) => {
@@ -281,17 +292,25 @@ watch(searchQuery, (val) => {
   debounceTimer = setTimeout(() => { debouncedQuery.value = val; }, 300);
 });
 
-// Pas de await → page s'affiche immédiatement
-// L'endpoint renvoie aussi les ingrédients (utilisés pour la recherche) :
-// un seul aller-retour serveur au lieu de deux.
-const { data: recipes } = useFetch<any[]>("/api/recipes", {
-  default: () => [],
-});
+// Pas de await → page s'affiche immédiatement.
+// L'endpoint ne renvoie plus les ingrédients (payload trop lourd à charger à
+// chaque visite) : on les récupère seulement pendant une recherche active,
+// via /api/recipes/search.
+const { data: recipesData } = useFetch<any[]>("/api/recipes", { default: () => [] });
+const recipes = computed(() => recipesData.value || []);
 
-const ingredientsMap = computed(() => {
-  const map = new Map<string, any[]>();
-  for (const r of recipes.value || []) map.set(r.id, r.ingredients || []);
-  return map;
+// IDs des recettes dont un ingrédient matche la recherche en cours.
+const ingredientMatchIds = ref<Set<string>>(new Set());
+let searchToken = 0;
+watch(debouncedQuery, async (val) => {
+  const q = val.trim();
+  if (!q) {
+    ingredientMatchIds.value = new Set();
+    return;
+  }
+  const token = ++searchToken;
+  const ids = await $fetch<string[]>("/api/recipes/search", { query: { q } }).catch(() => []);
+  if (token === searchToken) ingredientMatchIds.value = new Set(ids);
 });
 
 const normalize = (s: string) =>
@@ -302,11 +321,7 @@ const filteredRecipes = computed(() => {
   const q = normalize(debouncedQuery.value);
 
   if (q) {
-    list = list.filter((r) => {
-      if (normalize(r.title).includes(q)) return true;
-      const ing = ingredientsMap.value.get(r.id) || [];
-      return ing.some((i: any) => normalize(typeof i === "string" ? i : i?.item || "").includes(q));
-    });
+    list = list.filter((r) => normalize(r.title).includes(q) || ingredientMatchIds.value.has(r.id));
   }
 
   if (mamanFilter.value) list = list.filter((r) => r.maman === true);
