@@ -6,54 +6,54 @@
         description="Vos informations et paramètres essentiels"
       />
 
-      <div v-if="pending" class="text-center py-10 text-slate-400 dark:text-slate-500">Chargement...</div>
+      <div v-if="pending" class="text-center py-10 text-stone-400 dark:text-stone-500">Chargement...</div>
 
       <template v-else-if="stats">
         <!-- Compte -->
-        <section class="bg-white dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 p-6 space-y-4">
+        <section class="bg-white dark:bg-stone-800 rounded-2xl border border-gray-200 dark:border-stone-700 p-6 space-y-4">
           <div>
-            <p class="text-sm text-gray-500 dark:text-slate-400">Email</p>
+            <p class="text-sm text-gray-500 dark:text-stone-400">Email</p>
             <p class="font-medium">{{ stats.email }}</p>
           </div>
           <div class="flex items-center gap-3">
             <span class="px-3 py-1 rounded-full text-sm font-medium" :class="{
               'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300': stats.role === 'admin',
-              'bg-sage-100 text-sage-700 dark:bg-sage-900/40 dark:text-sage-300': stats.role === 'premium',
-              'bg-gray-100 text-gray-700 dark:bg-slate-700 dark:text-slate-300': stats.role === 'free',
+              'bg-saffron-100 text-saffron-700 dark:bg-saffron-900/40 dark:text-saffron-300': stats.role === 'premium',
+              'bg-gray-100 text-gray-700 dark:bg-stone-700 dark:text-stone-300': stats.role === 'free',
             }">
               {{ stats.role === 'admin' ? 'Administrateur' : stats.role === 'premium' ? 'Premium' : 'Gratuit' }}
             </span>
-            <span class="text-sm text-gray-500 dark:text-slate-400">Membre depuis {{ formatDate(stats.createdAt) }}</span>
+            <span class="text-sm text-gray-500 dark:text-stone-400">Membre depuis {{ formatDate(stats.createdAt) }}</span>
           </div>
         </section>
 
         <!-- Stats -->
         <section class="grid grid-cols-2 gap-4">
-          <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4 text-center">
+          <div class="bg-white dark:bg-stone-800 rounded-xl border border-gray-200 dark:border-stone-700 p-4 text-center">
             <p class="text-2xl font-bold">{{ stats.recipesCount }}</p>
-            <p class="text-sm text-gray-600 dark:text-slate-400">Recettes créées</p>
+            <p class="text-sm text-gray-600 dark:text-stone-400">Recettes créées</p>
           </div>
-          <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4 text-center">
+          <div class="bg-white dark:bg-stone-800 rounded-xl border border-gray-200 dark:border-stone-700 p-4 text-center">
             <p class="text-2xl font-bold">{{ stats.planningCount }}</p>
-            <p class="text-sm text-gray-600 dark:text-slate-400">Recettes planifiées</p>
+            <p class="text-sm text-gray-600 dark:text-stone-400">Recettes planifiées</p>
           </div>
         </section>
       </template>
 
       <!-- Changer mot de passe -->
-      <section class="bg-white dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 p-6">
+      <section class="bg-white dark:bg-stone-800 rounded-2xl border border-gray-200 dark:border-stone-700 p-6">
         <h2 class="text-lg font-semibold mb-4">Changer de mot de passe</h2>
         <form @submit.prevent="changePassword" class="space-y-4">
           <input v-model="pwForm.current" type="password" placeholder="Mot de passe actuel"
-            class="w-full px-4 py-3 border dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 rounded-lg" required />
+            class="w-full px-4 py-3 border dark:border-stone-600 dark:bg-stone-900 dark:text-stone-100 rounded-lg" required />
           <input v-model="pwForm.next" type="password" placeholder="Nouveau mot de passe"
-            class="w-full px-4 py-3 border dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 rounded-lg" required minlength="6" />
+            class="w-full px-4 py-3 border dark:border-stone-600 dark:bg-stone-900 dark:text-stone-100 rounded-lg" required minlength="6" />
           <input v-model="pwForm.confirm" type="password" placeholder="Confirmer le mot de passe"
-            class="w-full px-4 py-3 border dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 rounded-lg" required minlength="6" />
+            class="w-full px-4 py-3 border dark:border-stone-600 dark:bg-stone-900 dark:text-stone-100 rounded-lg" required minlength="6" />
           <div v-if="pwError" class="text-sm text-red-600 dark:text-red-400">{{ pwError }}</div>
           <div v-if="pwSuccess" class="text-sm text-green-600 dark:text-green-400">{{ pwSuccess }}</div>
           <button type="submit" :disabled="pwLoading"
-            class="w-full py-3 bg-sage-600 text-white rounded-lg font-medium disabled:opacity-60">
+            class="w-full py-3 bg-saffron-600 text-white rounded-lg font-medium disabled:opacity-60">
             {{ pwLoading ? 'Modification...' : 'Modifier le mot de passe' }}
           </button>
         </form>
@@ -61,8 +61,8 @@
 
       <!-- Actions -->
       <section class="space-y-3">
-        <NuxtLink to="/recipes" class="block w-full py-3 bg-sage-100 text-sage-700 dark:bg-sage-900/40 dark:text-sage-300 rounded-lg text-center">Voir mes recettes</NuxtLink>
-        <NuxtLink to="/planning" class="block w-full py-3 border dark:border-slate-600 dark:text-slate-300 rounded-lg text-center">Voir mon planning</NuxtLink>
+        <NuxtLink to="/recipes" class="block w-full py-3 bg-saffron-100 text-saffron-700 dark:bg-saffron-900/40 dark:text-saffron-300 rounded-lg text-center">Voir mes recettes</NuxtLink>
+        <NuxtLink to="/planning" class="block w-full py-3 border dark:border-stone-600 dark:text-stone-300 rounded-lg text-center">Voir mon planning</NuxtLink>
         <button @click="handleLogout" class="w-full py-3 border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 rounded-lg">Déconnexion</button>
       </section>
 

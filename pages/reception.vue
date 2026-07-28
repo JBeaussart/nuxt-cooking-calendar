@@ -8,9 +8,9 @@
 
       <div
         v-if="pending"
-        class="flex min-h-[32vh] flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-slate-200 dark:border-slate-700 bg-white/60 dark:bg-slate-800/60 py-12 text-slate-500 dark:text-slate-400"
+        class="flex min-h-[32vh] flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-stone-200 dark:border-stone-700 bg-white/60 dark:bg-stone-800/60 py-12 text-stone-500 dark:text-stone-400"
       >
-        <span class="inline-flex h-8 w-8 animate-pulse rounded-full bg-sage-200/60" />
+        <span class="inline-flex h-8 w-8 animate-pulse rounded-full bg-saffron-200/60" />
         <p class="text-xs font-medium sm:text-sm">Chargement de votre menu…</p>
       </div>
 
@@ -18,12 +18,12 @@
         <article
           v-for="slot in slots"
           :key="slot.key"
-          class="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200/90 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm transition-shadow duration-200 hover:shadow-md"
+          class="group relative flex flex-col overflow-hidden rounded-2xl border border-stone-200/90 dark:border-stone-700 bg-white dark:bg-stone-800 shadow-sm transition-shadow duration-200 hover:shadow-md"
         >
           <!-- Bandeau slot -->
-          <div class="flex items-center gap-2 rounded-t-2xl border-b border-slate-100 dark:border-slate-700 bg-gradient-to-r from-slate-50 to-white dark:from-slate-800 dark:to-slate-800 px-3 py-2.5">
+          <div class="flex items-center gap-2 rounded-t-2xl border-b border-stone-100 dark:border-stone-700 bg-gradient-to-r from-stone-50 to-white dark:from-stone-800 dark:to-stone-800 px-3 py-2.5">
             <span class="text-lg leading-none">{{ slot.icon }}</span>
-            <p class="text-sm font-bold uppercase tracking-[0.1em] text-sage-700 dark:text-sage-400">
+            <p class="text-sm font-bold uppercase tracking-[0.1em] text-saffron-700 dark:text-saffron-400">
               {{ slot.label }}
             </p>
           </div>
@@ -32,7 +32,7 @@
           <template v-if="receptionData && receptionData[slot.key]">
             <NuxtLink
               :to="`/recipes/${receptionData[slot.key]?.id}`"
-              class="relative block aspect-[16/9] w-full overflow-hidden bg-slate-100 dark:bg-slate-700 outline-none ring-inset ring-sage-300/0 transition focus-visible:ring-2"
+              class="relative block aspect-[16/9] w-full overflow-hidden bg-stone-100 dark:bg-stone-700 outline-none ring-inset ring-saffron-300/0 transition focus-visible:ring-2"
             >
               <img
                 :src="getOptimizedImageUrl(receptionData[slot.key]?.image, 480, 75)"
@@ -42,7 +42,7 @@
                 class="h-full w-full object-cover transition duration-500 ease-out group-hover:scale-[1.03]"
                 @error="(e: Event) => ((e.target as HTMLImageElement).src = '/images/default-recipe.jpg')"
               />
-              <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-900/75 via-slate-900/10 to-transparent" />
+              <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-stone-900/75 via-stone-900/10 to-transparent" />
               <div class="pointer-events-none absolute inset-x-0 bottom-0 p-3">
                 <p class="line-clamp-2 text-sm font-semibold leading-snug text-white drop-shadow sm:text-base">
                   {{ receptionData[slot.key]?.title }}
@@ -50,10 +50,10 @@
               </div>
             </NuxtLink>
 
-            <div class="mt-auto flex items-center gap-1 border-t border-slate-100 dark:border-slate-700 bg-slate-50/40 dark:bg-slate-900/40 px-1.5 py-1">
+            <div class="mt-auto flex items-center gap-1 border-t border-stone-100 dark:border-stone-700 bg-stone-50/40 dark:bg-stone-900/40 px-1.5 py-1">
               <NuxtLink
                 :to="`/recipes/${receptionData[slot.key]?.id}`"
-                class="inline-flex min-h-[40px] flex-1 items-center justify-start gap-1.5 rounded-lg px-2 text-sm font-semibold text-slate-700 dark:text-slate-300 transition hover:bg-white dark:hover:bg-slate-700 hover:text-sage-700 dark:hover:text-sage-300"
+                class="inline-flex min-h-[40px] flex-1 items-center justify-start gap-1.5 rounded-lg px-2 text-sm font-semibold text-stone-700 dark:text-stone-300 transition hover:bg-white dark:hover:bg-stone-700 hover:text-saffron-700 dark:hover:text-saffron-300"
               >
                 <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -66,7 +66,7 @@
                 <NuxtLink
                   :to="`/recipes?slot=${slot.key}`"
                   title="Changer la recette"
-                  class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 dark:text-slate-400 transition hover:bg-white dark:hover:bg-slate-700 hover:text-sage-700 dark:hover:text-sage-300"
+                  class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-stone-600 dark:text-stone-400 transition hover:bg-white dark:hover:bg-stone-700 hover:text-saffron-700 dark:hover:text-saffron-300"
                 >
                   <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
@@ -75,7 +75,7 @@
                 <button
                   type="button"
                   title="Retirer du menu"
-                  class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 dark:text-slate-400 transition hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-400"
+                  class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-stone-600 dark:text-stone-400 transition hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-400"
                   @click="clearSlot(slot.key)"
                 >
                   <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -90,18 +90,18 @@
           <NuxtLink
             v-else
             :to="`/recipes?slot=${slot.key}`"
-            class="flex flex-1 flex-col items-stretch justify-center gap-2 px-4 py-6 text-center outline-none transition hover:bg-sage-50/40 dark:hover:bg-sage-900/20 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-sage-300"
+            class="flex flex-1 flex-col items-stretch justify-center gap-2 px-4 py-6 text-center outline-none transition hover:bg-saffron-50/40 dark:hover:bg-saffron-900/20 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-saffron-300"
           >
             <div
-              class="mx-auto flex h-11 w-11 items-center justify-center rounded-xl border-2 border-dashed border-sage-300/70 dark:border-sage-700 bg-white dark:bg-slate-800 text-sage-600 dark:text-sage-400 transition group-hover:border-sage-400 group-hover:bg-sage-50 dark:group-hover:bg-sage-900/30"
+              class="mx-auto flex h-11 w-11 items-center justify-center rounded-xl border-2 border-dashed border-saffron-300/70 dark:border-saffron-700 bg-white dark:bg-stone-800 text-saffron-600 dark:text-saffron-400 transition group-hover:border-saffron-400 group-hover:bg-saffron-50 dark:group-hover:bg-saffron-900/30"
             >
               <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
               </svg>
             </div>
             <div>
-              <p class="text-sm font-semibold text-slate-800 dark:text-slate-200">Choisir une recette</p>
-              <p class="mt-0.5 text-xs leading-snug text-slate-500 dark:text-slate-400">
+              <p class="text-sm font-semibold text-stone-800 dark:text-stone-200">Choisir une recette</p>
+              <p class="mt-0.5 text-xs leading-snug text-stone-500 dark:text-stone-400">
                 Parcourir vos recettes pour {{ slot.label.toLowerCase() }}
               </p>
             </div>

@@ -7,7 +7,7 @@
       <div class="mb-10">
         <PageHeader no-margin title="Cooking Calendar">
           <template #description>
-            <p class="mx-auto mt-1.5 max-w-lg text-base text-slate-600 dark:text-slate-400 sm:text-lg">
+            <p class="mx-auto mt-1.5 max-w-lg text-base text-stone-600 dark:text-stone-400 sm:text-lg">
               Planifiez vos repas, gérez vos recettes et générez vos listes de courses automatiquement.
             </p>
           </template>
@@ -16,13 +16,13 @@
       <div class="flex flex-col sm:flex-row gap-4 justify-center">
         <NuxtLink
           to="/login"
-          class="px-8 py-3 rounded-xl text-sm font-semibold bg-gradient-to-r from-sage-300 to-sage-500 text-white shadow-lg hover:from-sage-300 hover:to-sage-600 transition hover:scale-105"
+          class="px-8 py-3 rounded-xl text-sm font-semibold bg-gradient-to-r from-saffron-300 to-saffron-500 text-white shadow-lg hover:from-saffron-300 hover:to-saffron-600 transition hover:scale-105"
         >
           Se connecter
         </NuxtLink>
         <NuxtLink
           to="/signup"
-          class="px-8 py-3 rounded-xl text-sm font-semibold border border-sage-300 text-sage-700 hover:bg-sage-50 dark:border-sage-700 dark:text-sage-300 dark:hover:bg-sage-900/30 transition"
+          class="px-8 py-3 rounded-xl text-sm font-semibold border border-saffron-300 text-saffron-700 hover:bg-saffron-50 dark:border-saffron-700 dark:text-saffron-300 dark:hover:bg-saffron-900/30 transition"
         >
           Créer un compte
         </NuxtLink>

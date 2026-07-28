@@ -11,19 +11,19 @@
         <form @submit.prevent="addCustomItem" class="grid grid-cols-[minmax(0,1fr)_88px_auto] gap-2 sm:gap-3 items-stretch">
           <div class="relative flex-1">
             <input v-model="newItem" type="text" placeholder="Ajouter un article..." required
-              class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-slate-100 px-4 py-3 pl-11 text-sm focus:outline-none focus:ring-2 focus:ring-sage-300 shadow-sm" />
-            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400 dark:text-slate-500">
+              class="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 dark:text-stone-100 px-4 py-3 pl-11 text-sm focus:outline-none focus:ring-2 focus:ring-saffron-300 shadow-sm" />
+            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-stone-400 dark:text-stone-500">
               <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
               </svg>
             </div>
           </div>
           <input v-model.number="newQty" type="number" inputmode="decimal" step="any" placeholder="Qté"
-            class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 dark:text-slate-100 px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-sage-300 shadow-sm" />
+            class="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 dark:text-stone-100 px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-saffron-300 shadow-sm" />
           <button
             type="submit"
             :disabled="isAddingCustomItem"
-            class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-sage-300 to-sage-500 px-4 sm:px-6 py-3 text-sm font-bold text-white shadow-lg hover:from-sage-300 hover:to-sage-600 hover:scale-105 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed transition-all whitespace-nowrap">
+            class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-saffron-300 to-saffron-500 px-4 sm:px-6 py-3 text-sm font-bold text-white shadow-lg hover:from-saffron-300 hover:to-saffron-600 hover:scale-105 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed transition-all whitespace-nowrap">
             Ajouter
           </button>
         </form>
@@ -31,19 +31,19 @@
         <!-- Actions groupées -->
         <div class="grid w-full grid-cols-3 gap-2 sm:flex sm:w-auto sm:justify-center sm:items-center sm:gap-3">
           <button @click="checkAll"
-            class="inline-flex w-full sm:w-auto justify-center items-center gap-1 sm:gap-2 rounded-xl bg-white dark:bg-slate-800 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 hover:bg-sage-50 dark:hover:bg-sage-900/30 hover:text-sage-300 transition">
+            class="inline-flex w-full sm:w-auto justify-center items-center gap-1 sm:gap-2 rounded-xl bg-white dark:bg-stone-800 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium text-stone-700 dark:text-stone-300 shadow-sm ring-1 ring-stone-200 dark:ring-stone-700 hover:bg-saffron-50 dark:hover:bg-saffron-900/30 hover:text-saffron-300 transition">
             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
             Tout cocher
           </button>
           <button @click="uncheckAll"
-            class="inline-flex w-full sm:w-auto justify-center items-center gap-1 sm:gap-2 rounded-xl bg-white dark:bg-slate-800 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 hover:bg-sage-50 dark:hover:bg-sage-900/30 hover:text-sage-300 transition">
+            class="inline-flex w-full sm:w-auto justify-center items-center gap-1 sm:gap-2 rounded-xl bg-white dark:bg-stone-800 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium text-stone-700 dark:text-stone-300 shadow-sm ring-1 ring-stone-200 dark:ring-stone-700 hover:bg-saffron-50 dark:hover:bg-saffron-900/30 hover:text-saffron-300 transition">
             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
             Tout décocher
           </button>
           <button
             @click="clearCustomItems"
             :disabled="!custom.some(c => c.checked)"
-            class="inline-flex w-full sm:w-auto justify-center items-center gap-1 sm:gap-2 rounded-xl bg-white dark:bg-slate-800 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium text-rose-500 dark:text-rose-400 shadow-sm ring-1 ring-rose-200 dark:ring-rose-900 hover:bg-rose-50 dark:hover:bg-rose-950/30 disabled:opacity-50 disabled:cursor-not-allowed transition">
+            class="inline-flex w-full sm:w-auto justify-center items-center gap-1 sm:gap-2 rounded-xl bg-white dark:bg-stone-800 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium text-rose-500 dark:text-rose-400 shadow-sm ring-1 ring-rose-200 dark:ring-rose-900 hover:bg-rose-50 dark:hover:bg-rose-950/30 disabled:opacity-50 disabled:cursor-not-allowed transition">
             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m-7 0a1 1 0 011-1h4a1 1 0 011 1m-6 0h8" /></svg>
             Effacer ajouts
           </button>
@@ -51,35 +51,35 @@
       </div>
 
       <!-- Liste -->
-      <div class="rounded-3xl bg-white dark:bg-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-black/20 ring-1 ring-slate-100 dark:ring-slate-700 mb-20 sm:mb-0">
+      <div class="rounded-3xl bg-white dark:bg-stone-800 shadow-xl shadow-stone-200/50 dark:shadow-black/20 ring-1 ring-stone-100 dark:ring-stone-700 mb-20 sm:mb-0">
         <!-- Skeleton pendant le chargement initial -->
         <template v-if="pending && !hasAnyDisplayItem">
-          <ul class="divide-y divide-slate-100 dark:divide-slate-700 px-4 py-3">
-            <li v-for="n in 4" :key="n" class="rounded-xl border border-slate-100 dark:border-slate-700 p-4 mb-3 last:mb-0">
-              <div class="h-4 w-40 rounded bg-slate-100 dark:bg-slate-700 animate-pulse mb-4" />
+          <ul class="divide-y divide-stone-100 dark:divide-stone-700 px-4 py-3">
+            <li v-for="n in 4" :key="n" class="rounded-xl border border-stone-100 dark:border-stone-700 p-4 mb-3 last:mb-0">
+              <div class="h-4 w-40 rounded bg-stone-100 dark:bg-stone-700 animate-pulse mb-4" />
               <div class="space-y-2">
-                <div v-for="i in 3" :key="i" class="h-3 rounded bg-slate-100 dark:bg-slate-700 animate-pulse" :style="`width: ${55 + i * 10}%`" />
+                <div v-for="i in 3" :key="i" class="h-3 rounded bg-stone-100 dark:bg-stone-700 animate-pulse" :style="`width: ${55 + i * 10}%`" />
               </div>
             </li>
           </ul>
         </template>
 
-        <div v-else-if="hasAnyDisplayItem" class="divide-y divide-slate-100 dark:divide-slate-700">
+        <div v-else-if="hasAnyDisplayItem" class="divide-y divide-stone-100 dark:divide-stone-700">
           <section v-for="(recipe, recipeIndex) in recipes" :key="`${recipe.day}-${recipe.recipeId}-${recipeIndex}`" class="px-4 py-4">
-            <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100 capitalize">
+            <h3 class="text-sm font-semibold text-stone-900 dark:text-stone-100 capitalize">
                {{ recipe.title }}
-               <span class="text-slate-500 dark:text-slate-400 text-xs">({{ recipe.day }})</span>
+               <span class="text-stone-500 dark:text-stone-400 text-xs">({{ recipe.day }})</span>
             </h3>
             <ul class="mt-2 space-y-1.5">
               <li
                 v-for="(ingredient, index) in recipe.ingredients"
                 :key="`${recipe.day}-${recipe.recipeId}-${ingredient.item}-${ingredient.unit || ''}-${index}`"
-                class="flex items-center gap-3 rounded-lg px-2 py-1.5 transition hover:bg-slate-50 dark:hover:bg-slate-700/60 cursor-pointer"
+                class="flex items-center gap-3 rounded-lg px-2 py-1.5 transition hover:bg-stone-50 dark:hover:bg-stone-700/60 cursor-pointer"
                 @click="toggleRecipeIngredient(recipe, ingredient, index)"
               >
                 <div
                   class="flex h-5 w-5 flex-none items-center justify-center rounded border-2 transition"
-                  :class="isRecipeIngredientChecked(recipe, ingredient, index) ? 'border-sage-300 bg-sage-300' : 'border-slate-300 dark:border-slate-600'"
+                  :class="isRecipeIngredientChecked(recipe, ingredient, index) ? 'border-saffron-300 bg-saffron-300' : 'border-stone-300 dark:border-stone-600'"
                 >
                   <svg v-if="isRecipeIngredientChecked(recipe, ingredient, index)" class="h-3 w-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
@@ -87,10 +87,10 @@
                 </div>
                 <span
                   class="text-sm transition"
-                  :class="isRecipeIngredientChecked(recipe, ingredient, index) ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-800 dark:text-slate-200'"
+                  :class="isRecipeIngredientChecked(recipe, ingredient, index) ? 'line-through text-stone-400 dark:text-stone-500' : 'text-stone-800 dark:text-stone-200'"
                 >
                   {{ ingredient.item }}
-                  <span v-if="ingredient.quantity" class="text-slate-500 dark:text-slate-400 ml-1">
+                  <span v-if="ingredient.quantity" class="text-stone-500 dark:text-stone-400 ml-1">
                     × {{ ingredient.quantity }} {{ ingredient.unit || "" }}
                   </span>
                 </span>
@@ -99,30 +99,30 @@
           </section>
 
           <section v-if="custom.length > 0" class="px-4 py-4">
-            <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100">Ajouts manuels</h3>
+            <h3 class="text-sm font-semibold text-stone-900 dark:text-stone-100">Ajouts manuels</h3>
             <ul class="mt-2 space-y-1.5">
               <li
                 v-for="item in custom"
                 :key="`custom-${item.id}`"
-                class="flex items-center gap-3 rounded-lg px-2 py-1.5 transition hover:bg-slate-50 dark:hover:bg-slate-700/60 group"
+                class="flex items-center gap-3 rounded-lg px-2 py-1.5 transition hover:bg-stone-50 dark:hover:bg-stone-700/60 group"
               >
                 <button
                   type="button"
                   class="flex h-5 w-5 flex-none items-center justify-center rounded border-2 transition"
-                  :class="item.checked ? 'border-sage-300 bg-sage-300' : 'border-slate-300 dark:border-slate-600'"
+                  :class="item.checked ? 'border-saffron-300 bg-saffron-300' : 'border-stone-300 dark:border-stone-600'"
                   @click="toggleItem(item)"
                 >
                   <svg v-if="item.checked" class="h-3 w-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
                   </svg>
                 </button>
-                <span class="flex-1 text-sm transition" :class="item.checked ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-800 dark:text-slate-200'">
+                <span class="flex-1 text-sm transition" :class="item.checked ? 'line-through text-stone-400 dark:text-stone-500' : 'text-stone-800 dark:text-stone-200'">
                   {{ item.item }}
-                  <span v-if="item.quantity" class="text-slate-500 dark:text-slate-400 ml-1">× {{ item.quantity }} {{ item.unit || "" }}</span>
+                  <span v-if="item.quantity" class="text-stone-500 dark:text-stone-400 ml-1">× {{ item.quantity }} {{ item.unit || "" }}</span>
                 </span>
                 <button
                   type="button"
-                  class="text-slate-400 dark:text-slate-500 hover:text-rose-500 transition"
+                  class="text-stone-400 dark:text-stone-500 hover:text-rose-500 transition"
                   @click="deleteCustomItem(item)"
                 >
                   <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -134,13 +134,13 @@
 
         <!-- État vide -->
         <div v-else class="p-12 text-center">
-          <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-slate-50 dark:bg-slate-700">
-            <svg class="h-8 w-8 text-slate-300 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-stone-50 dark:bg-stone-700">
+            <svg class="h-8 w-8 text-stone-300 dark:text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
           </div>
-          <h3 class="text-lg font-medium text-slate-900 dark:text-slate-100">Votre liste est vide</h3>
-          <p class="mt-1 text-slate-500 dark:text-slate-400">Ajoutez des recettes au planning pour les voir apparaître ici.</p>
+          <h3 class="text-lg font-medium text-stone-900 dark:text-stone-100">Votre liste est vide</h3>
+          <p class="mt-1 text-stone-500 dark:text-stone-400">Ajoutez des recettes au planning pour les voir apparaître ici.</p>
         </div>
       </div>
 

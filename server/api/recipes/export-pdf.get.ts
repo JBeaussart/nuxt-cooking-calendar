@@ -30,7 +30,7 @@ async function renderPdf(event: H3Event, recipes: RecipeRow[]) {
 
   doc.fontSize(20).text("Mes recettes", { underline: false });
   doc.moveDown(0.5);
-  doc.fontSize(10).fillColor("#6b7280").text(`Généré le ${new Date().toLocaleDateString("fr-FR")}`);
+  doc.fontSize(10).fillColor("#78716c").text(`Généré le ${new Date().toLocaleDateString("fr-FR")}`);
   doc.fillColor("black");
   doc.moveDown(1);
 
@@ -69,7 +69,7 @@ async function renderPdf(event: H3Event, recipes: RecipeRow[]) {
         .filter(Boolean)
         .forEach((s, i) => doc.text(`${i + 1}. ${s}`));
     } else {
-      doc.fontSize(12).fillColor("#6b7280").text("Aucune étape.");
+      doc.fontSize(12).fillColor("#78716c").text("Aucune étape.");
       doc.fillColor("black");
     }
   });

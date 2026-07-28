@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen flex items-center justify-center px-4 py-12">
     <div class="w-full max-w-md">
-      <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8">
+      <div class="bg-white dark:bg-stone-800 rounded-2xl shadow-xl p-8">
         <PageHeader
           no-margin
           class="mb-8"
@@ -11,22 +11,22 @@
 
         <form @submit.prevent="handleLogin" class="space-y-6">
           <div>
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Email</label>
+            <label class="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2">Email</label>
             <input
               v-model="email"
               type="email"
               required
-              class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-sage-300 focus:border-transparent outline-none transition"
+              class="w-full px-4 py-3 border border-stone-300 dark:border-stone-600 dark:bg-stone-900 dark:text-stone-100 rounded-lg focus:ring-2 focus:ring-saffron-300 focus:border-transparent outline-none transition"
               placeholder="votre@email.com"
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Mot de passe</label>
+            <label class="block text-sm font-medium text-stone-700 dark:text-stone-300 mb-2">Mot de passe</label>
             <input
               v-model="password"
               type="password"
               required
-              class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-sage-300 focus:border-transparent outline-none transition"
+              class="w-full px-4 py-3 border border-stone-300 dark:border-stone-600 dark:bg-stone-900 dark:text-stone-100 rounded-lg focus:ring-2 focus:ring-saffron-300 focus:border-transparent outline-none transition"
               placeholder="••••••••"
             />
           </div>
@@ -38,16 +38,16 @@
           <button
             type="submit"
             :disabled="loading"
-            class="w-full bg-gradient-to-r from-sage-300 to-sage-500 text-white py-3 rounded-lg font-semibold hover:from-sage-300 hover:to-sage-600 transition shadow-lg hover:shadow-xl disabled:opacity-60"
+            class="w-full bg-gradient-to-r from-saffron-300 to-saffron-500 text-white py-3 rounded-lg font-semibold hover:from-saffron-300 hover:to-saffron-600 transition shadow-lg hover:shadow-xl disabled:opacity-60"
           >
             {{ loading ? 'Connexion...' : 'Se connecter' }}
           </button>
         </form>
 
         <div class="mt-6 text-center">
-          <p class="text-slate-600 dark:text-slate-400">
+          <p class="text-stone-600 dark:text-stone-400">
             Pas encore de compte ?
-            <NuxtLink to="/signup" class="text-sage-600 hover:text-sage-700 dark:text-sage-400 dark:hover:text-sage-300 font-medium ml-1">
+            <NuxtLink to="/signup" class="text-saffron-600 hover:text-saffron-700 dark:text-saffron-400 dark:hover:text-saffron-300 font-medium ml-1">
               Créer un compte
             </NuxtLink>
           </p>

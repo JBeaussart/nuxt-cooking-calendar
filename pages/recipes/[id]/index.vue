@@ -1,31 +1,31 @@
 <template>
   <div class="min-h-screen pb-20">
     <div class="mx-auto max-w-4xl px-4 py-8 sm:py-12">
-      <div v-if="pending" class="flex min-h-[50vh] items-center justify-center text-slate-400 dark:text-slate-500">
+      <div v-if="pending" class="flex min-h-[50vh] items-center justify-center text-stone-400 dark:text-stone-500">
         Chargement...
       </div>
 
       <div v-else-if="recipe">
         <!-- Navigation -->
         <div class="mb-6 flex items-center justify-between">
-          <NuxtLink :to="recipesIndexHref" class="inline-flex items-center gap-2 rounded-xl bg-white dark:bg-slate-800 px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 hover:bg-sage-50 dark:hover:bg-sage-900/30 hover:text-sage-300 transition">
+          <NuxtLink :to="recipesIndexHref" class="inline-flex items-center gap-2 rounded-xl bg-white dark:bg-stone-800 px-4 py-2 text-sm font-medium text-stone-600 dark:text-stone-300 shadow-sm ring-1 ring-stone-200 dark:ring-stone-700 hover:bg-saffron-50 dark:hover:bg-saffron-900/30 hover:text-saffron-300 transition">
             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
             Retour
           </NuxtLink>
           <div class="flex items-center gap-2">
             <NuxtLink :to="`/recipes/${recipe.id}/edit`"
-              class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 hover:bg-sage-50 dark:hover:bg-sage-900/30 hover:text-sage-300 transition">
+              class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-300 shadow-sm ring-1 ring-stone-200 dark:ring-stone-700 hover:bg-saffron-50 dark:hover:bg-saffron-900/30 hover:text-saffron-300 transition">
               <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
             </NuxtLink>
             <button @click="deleteRecipe"
-              class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white dark:bg-slate-800 text-rose-600 dark:text-rose-400 shadow-sm ring-1 ring-slate-200 dark:ring-slate-700 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition">
+              class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white dark:bg-stone-800 text-rose-600 dark:text-rose-400 shadow-sm ring-1 ring-stone-200 dark:ring-stone-700 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition">
               <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m1 0H8m8 0l-1-3H9L8 7" /></svg>
             </button>
           </div>
         </div>
 
         <!-- Carte principale -->
-        <div class="overflow-hidden rounded-3xl bg-white dark:bg-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-black/20 ring-1 ring-slate-100 dark:ring-slate-700">
+        <div class="overflow-hidden rounded-3xl bg-white dark:bg-stone-800 shadow-xl shadow-stone-200/50 dark:shadow-black/20 ring-1 ring-stone-100 dark:ring-stone-700">
           <!-- Image header -->
           <div class="relative h-64 sm:h-80 w-full">
             <img
@@ -46,7 +46,7 @@
                 Recette de maman
               </span>
               <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-bold text-white shadow-sm backdrop-blur-sm"
-                :class="recipe.salt ? 'bg-sage-300/90' : 'bg-sage-500/90'">
+                :class="recipe.salt ? 'bg-emerald-500/90' : 'bg-amber-500/90'">
                 {{ recipe.salt ? 'Salé' : 'Sucré' }}
               </span>
             </div>
@@ -75,13 +75,13 @@
           <div class="grid gap-12 p-6 sm:p-10 md:grid-cols-[1fr_1.5fr]">
             <!-- Ingrédients -->
             <section>
-              <h2 class="mb-6 flex items-center gap-3 text-lg font-bold text-slate-900 dark:text-slate-100">
-                <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-700">🧂</span>
+              <h2 class="mb-6 flex items-center gap-3 text-lg font-bold text-stone-900 dark:text-stone-100">
+                <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-stone-100 dark:bg-stone-700">🧂</span>
                 Ingrédients
               </h2>
               <ul class="space-y-3 pl-2">
-                <li v-for="(ing, i) in recipeIngredients" :key="i" class="flex items-start gap-3 text-slate-700 dark:text-slate-300">
-                  <div class="mt-1.5 h-1.5 w-1.5 flex-none rounded-full bg-slate-400 dark:bg-slate-500" />
+                <li v-for="(ing, i) in recipeIngredients" :key="i" class="flex items-start gap-3 text-stone-700 dark:text-stone-300">
+                  <div class="mt-1.5 h-1.5 w-1.5 flex-none rounded-full bg-stone-400 dark:bg-stone-500" />
                   <span class="text-sm font-medium leading-relaxed">
                     <template v-if="typeof ing === 'object' && ing.quantity">
                       {{ ing.item }}: {{ ing.quantity }} {{ ing.unit || '' }}
@@ -95,17 +95,17 @@
 
             <!-- Préparation -->
             <section>
-              <h2 class="mb-6 flex items-center gap-3 text-lg font-bold text-slate-900 dark:text-slate-100">
-                <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-white dark:bg-slate-700 shadow-sm ring-1 ring-slate-200 dark:ring-slate-600">🍳</span>
+              <h2 class="mb-6 flex items-center gap-3 text-lg font-bold text-stone-900 dark:text-stone-100">
+                <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-white dark:bg-stone-700 shadow-sm ring-1 ring-stone-200 dark:ring-stone-600">🍳</span>
                 Préparation
               </h2>
               <div class="space-y-8">
                 <div v-for="(step, i) in recipeSteps" :key="i" class="relative pl-8">
-                  <div v-if="i !== recipeSteps.length - 1" class="absolute left-[11px] top-8 bottom-[-32px] w-px bg-slate-200 dark:bg-slate-700" />
-                  <span class="absolute left-0 top-0 flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-700 text-xs font-bold text-slate-600 dark:text-slate-300 ring-4 ring-white dark:ring-slate-800">
+                  <div v-if="i !== recipeSteps.length - 1" class="absolute left-[11px] top-8 bottom-[-32px] w-px bg-stone-200 dark:bg-stone-700" />
+                  <span class="absolute left-0 top-0 flex h-6 w-6 items-center justify-center rounded-full bg-stone-100 dark:bg-stone-700 text-xs font-bold text-stone-600 dark:text-stone-300 ring-4 ring-white dark:ring-stone-800">
                     {{ i + 1 }}
                   </span>
-                  <p class="text-slate-600 dark:text-slate-300 leading-relaxed">{{ step }}</p>
+                  <p class="text-stone-600 dark:text-stone-300 leading-relaxed">{{ step }}</p>
                 </div>
               </div>
             </section>
@@ -115,12 +115,12 @@
 
       <!-- Échec de chargement (réseau, timeout...) : à ne pas confondre avec une suppression -->
       <div v-else-if="loadError" class="flex min-h-[50vh] flex-col items-center justify-center text-center">
-        <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">Erreur de chargement</h2>
-        <p class="mt-2 text-slate-500 dark:text-slate-400">Impossible de charger cette recette pour le moment. Vérifiez votre connexion.</p>
+        <h2 class="text-xl font-semibold text-stone-900 dark:text-stone-100">Erreur de chargement</h2>
+        <p class="mt-2 text-stone-500 dark:text-stone-400">Impossible de charger cette recette pour le moment. Vérifiez votre connexion.</p>
         <button
           type="button"
           @click="refresh"
-          class="mt-6 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-sage-300 to-sage-500 px-6 py-3 text-sm font-bold text-white shadow-lg"
+          class="mt-6 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-saffron-300 to-saffron-500 px-6 py-3 text-sm font-bold text-white shadow-lg"
         >
           Réessayer
         </button>
@@ -128,9 +128,9 @@
 
       <!-- Recette introuvable -->
       <div v-else class="flex min-h-[50vh] flex-col items-center justify-center text-center">
-        <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">Recette introuvable</h2>
-        <p class="mt-2 text-slate-500 dark:text-slate-400">Cette recette n'existe pas ou a été supprimée.</p>
-        <NuxtLink to="/recipes" class="mt-6 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-sage-300 to-sage-500 px-6 py-3 text-sm font-bold text-white shadow-lg">
+        <h2 class="text-xl font-semibold text-stone-900 dark:text-stone-100">Recette introuvable</h2>
+        <p class="mt-2 text-stone-500 dark:text-stone-400">Cette recette n'existe pas ou a été supprimée.</p>
+        <NuxtLink to="/recipes" class="mt-6 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-saffron-300 to-saffron-500 px-6 py-3 text-sm font-bold text-white shadow-lg">
           Retour aux recettes
         </NuxtLink>
       </div>
