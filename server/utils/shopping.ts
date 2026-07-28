@@ -5,8 +5,11 @@ const normalize = (s: string) =>
   String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 
 export async function recomputeShoppingTotals(userId: string, supabase: SupabaseClient) {
+  // Seules les recettes planifiées à venir (aujourd'hui inclus) comptent :
+  // un repas déjà passé n'a plus besoin d'être acheté.
+  const today = new Date().toISOString().slice(0, 10);
   const [{ data: planningData }, { data: receptionRow }, { data: savedRow }] = await Promise.all([
-    supabase.from("planning").select("recipe_id").eq("user_id", userId).not("recipe_id", "is", null),
+    supabase.from("planning_entries").select("recipe_id").eq("user_id", userId).gte("date", today),
     supabase.from("reception").select("data").eq("user_id", userId).maybeSingle(),
     supabase.from("shopping_totals").select("data").eq("user_id", userId).maybeSingle(),
   ]);

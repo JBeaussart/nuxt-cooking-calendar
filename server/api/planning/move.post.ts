@@ -2,17 +2,20 @@ export default defineEventHandler(async (event) => {
   const { user, supabase } = await getServerUser(event);
   if (!user || !supabase) throw createError({ statusCode: 401, statusMessage: "Non authentifié" });
 
-  const { fromDay, toDay, recipeId } = await readBody(event);
-  if (!fromDay || !toDay || !recipeId) throw createError({ statusCode: 400, statusMessage: "Paramètres manquants" });
+  const { id, date } = await readBody(event);
+  if (!id || !date) throw createError({ statusCode: 400, statusMessage: "Paramètres manquants" });
 
-  await Promise.all([
-    supabase.from("planning").upsert({ day: toDay, recipe_id: recipeId, user_id: user.id }, { onConflict: "day,user_id" }),
-    supabase.from("planning").update({ recipe_id: null }).eq("day", fromDay).eq("user_id", user.id),
-  ]);
+  const { error } = await supabase
+    .from("planning_entries")
+    .update({ date })
+    .eq("id", id)
+    .eq("user_id", user.id);
 
-  // Doit être attendu : sur Netlify Functions, l'exécution s'arrête dès la
-  // réponse envoyée, donc un vrai "fire-and-forget" ne s'exécuterait jamais.
-  // Le client a déjà été mis à jour de façon optimiste, on ignore juste les erreurs.
+  if (error) throw createError({ statusCode: 500, statusMessage: error.message });
+
+  // Un déplacement peut faire passer une entrée d'un côté ou l'autre de la
+  // frontière "aujourd'hui" : toujours recalculer, même si la recette est
+  // inchangée. Doit être attendu (cf. commentaire Netlify dans les autres routes).
   await recomputeShoppingTotals(user.id, supabase).catch(() => {});
   return { ok: true };
 });

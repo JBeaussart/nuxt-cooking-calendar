@@ -53,7 +53,7 @@
 
             <!-- Bouton ajouter au planning / à la réception (si on vient de l'un des deux) -->
             <div class="absolute right-4 top-4">
-              <button v-if="dayParam" @click="assignToPlanning"
+              <button v-if="dateParam" @click="assignToPlanning"
                 class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-green-600 ring-1 ring-green-200 shadow hover:bg-white hover:text-green-700 transition">
                 <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16M20 12H4" /></svg>
               </button>
@@ -145,13 +145,13 @@ const route = useRoute();
 const { getOptimizedImageUrl } = useImageOptimizer();
 const planning = usePlanningStore();
 const id = route.params.id as string;
-const dayParam = computed(() => (route.query.day as string || "").toLowerCase());
+const dateParam = computed(() => (route.query.date as string) || "");
 const slotParam = computed(() => (route.query.slot as string || "").toLowerCase());
 
-/** Conserve ?day= / ?slot= pour retrouver le mode « assigner » sur la liste des recettes */
+/** Conserve ?date= / ?slot= pour retrouver le mode « assigner » sur la liste des recettes */
 const recipesIndexHref = computed(() => {
   const q = new URLSearchParams();
-  if (dayParam.value) q.set("day", dayParam.value);
+  if (dateParam.value) q.set("date", dateParam.value);
   if (slotParam.value) q.set("slot", slotParam.value);
   const s = q.toString();
   return s ? `/recipes?${s}` : "/recipes";
@@ -178,10 +178,14 @@ const deleteRecipe = async () => {
   }
 };
 
-const assignToPlanning = () => {
-  if (!recipe.value) return;
-  planning.assign(dayParam.value, { id, title: recipe.value.title, image: recipe.value.image });
-  navigateTo("/planning");
+const assignToPlanning = async () => {
+  if (!recipe.value || !dateParam.value) return;
+  try {
+    await planning.assign(dateParam.value, { id, title: recipe.value.title, image: recipe.value.image });
+    navigateTo("/planning");
+  } catch {
+    alert("Impossible d'assigner la recette.");
+  }
 };
 
 const assignToReception = async () => {

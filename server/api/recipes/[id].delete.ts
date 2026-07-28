@@ -4,9 +4,10 @@ export default defineEventHandler(async (event) => {
 
   const id = getRouterParam(event, "id");
 
-  // Nettoyer les références dans planning et reception
-  await supabase.from("planning").update({ recipe_id: null }).eq("recipe_id", id).eq("user_id", user.id);
-
+  // planning_entries a recipe_id en "on delete cascade" : les entrées de
+  // planning liées à cette recette sont supprimées automatiquement par la
+  // base. Un cascade ne recalcule pas la liste de courses, donc on le fait
+  // explicitement plus bas. La réception, elle, n'a pas de FK : nettoyage manuel.
   const { data: receptionData } = await supabase
     .from("reception")
     .select("data")
@@ -26,5 +27,7 @@ export default defineEventHandler(async (event) => {
 
   const { error } = await supabase.from("recipes").delete().eq("id", id).eq("user_id", user.id);
   if (error) throw createError({ statusCode: 500, statusMessage: error.message });
+
+  await recomputeShoppingTotals(user.id, supabase).catch(() => {});
   return { ok: true };
 });

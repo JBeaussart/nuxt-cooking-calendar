@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
 
   const [{ count: recipesCount }, { count: planningCount }, profile] = await Promise.all([
     supabase.from("recipes").select("*", { count: "exact", head: true }).eq("user_id", user.id),
-    supabase.from("planning").select("*", { count: "exact", head: true }).eq("user_id", user.id).not("recipe_id", "is", null),
+    supabase.from("planning_entries").select("*", { count: "exact", head: true }).eq("user_id", user.id),
     getProfile(),
   ]);
 

@@ -4,22 +4,25 @@ export default defineEventHandler(async (event) => {
   const { user, supabase } = await getServerUser(event);
   if (!user || !supabase) throw createError({ statusCode: 401, statusMessage: "Non authentifié" });
 
+  const today = new Date().toISOString().slice(0, 10);
   const [{ data: savedRow }, { data: custom }, { data: planningRows }, { data: receptionRow }] = await Promise.all([
     supabase.from("shopping_totals").select("data").eq("user_id", user.id).maybeSingle(),
     supabase.from("shopping_custom").select("*").eq("user_id", user.id),
     supabase
-      .from("planning")
-      .select("day, recipe_id")
+      .from("planning_entries")
+      .select("date, recipe_id")
       .eq("user_id", user.id)
-      .not("recipe_id", "is", null),
+      .gte("date", today)
+      .order("date", { ascending: true }),
     supabase.from("reception").select("data").eq("user_id", user.id).maybeSingle(),
   ]);
 
   const totals: ShoppingTotalItem[] = Array.isArray(savedRow?.data?.items) ? savedRow.data.items : [];
-  const daysOrder = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
-  const planning = (planningRows || []).sort(
-    (a: any, b: any) => daysOrder.indexOf(a.day) - daysOrder.indexOf(b.day)
-  );
+  const dayLabelFormatter = new Intl.DateTimeFormat("fr-FR", { weekday: "short", day: "numeric", month: "short" });
+  const planning = (planningRows || []).map((row: any) => ({
+    day: dayLabelFormatter.format(new Date(`${row.date}T00:00:00`)),
+    recipe_id: row.recipe_id,
+  }));
 
   // Les recettes assignées en réception (apéritif/entrée/plat/dessert) doivent
   // aussi apparaître ici, sinon leurs ingrédients sont comptés dans les totaux
