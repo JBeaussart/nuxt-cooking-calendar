@@ -20,6 +20,15 @@ const normalizeUnitKey = (s: string) => {
   return n.length > 1 && n.endsWith("s") ? n.slice(0, -1) : n;
 };
 
+// "Haricot rouge" et "haricots rouges" doivent fusionner de la meme facon :
+// on ignore le pluriel de chaque mot du nom d'ingredient dans la cle de
+// regroupement (l'affichage garde le premier libelle rencontre).
+const normalizeItemKey = (s: string) =>
+  normalize(s)
+    .split(" ")
+    .map((word) => (word.length > 1 && word.endsWith("s") ? word.slice(0, -1) : word))
+    .join(" ");
+
 export async function recomputeShoppingTotals(userId: string, supabase: SupabaseClient) {
   // Seules les recettes planifiées à venir (aujourd'hui inclus) comptent :
   // un repas déjà passé n'a plus besoin d'être acheté.
@@ -58,7 +67,7 @@ export async function recomputeShoppingTotals(userId: string, supabase: Supabase
 
         const qty = typeof ing === "object" && ing.quantity != null ? Number(ing.quantity) * count : undefined;
         const unit = typeof ing === "object" ? (ing.unit || "") : "";
-        const key = `${normalize(item)}|${normalizeUnitKey(unit)}`;
+        const key = `${normalizeItemKey(item)}|${normalizeUnitKey(unit)}`;
         const savedChecked = checkedMap.get(`${item.trim()}|${unit.trim()}`) ?? false;
 
         const prev = totalsMap.get(key);
