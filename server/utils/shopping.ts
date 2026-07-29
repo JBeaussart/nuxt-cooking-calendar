@@ -1,8 +1,24 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { ShoppingTotalItem } from "~/types/shopping";
 
+// NFD ne decompose que les accents (e-aigu -> e) : les ligatures oe/ae collees
+// n'ont pas de decomposition canonique et doivent etre depliees a la main.
 const normalize = (s: string) =>
-  String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+  String(s || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/\u0153/g, "oe")
+    .replace(/\u00e6/g, "ae")
+    .trim();
+
+// "gousse" et "gousses" (ou "Ail"/"ail") doivent fusionner : on ignore le
+// pluriel de l'unite dans la cle de regroupement (l'affichage garde le
+// premier libelle rencontre, seule la cle de fusion est concernee).
+const normalizeUnitKey = (s: string) => {
+  const n = normalize(s);
+  return n.length > 1 && n.endsWith("s") ? n.slice(0, -1) : n;
+};
 
 export async function recomputeShoppingTotals(userId: string, supabase: SupabaseClient) {
   // Seules les recettes planifiées à venir (aujourd'hui inclus) comptent :
@@ -42,7 +58,7 @@ export async function recomputeShoppingTotals(userId: string, supabase: Supabase
 
         const qty = typeof ing === "object" && ing.quantity != null ? Number(ing.quantity) * count : undefined;
         const unit = typeof ing === "object" ? (ing.unit || "") : "";
-        const key = `${normalize(item)}|${normalize(unit)}`;
+        const key = `${normalize(item)}|${normalizeUnitKey(unit)}`;
         const savedChecked = checkedMap.get(`${item.trim()}|${unit.trim()}`) ?? false;
 
         const prev = totalsMap.get(key);

@@ -29,24 +29,40 @@
         </form>
 
         <!-- Actions groupées -->
-        <div class="grid w-full grid-cols-3 gap-2 sm:flex sm:w-auto sm:justify-center sm:items-center sm:gap-3">
-          <button @click="checkAll"
-            class="inline-flex w-full sm:w-auto justify-center items-center gap-1 sm:gap-2 rounded-xl bg-white dark:bg-stone-800 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium text-stone-700 dark:text-stone-300 shadow-sm ring-1 ring-stone-200 dark:ring-stone-700 hover:bg-saffron-50 dark:hover:bg-saffron-900/30 hover:text-saffron-300 transition">
-            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-            Tout cocher
-          </button>
-          <button @click="uncheckAll"
-            class="inline-flex w-full sm:w-auto justify-center items-center gap-1 sm:gap-2 rounded-xl bg-white dark:bg-stone-800 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium text-stone-700 dark:text-stone-300 shadow-sm ring-1 ring-stone-200 dark:ring-stone-700 hover:bg-saffron-50 dark:hover:bg-saffron-900/30 hover:text-saffron-300 transition">
-            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-            Tout décocher
-          </button>
+        <div class="flex items-center gap-2 sm:justify-center sm:gap-3">
           <button
-            @click="clearCustomItems"
-            :disabled="!custom.some(c => c.checked)"
-            class="inline-flex w-full sm:w-auto justify-center items-center gap-1 sm:gap-2 rounded-xl bg-white dark:bg-stone-800 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium text-rose-500 dark:text-rose-400 shadow-sm ring-1 ring-rose-200 dark:ring-rose-900 hover:bg-rose-50 dark:hover:bg-rose-950/30 disabled:opacity-50 disabled:cursor-not-allowed transition">
-            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m-7 0a1 1 0 011-1h4a1 1 0 011 1m-6 0h8" /></svg>
-            Effacer ajouts
+            type="button"
+            class="inline-flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl bg-white dark:bg-stone-800 shadow-sm ring-1 ring-stone-200 dark:ring-stone-700 hover:bg-saffron-50 dark:hover:bg-saffron-900/30 hover:text-saffron-300 text-stone-700 dark:text-stone-300 transition"
+            :title="viewMode === 'condensed' ? 'Voir par recette' : 'Voir la vue condensée'"
+            @click="toggleViewMode"
+          >
+            <svg v-if="viewMode === 'condensed'" class="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
+            </svg>
+            <svg v-else class="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7a2 2 0 012-2h4l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V7z" />
+            </svg>
           </button>
+
+          <div class="grid flex-1 grid-cols-3 gap-2 sm:flex sm:flex-none sm:w-auto sm:items-center sm:gap-3">
+            <button @click="checkAll"
+              class="inline-flex w-full sm:w-auto justify-center items-center gap-1 sm:gap-2 whitespace-nowrap rounded-xl bg-white dark:bg-stone-800 px-1.5 sm:px-4 py-2 text-[11px] sm:text-sm font-medium text-stone-700 dark:text-stone-300 shadow-sm ring-1 ring-stone-200 dark:ring-stone-700 hover:bg-saffron-50 dark:hover:bg-saffron-900/30 hover:text-saffron-300 transition">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+              Tout cocher
+            </button>
+            <button @click="uncheckAll"
+              class="inline-flex w-full sm:w-auto justify-center items-center gap-1 sm:gap-2 whitespace-nowrap rounded-xl bg-white dark:bg-stone-800 px-1.5 sm:px-4 py-2 text-[11px] sm:text-sm font-medium text-stone-700 dark:text-stone-300 shadow-sm ring-1 ring-stone-200 dark:ring-stone-700 hover:bg-saffron-50 dark:hover:bg-saffron-900/30 hover:text-saffron-300 transition">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+              Tout décocher
+            </button>
+            <button
+              @click="clearCustomItems"
+              :disabled="!custom.some(c => c.checked)"
+              class="inline-flex w-full sm:w-auto justify-center items-center gap-1 sm:gap-2 whitespace-nowrap rounded-xl bg-white dark:bg-stone-800 px-1.5 sm:px-4 py-2 text-[11px] sm:text-sm font-medium text-rose-500 dark:text-rose-400 shadow-sm ring-1 ring-rose-200 dark:ring-rose-900 hover:bg-rose-50 dark:hover:bg-rose-950/30 disabled:opacity-50 disabled:cursor-not-allowed transition">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m-7 0a1 1 0 011-1h4a1 1 0 011 1m-6 0h8" /></svg>
+              Effacer ajouts
+            </button>
+          </div>
         </div>
       </div>
 
@@ -65,44 +81,79 @@
         </template>
 
         <div v-else-if="hasAnyDisplayItem" class="divide-y divide-stone-100 dark:divide-stone-700">
-          <section v-for="(recipe, recipeIndex) in recipes" :key="`${recipe.day}-${recipe.recipeId}-${recipeIndex}`" class="px-4 py-4">
-            <h3 class="text-sm font-semibold text-stone-900 dark:text-stone-100 capitalize">
-               {{ recipe.title }}
-               <span class="text-stone-500 dark:text-stone-400 text-xs">({{ recipe.day }})</span>
-            </h3>
-            <ul class="mt-2 space-y-1.5">
+          <template v-if="viewMode === 'recipe'">
+            <section v-for="(recipe, recipeIndex) in recipes" :key="`${recipe.day}-${recipe.recipeId}-${recipeIndex}`" class="px-4 py-4">
+              <h3 class="text-sm font-semibold text-stone-900 dark:text-stone-100 capitalize">
+                 {{ recipe.title }}
+                 <span class="text-stone-500 dark:text-stone-400 text-xs">({{ recipe.day }})</span>
+              </h3>
+              <TransitionGroup name="list" tag="ul" class="mt-2 space-y-1.5">
+                <li
+                  v-for="{ ingredient, originalIndex } in sortedIngredients(recipe)"
+                  :key="`${recipe.day}-${recipe.recipeId}-${ingredient.item}-${ingredient.unit || ''}-${originalIndex}`"
+                  class="flex items-center gap-3 rounded-lg px-2 py-1.5 transition hover:bg-stone-50 dark:hover:bg-stone-700/60 cursor-pointer"
+                  @click="toggleRecipeIngredient(recipe, ingredient, originalIndex)"
+                >
+                  <div
+                    class="flex h-5 w-5 flex-none items-center justify-center rounded border-2 transition"
+                    :class="isRecipeIngredientChecked(recipe, ingredient, originalIndex) ? 'border-saffron-300 bg-saffron-300' : 'border-stone-300 dark:border-stone-600'"
+                  >
+                    <svg v-if="isRecipeIngredientChecked(recipe, ingredient, originalIndex)" class="h-3 w-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <span
+                    class="text-sm transition"
+                    :class="isRecipeIngredientChecked(recipe, ingredient, originalIndex) ? 'line-through text-stone-400 dark:text-stone-500' : 'text-stone-800 dark:text-stone-200'"
+                  >
+                    {{ ingredient.item }}
+                    <span v-if="ingredient.quantity" class="text-stone-500 dark:text-stone-400 ml-1">
+                      × {{ ingredient.quantity }} {{ ingredient.unit || "" }}
+                    </span>
+                  </span>
+                </li>
+              </TransitionGroup>
+            </section>
+          </template>
+
+          <section v-else-if="sortedTotals.length > 0" class="px-4 py-4">
+            <h3 class="text-sm font-semibold text-stone-900 dark:text-stone-100">Ingrédients à acheter</h3>
+            <TransitionGroup name="list" tag="ul" class="mt-2 space-y-1.5">
               <li
-                v-for="(ingredient, index) in recipe.ingredients"
-                :key="`${recipe.day}-${recipe.recipeId}-${ingredient.item}-${ingredient.unit || ''}-${index}`"
+                v-for="total in sortedTotals"
+                :key="totalIdentity(total)"
                 class="flex items-center gap-3 rounded-lg px-2 py-1.5 transition hover:bg-stone-50 dark:hover:bg-stone-700/60 cursor-pointer"
-                @click="toggleRecipeIngredient(recipe, ingredient, index)"
+                @click="toggleTotal(total)"
               >
                 <div
                   class="flex h-5 w-5 flex-none items-center justify-center rounded border-2 transition"
-                  :class="isRecipeIngredientChecked(recipe, ingredient, index) ? 'border-saffron-300 bg-saffron-300' : 'border-stone-300 dark:border-stone-600'"
+                  :class="total.checked ? 'border-saffron-300 bg-saffron-300' : 'border-stone-300 dark:border-stone-600'"
                 >
-                  <svg v-if="isRecipeIngredientChecked(recipe, ingredient, index)" class="h-3 w-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <svg v-if="total.checked" class="h-3 w-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
                 <span
-                  class="text-sm transition"
-                  :class="isRecipeIngredientChecked(recipe, ingredient, index) ? 'line-through text-stone-400 dark:text-stone-500' : 'text-stone-800 dark:text-stone-200'"
+                  class="flex-1 text-sm transition"
+                  :class="total.checked ? 'line-through text-stone-400 dark:text-stone-500' : 'text-stone-800 dark:text-stone-200'"
                 >
-                  {{ ingredient.item }}
-                  <span v-if="ingredient.quantity" class="text-stone-500 dark:text-stone-400 ml-1">
-                    × {{ ingredient.quantity }} {{ ingredient.unit || "" }}
+                  {{ total.item }}
+                  <span v-if="total.quantity" class="text-stone-500 dark:text-stone-400 ml-1">
+                    × {{ total.quantity }} {{ total.unit || "" }}
+                  </span>
+                  <span v-if="total.recipes?.length" class="block text-xs text-stone-400 dark:text-stone-500">
+                    {{ total.recipes.join(", ") }}
                   </span>
                 </span>
               </li>
-            </ul>
+            </TransitionGroup>
           </section>
 
           <section v-if="custom.length > 0" class="px-4 py-4">
             <h3 class="text-sm font-semibold text-stone-900 dark:text-stone-100">Ajouts manuels</h3>
-            <ul class="mt-2 space-y-1.5">
+            <TransitionGroup name="list" tag="ul" class="mt-2 space-y-1.5">
               <li
-                v-for="item in custom"
+                v-for="item in sortedCustom"
                 :key="`custom-${item.id}`"
                 class="flex items-center gap-3 rounded-lg px-2 py-1.5 transition hover:bg-stone-50 dark:hover:bg-stone-700/60 group"
               >
@@ -128,7 +179,7 @@
                   <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
               </li>
-            </ul>
+            </TransitionGroup>
           </section>
         </div>
 
@@ -176,6 +227,17 @@ const custom = computed(() => shoppingData.value?.custom || []);
 const recipes = computed(() => shoppingData.value?.recipes || []);
 const hasAnyDisplayItem = computed(() => recipes.value.length > 0 || custom.value.length > 0);
 
+// Les articles coches descendent en bas de leur liste (tri stable : l'ordre
+// relatif des articles non coches entre eux, et des coches entre eux, ne bouge pas).
+const byCheckedLast = <T extends { checked: boolean }>(list: T[]) =>
+  [...list].sort((a, b) => Number(a.checked) - Number(b.checked));
+const sortedCustom = computed(() => byCheckedLast(custom.value));
+
+const viewMode = useState<"recipe" | "condensed">("shopping_view_mode", () => "condensed");
+const toggleViewMode = () => {
+  viewMode.value = viewMode.value === "condensed" ? "recipe" : "condensed";
+};
+
 const sameId = (a: unknown, b: unknown) => String(a) === String(b);
 
 const upsertCustomItem = (incoming: ShoppingCustomItem) => {
@@ -191,17 +253,36 @@ const removeCustomItemById = (id: unknown) => {
   if (idx !== -1) shoppingData.value.custom.splice(idx, 1);
 };
 
+// NFD ne decompose que les accents : les ligatures oe/ae collees n'ont pas
+// de decomposition canonique et doivent etre depliees a la main.
 const normalize = (s: string) =>
-  String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+  String(s || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/\u0153/g, "oe")
+    .replace(/\u00e6/g, "ae")
+    .trim();
+
+// "gousse" et "gousses" (ou "Ail"/"ail") doivent fusionner : on ignore le
+// pluriel de l'unité dans la clé de regroupement.
+const normalizeUnitKey = (s: string) => {
+  const n = normalize(s);
+  return n.length > 1 && n.endsWith("s") ? n.slice(0, -1) : n;
+};
 
 const totalIdentity = (item: Pick<ShoppingTotalItem, "item" | "unit">) =>
-  `${normalize(item.item)}__${normalize(item.unit || "")}`;
+  `${normalize(item.item)}__${normalizeUnitKey(item.unit || "")}`;
 
 const totalsByIdentity = computed(() => {
   const map = new Map<string, ShoppingTotalItem>();
   for (const item of totals.value) map.set(totalIdentity(item), item);
   return map;
 });
+
+const sortedTotals = computed(() =>
+  byCheckedLast([...totals.value].sort((a, b) => normalize(a.item).localeCompare(normalize(b.item)))),
+);
 
 const recipeIngredientOccurrenceId = (
   recipe: { day: string; recipeId: string },
@@ -245,6 +326,16 @@ const isRecipeIngredientChecked = (
   const occurrenceId = recipeIngredientOccurrenceId(recipe, ingredient, ingredientIndex);
   return total.checkedOccurrences?.includes(occurrenceId) || false;
 };
+
+// L'index d'origine (dans recipe.ingredients) doit être conservé au tri :
+// c'est lui qui identifie l'occurrence pour le suivi des coches.
+const sortedIngredients = (recipe: { day: string; recipeId: string; ingredients: ShoppingRecipeIngredient[] }) =>
+  recipe.ingredients
+    .map((ingredient, originalIndex) => ({ ingredient, originalIndex }))
+    .sort((a, b) =>
+      Number(isRecipeIngredientChecked(recipe, a.ingredient, a.originalIndex)) -
+      Number(isRecipeIngredientChecked(recipe, b.ingredient, b.originalIndex)),
+    );
 
 const addCustomItem = async () => {
   if (!newItem.value.trim() || isAddingCustomItem.value) return;
@@ -313,6 +404,24 @@ const toggleRecipeIngredient = (
   else next.add(occurrenceId);
   original.checkedOccurrences = [...next];
   original.checked = original.checkedOccurrences.length > 0;
+  saveTotals();
+};
+
+// Vue condensée : une case coche/décoche l'ingrédient pour toutes les
+// recettes qui le contiennent (pas d'occurrence isolée à cocher).
+const toggleTotal = (total: ShoppingTotalItem) => {
+  if (!shoppingData.value) return;
+  const identity = totalIdentity(total);
+  const original = shoppingData.value.totals.find((t: ShoppingTotalItem) => totalIdentity(t) === identity);
+  if (!original) return;
+  normalizeTotalCheckedState(original);
+  if (original.checked) {
+    original.checkedOccurrences = [];
+    original.checked = false;
+  } else {
+    original.checkedOccurrences = [...(recipeOccurrenceIdsByIdentity.value.get(identity) || [])];
+    original.checked = true;
+  }
   saveTotals();
 };
 
