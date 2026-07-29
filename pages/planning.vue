@@ -154,7 +154,7 @@
               <svg class="h-3 w-3 sm:h-3.5 sm:w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
               </svg>
-              {{ entriesFor(date).length === 0 ? "Choisir une recette" : "Ajouter" }}
+              {{ entriesFor(date).length === 0 ? "Ajouter une recette" : "Ajouter" }}
             </NuxtLink>
           </div>
         </div>
