@@ -1,12 +1,12 @@
-import type { ShoppingDataResponse, ShoppingRecipeEntry, ShoppingTotalItem } from "~/types/shopping";
+import type { ShoppingDataResponse, ShoppingRecipeEntry } from "~/types/shopping";
 
 export default defineEventHandler(async (event) => {
   const { user, supabase } = await getServerUser(event);
   if (!user || !supabase) throw createError({ statusCode: 401, statusMessage: "Non authentifié" });
 
   const today = new Date().toISOString().slice(0, 10);
-  const [{ data: savedRow }, { data: custom }, { data: planningRows }] = await Promise.all([
-    supabase.from("shopping_totals").select("data").eq("user_id", user.id).maybeSingle(),
+  const [totals, { data: custom }, { data: planningRows }] = await Promise.all([
+    recomputeShoppingTotals(user.id, supabase),
     supabase.from("shopping_custom").select("*").eq("user_id", user.id),
     supabase
       .from("planning_entries")
@@ -16,7 +16,6 @@ export default defineEventHandler(async (event) => {
       .order("date", { ascending: true }),
   ]);
 
-  const totals: ShoppingTotalItem[] = Array.isArray(savedRow?.data?.items) ? savedRow.data.items : [];
   const dayLabelFormatter = new Intl.DateTimeFormat("fr-FR", { weekday: "short", day: "numeric", month: "short" });
   const planning = (planningRows || []).map((row: any) => ({
     day: dayLabelFormatter.format(new Date(`${row.date}T00:00:00`)),
