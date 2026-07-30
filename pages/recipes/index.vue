@@ -376,7 +376,7 @@ watch(debouncedQuery, async (val) => {
   const token = ++searchToken;
   const ids = await $fetch<string[]>("/api/recipes/search", { query: { q } }).catch(() => []);
   if (token === searchToken) ingredientMatchIds.value = new Set(ids);
-});
+}, { immediate: true });
 
 const normalize = (s: string) =>
   String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
