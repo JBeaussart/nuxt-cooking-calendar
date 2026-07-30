@@ -138,8 +138,8 @@
                   :class="total.checked ? 'line-through text-stone-400 dark:text-stone-500' : 'text-stone-800 dark:text-stone-200'"
                 >
                   {{ total.item }}
-                  <span v-if="total.quantity" class="text-stone-500 dark:text-stone-400 ml-1">
-                    × {{ total.quantity }} {{ total.unit || "" }}
+                  <span v-if="displayQuantity(total)" class="text-stone-500 dark:text-stone-400 ml-1">
+                    × {{ displayQuantity(total) }} {{ total.unit || "" }}
                   </span>
                   <span v-if="total.recipes?.length" class="block text-xs text-stone-400 dark:text-stone-500">
                     {{ total.recipes.join(", ") }}
@@ -305,11 +305,54 @@ const recipeOccurrenceIdsByIdentity = computed(() => {
   return map;
 });
 
+// Quantite portee par chaque occurrence, pour pouvoir afficher en vue
+// condensee ce qu'il reste reellement a acheter (total moins les recettes
+// deja cochees) plutot qu'un simple coche/pas coche sur la somme fusionnee.
+const recipeOccurrenceQtyByIdentity = computed(() => {
+  const map = new Map<string, Array<{ occurrenceId: string; quantity?: number }>>();
+  recipes.value.forEach((recipe) => {
+    recipe.ingredients.forEach((ingredient, ingredientIndex) => {
+      const identity = totalIdentity({ item: ingredient.item, unit: ingredient.unit || "" });
+      const occurrenceId = recipeIngredientOccurrenceId(recipe, ingredient, ingredientIndex);
+      const list = map.get(identity) || [];
+      list.push({ occurrenceId, quantity: ingredient.quantity });
+      map.set(identity, list);
+    });
+  });
+  return map;
+});
+
+// Quantite restant a acheter pour ce total : la somme des occurrences pas
+// encore cochees. undefined si aucune des occurrences n'a de quantite
+// chiffree (ex: "sel", "epices chili").
+const remainingQuantity = (total: ShoppingTotalItem) => {
+  const occurrences = recipeOccurrenceQtyByIdentity.value.get(totalIdentity(total)) || [];
+  const checkedSet = new Set(total.checkedOccurrences || []);
+  let remaining = 0;
+  let hasQty = false;
+  for (const occ of occurrences) {
+    if (checkedSet.has(occ.occurrenceId)) continue;
+    if (occ.quantity != null && Number.isFinite(occ.quantity)) {
+      remaining += occ.quantity;
+      hasQty = true;
+    }
+  }
+  return hasQty ? remaining : undefined;
+};
+
+// Une fois entierement achete, on reaffiche la quantite totale (barree)
+// plutot que 0 : ca garde une trace lisible de ce qui a ete achete.
+const displayQuantity = (total: ShoppingTotalItem) => (total.checked ? total.quantity : remainingQuantity(total));
+
 const normalizeTotalCheckedState = (total: ShoppingTotalItem) => {
   if (!Array.isArray(total.checkedOccurrences)) {
     total.checkedOccurrences = total.checked ? [...(recipeOccurrenceIdsByIdentity.value.get(totalIdentity(total)) || [])] : [];
   }
-  total.checked = total.checkedOccurrences.length > 0;
+  // "Coché" en vue condensée signifie "toutes les recettes concernées sont
+  // cochées" : cocher une seule recette (occurrence) ne doit pas marquer la
+  // quantité fusionnée entière comme achetée.
+  const allOccurrences = recipeOccurrenceIdsByIdentity.value.get(totalIdentity(total)) || [];
+  total.checked = allOccurrences.length > 0 && allOccurrences.every((id) => total.checkedOccurrences!.includes(id));
 };
 
 const isRecipeIngredientChecked = (
@@ -403,7 +446,8 @@ const toggleRecipeIngredient = (
   if (next.has(occurrenceId)) next.delete(occurrenceId);
   else next.add(occurrenceId);
   original.checkedOccurrences = [...next];
-  original.checked = original.checkedOccurrences.length > 0;
+  const allOccurrences = recipeOccurrenceIdsByIdentity.value.get(identity) || [];
+  original.checked = allOccurrences.length > 0 && allOccurrences.every((id) => next.has(id));
   saveTotals();
 };
 

@@ -38,9 +38,17 @@ export async function recomputeShoppingTotals(userId: string, supabase: Supabase
     supabase.from("shopping_totals").select("data").eq("user_id", userId).maybeSingle(),
   ]);
 
-  // Preserved checked states from previous list
+  // Preserved checked states from previous list. On garde aussi
+  // checkedOccurrences (pas seulement le booleen global) : sinon un item
+  // partiellement coche (une recette sur deux) perdait ce detail a chaque
+  // recalcul et redevenait soit tout coche, soit tout decoche.
   const savedItems: ShoppingTotalItem[] = Array.isArray(savedRow?.data?.items) ? savedRow.data.items : [];
-  const checkedMap = new Map(savedItems.map((i) => [`${i.item}|${i.unit || ""}`, i.checked]));
+  const savedStateMap = new Map(
+    savedItems.map((i) => [
+      `${i.item}|${i.unit || ""}`,
+      { checked: i.checked, checkedOccurrences: i.checkedOccurrences },
+    ]),
+  );
 
   // Count recipe occurrences across planning
   const recipeCount: Record<string, number> = {};
@@ -68,7 +76,7 @@ export async function recomputeShoppingTotals(userId: string, supabase: Supabase
         const qty = typeof ing === "object" && ing.quantity != null ? Number(ing.quantity) * count : undefined;
         const unit = typeof ing === "object" ? (ing.unit || "") : "";
         const key = `${normalizeItemKey(item)}|${normalizeUnitKey(unit)}`;
-        const savedChecked = checkedMap.get(`${item.trim()}|${unit.trim()}`) ?? false;
+        const savedState = savedStateMap.get(`${item.trim()}|${unit.trim()}`);
 
         const prev = totalsMap.get(key);
         if (!prev) {
@@ -76,7 +84,10 @@ export async function recomputeShoppingTotals(userId: string, supabase: Supabase
             item: item.trim(),
             quantity: Number.isFinite(qty) ? qty : undefined,
             unit: unit.trim(),
-            checked: savedChecked,
+            checked: savedState?.checked ?? false,
+            ...(Array.isArray(savedState?.checkedOccurrences)
+              ? { checkedOccurrences: savedState.checkedOccurrences }
+              : {}),
             recipes: recipe.title ? [recipe.title] : [],
           });
         } else {
