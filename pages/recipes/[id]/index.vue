@@ -42,12 +42,10 @@
               @error="(e: Event) => (e.target as HTMLImageElement).src = '/images/default-recipe.jpg'"
             />
             <div
-              v-if="recipe.prep_minutes || recipe.cook_minutes"
-              class="absolute bottom-3 right-3 inline-flex items-center gap-2 rounded-full bg-stone-900/70 backdrop-blur-sm px-3 py-1.5 text-xs font-semibold text-white shadow-sm"
+              v-if="recipe.prep_minutes"
+              class="absolute bottom-3 right-3 inline-flex items-center gap-1 rounded-full bg-stone-900/70 backdrop-blur-sm px-3 py-1.5 text-xs font-semibold text-white shadow-sm"
             >
-              <span v-if="recipe.prep_minutes">⏱️ {{ recipe.prep_minutes }} min</span>
-              <span v-if="recipe.prep_minutes && recipe.cook_minutes" class="text-white/50">·</span>
-              <span v-if="recipe.cook_minutes">🔥 {{ recipe.cook_minutes }} min</span>
+              ⏱️ {{ recipe.prep_minutes }} min
             </div>
           </div>
 

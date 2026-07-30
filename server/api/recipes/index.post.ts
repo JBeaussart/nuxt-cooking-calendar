@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const body = await readBody(event);
-  const { title, image, ingredients, steps, maman = false, salt = true, servings, prepMinutes, cookMinutes } = body;
+  const { title, image, ingredients, steps, maman = false, salt = true, servings, prepMinutes } = body;
 
   if (!title || !Array.isArray(ingredients) || ingredients.length === 0) {
     throw createError({ statusCode: 400, statusMessage: "Champs requis manquants" });
@@ -19,7 +19,6 @@ export default defineEventHandler(async (event) => {
     return Number.isFinite(n) && n >= 0 && n <= 1440 ? n : null;
   };
   const finalPrepMinutes = cleanMinutes(prepMinutes);
-  const finalCookMinutes = cleanMinutes(cookMinutes);
 
   const userRole = await getUserRole();
 
@@ -64,7 +63,6 @@ export default defineEventHandler(async (event) => {
       base_servings: finalServings,
       base_ingredients: cleanIngredients,
       prep_minutes: finalPrepMinutes,
-      cook_minutes: finalCookMinutes,
     })
     .select("id")
     .single();

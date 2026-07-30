@@ -193,10 +193,10 @@
                   </h3>
                 </div>
                 <span
-                  v-if="formatCookTime(r)"
+                  v-if="formatPrepTime(r)"
                   class="inline-flex shrink-0 items-center gap-1 rounded-full bg-stone-100 dark:bg-stone-700 px-2 py-0.5 text-[11px] font-bold text-stone-500 dark:text-stone-400"
                 >
-                  ⏱️ {{ formatCookTime(r) }}
+                  ⏱️ {{ formatPrepTime(r) }}
                 </span>
               </div>
               <div class="mt-1.5 flex items-center gap-2">
@@ -341,10 +341,7 @@ const onRecipeCardImageError = (e: Event, r: { id: string; image?: string }) => 
   markImageFailed(r.id);
 };
 
-const formatCookTime = (r: { prep_minutes?: number; cook_minutes?: number }) => {
-  const total = (r.prep_minutes || 0) + (r.cook_minutes || 0);
-  return total > 0 ? `${total} min` : "";
-};
+const formatPrepTime = (r: { prep_minutes?: number }) => (r.prep_minutes ? `${r.prep_minutes} min` : "");
 
 /** Salé / Sucré (l’icône pastille indique Ninette quand `maman`) */
 const recipeCardSubtitle = (r: { salt?: boolean }) => (r.salt === false ? "Sucré" : "Salé");
