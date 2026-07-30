@@ -31,10 +31,23 @@
             <input v-model="form.image" type="url"
               class="w-full rounded-xl border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 dark:text-stone-100 px-4 py-3 text-sm focus:border-blue-500 focus:bg-white dark:focus:bg-stone-900 focus:ring-2 focus:ring-blue-200 transition-all" />
           </div>
-          <div class="sm:col-span-2">
+          <div>
             <label class="block text-sm font-bold text-stone-700 dark:text-stone-300 mb-2">Nombre de personnes</label>
             <input v-model.number="form.servings" type="number" min="1" max="50" step="1"
               class="w-24 rounded-xl border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 dark:text-stone-100 px-4 py-3 text-sm focus:border-blue-500 focus:bg-white dark:focus:bg-stone-900 focus:ring-2 focus:ring-blue-200 transition-all" />
+          </div>
+
+          <div class="flex gap-4">
+            <div>
+              <label class="block text-sm font-bold text-stone-700 dark:text-stone-300 mb-2">Préparation (min)</label>
+              <input v-model.number="form.prepMinutes" type="number" min="0" max="1440" step="1"
+                class="w-24 rounded-xl border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 dark:text-stone-100 px-4 py-3 text-sm focus:border-blue-500 focus:bg-white dark:focus:bg-stone-900 focus:ring-2 focus:ring-blue-200 transition-all" />
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-stone-700 dark:text-stone-300 mb-2">Cuisson (min)</label>
+              <input v-model.number="form.cookMinutes" type="number" min="0" max="1440" step="1"
+                class="w-24 rounded-xl border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 dark:text-stone-100 px-4 py-3 text-sm focus:border-blue-500 focus:bg-white dark:focus:bg-stone-900 focus:ring-2 focus:ring-blue-200 transition-all" />
+            </div>
           </div>
 
           <div class="sm:col-span-2 flex flex-row items-end justify-between gap-4">
@@ -137,9 +150,11 @@ const form = reactive<{
   salt: boolean;
   maman: boolean;
   servings: number;
+  prepMinutes: number | "";
+  cookMinutes: number | "";
   ingredients: { item: string; quantity: any; unit: string }[];
   steps: string[];
-}>({ title: "", image: "", salt: true, maman: false, servings: 4, ingredients: [], steps: [] });
+}>({ title: "", image: "", salt: true, maman: false, servings: 4, prepMinutes: "", cookMinutes: "", ingredients: [], steps: [] });
 
 watch(recipe, (r) => {
   if (!r) return;
@@ -148,6 +163,8 @@ watch(recipe, (r) => {
   form.salt = r.salt !== false;
   form.maman = !!r.maman;
   form.servings = r.servings || 4;
+  form.prepMinutes = r.prep_minutes ?? "";
+  form.cookMinutes = r.cook_minutes ?? "";
   form.ingredients = (r.ingredients || []).map((i: any) =>
     typeof i === "string" ? { item: i, quantity: "", unit: "" } : { item: i.item || "", quantity: i.quantity ?? "", unit: i.unit || "" }
   );
@@ -171,7 +188,17 @@ const submit = async () => {
   try {
     await $fetch(`/api/recipes/${id}`, {
       method: "PATCH",
-      body: { title: form.title, image: form.image, salt: form.salt, maman: form.maman, servings: form.servings, ingredients, steps },
+      body: {
+        title: form.title,
+        image: form.image,
+        salt: form.salt,
+        maman: form.maman,
+        servings: form.servings,
+        prepMinutes: form.prepMinutes,
+        cookMinutes: form.cookMinutes,
+        ingredients,
+        steps,
+      },
     });
     statusMsg.value = "Recette mise à jour !";
     statusClass.value = "border-green-200 bg-green-50 text-green-700 dark:border-green-900 dark:bg-green-950/30 dark:text-green-300";

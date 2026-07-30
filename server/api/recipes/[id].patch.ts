@@ -4,13 +4,20 @@ export default defineEventHandler(async (event) => {
 
   const id = getRouterParam(event, "id");
   const body = await readBody(event);
-  const { title, image, ingredients, steps, maman, salt, servings } = body;
+  const { title, image, ingredients, steps, maman, salt, servings, prepMinutes, cookMinutes } = body;
 
   if (!title) throw createError({ statusCode: 400, statusMessage: "Titre requis" });
 
   const userRole = await getUserRole();
   const cleanServings = Math.round(Number(servings));
   const finalServings = Number.isFinite(cleanServings) && cleanServings >= 1 && cleanServings <= 50 ? cleanServings : 4;
+
+  const cleanMinutes = (v: unknown) => {
+    const n = Math.round(Number(v));
+    return Number.isFinite(n) && n >= 0 && n <= 1440 ? n : null;
+  };
+  const finalPrepMinutes = cleanMinutes(prepMinutes);
+  const finalCookMinutes = cleanMinutes(cookMinutes);
 
   const cleanIngredients = (ingredients || [])
     .map((i: any) => {
@@ -40,6 +47,8 @@ export default defineEventHandler(async (event) => {
       // +/- personnes, plus l'etat courant deja arrondi.
       base_servings: finalServings,
       base_ingredients: cleanIngredients,
+      prep_minutes: finalPrepMinutes,
+      cook_minutes: finalCookMinutes,
     })
     .eq("id", id)
     .eq("user_id", user.id);

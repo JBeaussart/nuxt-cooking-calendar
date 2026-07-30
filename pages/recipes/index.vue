@@ -178,18 +178,26 @@
             </div>
 
             <div class="min-w-0 flex-1">
-              <div class="flex items-center gap-1">
-                <svg
-                  v-if="r.maman"
-                  class="h-3 w-3 shrink-0 text-pink-400"
-                  viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"
-                  title="Recette Ninette"
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex min-w-0 items-center gap-1">
+                  <svg
+                    v-if="r.maman"
+                    class="h-3 w-3 shrink-0 text-pink-400"
+                    viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"
+                    title="Recette Ninette"
+                  >
+                    <path d="M226.5 92.9c14.3 42.9-.3 86.2-32.6 96.8s-70.1-15.6-84.4-58.5.3-86.2 32.6-96.8 70.1 15.6 84.4 58.5zM100.4 198.6c18.9 32.4 14.3 70.1-10.2 84.1s-59.7-.9-78.5-33.3S-2.7 179.3 21.8 165.3s59.7.9 78.6 33.3zM69.2 401.2C121.6 259.9 214.7 224 256 224s134.4 35.9 186.8 177.2c3.6 9.7 5.2 20.1 5.2 30.5v1.6c0 25.8-20.9 46.7-46.7 46.7-11.5 0-22.9-1.4-34-4.2l-88-22c-15.3-3.8-31.3-3.8-46.6 0l-88 22c-11.1 2.8-22.5 4.2-34 4.2-25.8 0-46.7-20.9-46.7-46.7v-1.6c0-10.4 1.6-20.8 5.2-30.5zM324.5 92.9c14.3-42.9 51.7-73.1 84.4-58.5s46.9 53.9 32.6 96.8-51.7 73.1-84.4 58.5-46.9-53.9-32.6-96.8zM400.1 165.3c24.5 14 29.1 51.7 10.2 84.1s-54 48.2-78.5 33.3-29.1-51.7-10.2-84.1 54-48.2 78.5-33.3z" />
+                  </svg>
+                  <h3 class="min-w-0 line-clamp-2 text-sm font-bold leading-tight text-stone-900 dark:text-stone-100 sm:text-base">
+                    {{ r.title }}
+                  </h3>
+                </div>
+                <span
+                  v-if="formatCookTime(r)"
+                  class="inline-flex shrink-0 items-center gap-1 rounded-full bg-stone-100 dark:bg-stone-700 px-2 py-0.5 text-[11px] font-bold text-stone-500 dark:text-stone-400"
                 >
-                  <path d="M226.5 92.9c14.3 42.9-.3 86.2-32.6 96.8s-70.1-15.6-84.4-58.5.3-86.2 32.6-96.8 70.1 15.6 84.4 58.5zM100.4 198.6c18.9 32.4 14.3 70.1-10.2 84.1s-59.7-.9-78.5-33.3S-2.7 179.3 21.8 165.3s59.7.9 78.6 33.3zM69.2 401.2C121.6 259.9 214.7 224 256 224s134.4 35.9 186.8 177.2c3.6 9.7 5.2 20.1 5.2 30.5v1.6c0 25.8-20.9 46.7-46.7 46.7-11.5 0-22.9-1.4-34-4.2l-88-22c-15.3-3.8-31.3-3.8-46.6 0l-88 22c-11.1 2.8-22.5 4.2-34 4.2-25.8 0-46.7-20.9-46.7-46.7v-1.6c0-10.4 1.6-20.8 5.2-30.5zM324.5 92.9c14.3-42.9 51.7-73.1 84.4-58.5s46.9 53.9 32.6 96.8-51.7 73.1-84.4 58.5-46.9-53.9-32.6-96.8zM400.1 165.3c24.5 14 29.1 51.7 10.2 84.1s-54 48.2-78.5 33.3-29.1-51.7-10.2-84.1 54-48.2 78.5-33.3z" />
-                </svg>
-                <h3 class="min-w-0 line-clamp-2 text-sm font-bold leading-tight text-stone-900 dark:text-stone-100 sm:text-base">
-                  {{ r.title }}
-                </h3>
+                  ⏱️ {{ formatCookTime(r) }}
+                </span>
               </div>
               <div class="mt-1.5 flex items-center gap-2">
                 <span
@@ -197,9 +205,6 @@
                   :class="r.salt === false ? 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'"
                 >
                   {{ recipeCardSubtitle(r) }}
-                </span>
-                <span v-if="formatCookTime(r)" class="text-xs font-medium text-stone-500 dark:text-stone-400">
-                  {{ formatCookTime(r) }}
                 </span>
               </div>
             </div>
@@ -336,10 +341,9 @@ const onRecipeCardImageError = (e: Event, r: { id: string; image?: string }) => 
   markImageFailed(r.id);
 };
 
-const formatCookTime = (r: { cook_minutes?: number; duration_minutes?: number; total_time?: number }) => {
-  const m = r.cook_minutes ?? r.duration_minutes ?? r.total_time;
-  if (typeof m === "number" && Number.isFinite(m) && m > 0) return `${Math.round(m)} min`;
-  return "";
+const formatCookTime = (r: { prep_minutes?: number; cook_minutes?: number }) => {
+  const total = (r.prep_minutes || 0) + (r.cook_minutes || 0);
+  return total > 0 ? `${total} min` : "";
 };
 
 /** Salé / Sucré (l’icône pastille indique Ninette quand `maman`) */
