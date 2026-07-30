@@ -4,11 +4,13 @@ export default defineEventHandler(async (event) => {
 
   const id = getRouterParam(event, "id");
   const body = await readBody(event);
-  const { title, image, ingredients, steps, maman, salt } = body;
+  const { title, image, ingredients, steps, maman, salt, servings } = body;
 
   if (!title) throw createError({ statusCode: 400, statusMessage: "Titre requis" });
 
   const userRole = await getUserRole();
+  const cleanServings = Math.round(Number(servings));
+  const finalServings = Number.isFinite(cleanServings) && cleanServings >= 1 && cleanServings <= 50 ? cleanServings : 4;
 
   const cleanIngredients = (ingredients || [])
     .map((i: any) => {
@@ -32,6 +34,12 @@ export default defineEventHandler(async (event) => {
       steps: cleanSteps,
       maman: isAdmin(userRole) ? !!maman : false,
       salt: !!salt,
+      servings: finalServings,
+      // Une modification manuelle (formulaire d'edition) redefinit la base :
+      // c'est la nouvelle verite dont partira tout futur calcul du curseur
+      // +/- personnes, plus l'etat courant deja arrondi.
+      base_servings: finalServings,
+      base_ingredients: cleanIngredients,
     })
     .eq("id", id)
     .eq("user_id", user.id);

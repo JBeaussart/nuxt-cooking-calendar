@@ -5,11 +5,14 @@ export default defineEventHandler(async (event) => {
   }
 
   const body = await readBody(event);
-  const { title, image, ingredients, steps, maman = false, salt = true } = body;
+  const { title, image, ingredients, steps, maman = false, salt = true, servings } = body;
 
   if (!title || !Array.isArray(ingredients) || ingredients.length === 0) {
     throw createError({ statusCode: 400, statusMessage: "Champs requis manquants" });
   }
+
+  const cleanServings = Math.round(Number(servings));
+  const finalServings = Number.isFinite(cleanServings) && cleanServings >= 1 && cleanServings <= 50 ? cleanServings : 4;
 
   const userRole = await getUserRole();
 
@@ -50,6 +53,9 @@ export default defineEventHandler(async (event) => {
       steps: cleanSteps,
       maman: isAdmin(userRole) ? !!maman : false,
       salt: !!salt,
+      servings: finalServings,
+      base_servings: finalServings,
+      base_ingredients: cleanIngredients,
     })
     .select("id")
     .single();

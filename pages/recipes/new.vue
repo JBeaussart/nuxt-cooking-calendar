@@ -82,6 +82,12 @@
               class="w-full rounded-xl border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 dark:text-stone-100 px-4 py-3 text-sm focus:border-blue-500 focus:bg-white dark:focus:bg-stone-900 focus:ring-2 focus:ring-blue-200 transition-all" />
           </div>
 
+          <div class="sm:col-span-2">
+            <label class="block text-sm font-bold text-stone-700 dark:text-stone-300 mb-2">Nombre de personnes</label>
+            <input v-model.number="form.servings" type="number" min="1" max="50" step="1"
+              class="w-24 rounded-xl border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 dark:text-stone-100 px-4 py-3 text-sm focus:border-blue-500 focus:bg-white dark:focus:bg-stone-900 focus:ring-2 focus:ring-blue-200 transition-all" />
+          </div>
+
           <div class="sm:col-span-2 flex flex-row items-end justify-between gap-4">
             <div>
               <label class="block text-sm font-bold text-stone-700 dark:text-stone-300 mb-2">Type de plat</label>
@@ -197,6 +203,7 @@ const form = reactive({
   image: "",
   salt: true,
   maman: false,
+  servings: 4,
   ingredients: [{ item: "", quantity: "", unit: "" }] as { item: string; quantity: any; unit: string }[],
   steps: [""] as string[],
 });
@@ -213,6 +220,7 @@ const jsonExample = JSON.stringify(
     title: "Lasagnes à la bolognaise",
     image: "https://exemple.com/image.jpg",
     salt: true,
+    servings: 4,
     ingredients: [
       { item: "Farine", quantity: 200, unit: "g" },
       { item: "Sel" },
@@ -265,10 +273,12 @@ const loadJson = () => {
 
   const steps = (Array.isArray(parsed.steps) ? parsed.steps : []).map((s: any) => String(s || ""));
 
+  const parsedServings = Math.round(Number(parsed.servings));
   form.title = title;
   form.image = String(parsed.image || "");
   form.salt = parsed.salt !== false;
   form.maman = isAdmin.value ? !!parsed.maman : false;
+  form.servings = Number.isFinite(parsedServings) && parsedServings >= 1 ? parsedServings : 4;
   form.ingredients = ingredients;
   form.steps = steps.length ? steps : [""];
 
@@ -309,7 +319,7 @@ const submit = async () => {
   try {
     const result = await $fetch<{ id: string }>("/api/recipes", {
       method: "POST",
-      body: { title: form.title, image: form.image, salt: form.salt, maman: form.maman, ingredients, steps },
+      body: { title: form.title, image: form.image, salt: form.salt, maman: form.maman, servings: form.servings, ingredients, steps },
     });
     statusMsg.value = "Recette ajoutée avec succès !";
     statusClass.value = "border-green-200 bg-green-50 text-green-700 dark:border-green-900 dark:bg-green-950/30 dark:text-green-300";

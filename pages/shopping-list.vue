@@ -108,7 +108,7 @@
                   >
                     {{ ingredient.item }}
                     <span v-if="ingredient.quantity" class="text-stone-500 dark:text-stone-400 ml-1">
-                      × {{ ingredient.quantity }} {{ ingredient.unit || "" }}
+                      × {{ shoppingQuantity(ingredient) }} {{ ingredient.unit || "" }}
                     </span>
                   </span>
                 </li>
@@ -207,6 +207,7 @@ import type {
   ShoppingRecipeIngredient,
   ShoppingTotalItem,
 } from "~/types/shopping";
+import { getIngredientQuantityType, getShoppingListQuantity } from "~/shared/utils/ingredientQuantity";
 
 definePageMeta({ layout: "default", middleware: "auth" });
 
@@ -342,7 +343,23 @@ const remainingQuantity = (total: ShoppingTotalItem) => {
 
 // Une fois entierement achete, on reaffiche la quantite totale (barree)
 // plutot que 0 : ca garde une trace lisible de ce qui a ete achete.
-const displayQuantity = (total: ShoppingTotalItem) => (total.checked ? total.quantity : remainingQuantity(total));
+//
+// La liste de courses arrondit TOUJOURS au superieur pour les ingredients a
+// la piece (2.25 avocats -> 3 a acheter), contrairement a la page recette qui
+// arrondit au demi le plus proche (voir shared/utils/ingredientQuantity.ts).
+const displayQuantity = (total: ShoppingTotalItem) => {
+  const raw = total.checked ? total.quantity : remainingQuantity(total);
+  if (raw == null) return undefined;
+  const type = getIngredientQuantityType({ item: total.item, unit: total.unit });
+  return getShoppingListQuantity(raw, type, total.unit);
+};
+
+// Vue par recette : meme regle d'arrondi que la vue condensee, puisque ca
+// reste la liste de courses (ce qu'il faut acheter pour cette recette).
+const shoppingQuantity = (ingredient: ShoppingRecipeIngredient) => {
+  const type = getIngredientQuantityType(ingredient);
+  return getShoppingListQuantity(Number(ingredient.quantity), type, ingredient.unit);
+};
 
 const normalizeTotalCheckedState = (total: ShoppingTotalItem) => {
   if (!Array.isArray(total.checkedOccurrences)) {

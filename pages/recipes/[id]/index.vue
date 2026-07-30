@@ -59,6 +59,31 @@
               </span>
             </div>
 
+            <!-- Nombre de personnes -->
+            <div class="mt-4 inline-flex items-center gap-3 rounded-xl bg-stone-50 dark:bg-stone-700/60 px-3 py-2 ring-1 ring-stone-100 dark:ring-stone-700">
+              <span class="text-sm font-medium text-stone-600 dark:text-stone-300">Pour</span>
+              <div class="flex items-center gap-2">
+                <button
+                  type="button"
+                  :disabled="servingsUpdating || recipe.servings <= 1"
+                  @click="changeServings(-1)"
+                  class="flex h-7 w-7 items-center justify-center rounded-lg bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-300 shadow-sm ring-1 ring-stone-200 dark:ring-stone-600 hover:bg-saffron-50 dark:hover:bg-saffron-900/30 hover:text-saffron-300 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                >
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 12H4" /></svg>
+                </button>
+                <span class="w-6 text-center text-sm font-bold text-stone-900 dark:text-stone-100">{{ recipe.servings }}</span>
+                <button
+                  type="button"
+                  :disabled="servingsUpdating || recipe.servings >= 50"
+                  @click="changeServings(1)"
+                  class="flex h-7 w-7 items-center justify-center rounded-lg bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-300 shadow-sm ring-1 ring-stone-200 dark:ring-stone-600 hover:bg-saffron-50 dark:hover:bg-saffron-900/30 hover:text-saffron-300 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                >
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" /></svg>
+                </button>
+              </div>
+              <span class="text-sm font-medium text-stone-600 dark:text-stone-300">personne{{ recipe.servings > 1 ? 's' : '' }}</span>
+            </div>
+
             <!-- Onglets (mobile) -->
             <div class="mt-5 flex gap-2 md:hidden">
               <button
@@ -96,7 +121,7 @@
                     <div class="mt-0.5 h-3.5 w-3.5 flex-none rounded-[4px] border-2 border-stone-300 dark:border-stone-600" />
                     <span class="text-sm font-medium leading-relaxed">
                       <template v-if="typeof ing === 'object' && ing.quantity">
-                        {{ ing.item }}: {{ ing.quantity }} {{ ing.unit || '' }}
+                        {{ ing.item }}: {{ displayIngredientQuantity(ing) }} {{ ing.unit || '' }}
                       </template>
                       <template v-else-if="typeof ing === 'object'">{{ ing.item }}</template>
                       <template v-else>{{ ing }}</template>
@@ -152,6 +177,12 @@
 </template>
 
 <script setup lang="ts">
+import {
+  getIngredientQuantityType,
+  formatRecipeQuantity,
+  formatQuantityLabel,
+} from "~/shared/utils/ingredientQuantity";
+
 definePageMeta({ layout: "default", middleware: "auth" });
 
 const route = useRoute();
@@ -177,6 +208,34 @@ const loadError = computed(() => !!error.value && (error.value as any)?.statusCo
 const recipeIngredients = computed(() => recipe.value?.ingredients ?? []);
 const recipeSteps = computed(() => recipe.value?.steps ?? []);
 const activeTab = ref<"ingredients" | "steps">("ingredients");
+
+// Vue recette : une demi-unite est un usage de cuisine courant (1.5 avocat),
+// contrairement a la liste de courses qui doit arrondir au superieur pour
+// garantir un achat suffisant (voir shared/utils/ingredientQuantity.ts).
+const displayIngredientQuantity = (ing: { item?: string; unit?: string; quantity?: number }) => {
+  const type = getIngredientQuantityType(ing);
+  return formatQuantityLabel(formatRecipeQuantity(Number(ing.quantity), type));
+};
+
+const servingsUpdating = ref(false);
+const changeServings = async (delta: number) => {
+  if (!recipe.value || servingsUpdating.value) return;
+  const next = recipe.value.servings + delta;
+  if (next < 1 || next > 50) return;
+  servingsUpdating.value = true;
+  try {
+    const result = await $fetch<{ servings: number; ingredients: any[] }>(`/api/recipes/${id}/servings`, {
+      method: "PATCH",
+      body: { servings: next },
+    });
+    recipe.value.servings = result.servings;
+    recipe.value.ingredients = result.ingredients;
+  } catch {
+    // Pas de toast ici : l'affichage ne change simplement pas si ca echoue.
+  } finally {
+    servingsUpdating.value = false;
+  }
+};
 
 const deleteRecipe = async () => {
   if (!confirm("Supprimer définitivement cette recette ?")) return;
