@@ -397,6 +397,16 @@ const sortedIngredients = (recipe: { day: string; recipeId: string; ingredients:
       Number(isRecipeIngredientChecked(recipe, b.ingredient, b.originalIndex)),
     );
 
+const getAuthHeaders = async () => {
+  try {
+    const { data } = await supabase.auth.getSession();
+    const token = data.session?.access_token;
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  } catch {
+    return {};
+  }
+};
+
 const addCustomItem = async () => {
   if (!newItem.value.trim() || isAddingCustomItem.value) return;
   isAddingCustomItem.value = true;
@@ -405,9 +415,11 @@ const addCustomItem = async () => {
   newItem.value = "";
   newQty.value = "";
   try {
+    const headers = await getAuthHeaders();
     const { item } = await $fetch<{ ok: boolean; item: ShoppingCustomItem }>("/api/shopping/custom", {
       method: "POST",
       body: { action: "add", item: itemName, quantity: qty },
+      headers,
     });
     // Realtime and HTTP response may arrive in any order: upsert avoids duplicates.
     upsertCustomItem(item);
@@ -426,13 +438,14 @@ const saveTotals = () => {
   pendingTotalsSave = true;
   saveTimer = setTimeout(async () => {
     try {
-      await $fetch("/api/shopping/save", { method: "POST", body: { items: totals.value } });
+      const headers = await getAuthHeaders();
+      await $fetch("/api/shopping/save", { method: "POST", body: { items: totals.value }, headers });
     } catch {
       toast.show("Erreur lors de l'enregistrement des coches");
     } finally {
       pendingTotalsSave = false;
     }
-  }, 800);
+  }, 400);
 };
 
 const toggleItem = (item: any) => {

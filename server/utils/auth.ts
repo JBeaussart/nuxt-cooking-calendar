@@ -13,8 +13,8 @@ const ROLE_HIERARCHY: Record<string, number> = { admin: 3, premium: 2, free: 1 }
 // l'instance serverless reste chaude. Fenêtre volontairement courte : une
 // session déconnectée peut rester acceptée jusqu'à USER_CACHE_TTL_MS après
 // la déconnexion.
-const USER_CACHE_TTL_MS = 15_000;
-const USER_CACHE_MAX_SIZE = 500;
+const USER_CACHE_TTL_MS = 60_000;
+const USER_CACHE_MAX_SIZE = 1000;
 const userCache = new Map<string, { user: User | null; expiresAt: number }>();
 
 function pruneUserCache(now: number) {
@@ -37,7 +37,8 @@ export function isAdmin(userRole: string): boolean {
 }
 
 export async function getServerUser(event: H3Event) {
-  const cacheKey = getHeader(event, "cookie") || null;
+  const authHeader = getHeader(event, "authorization");
+  const cacheKey = authHeader || getHeader(event, "cookie") || null;
   const now = Date.now();
   const cached = cacheKey ? userCache.get(cacheKey) : undefined;
   const cacheHit = !!cached && cached.expiresAt > now;
@@ -48,24 +49,19 @@ export async function getServerUser(event: H3Event) {
     try {
       user = await serverSupabaseUser(event);
     } catch (e: any) {
-      // Nuxt Supabase server helpers throw when session cookie is missing.
-      // We want callers to consistently get a 401 (not a 500) in that case.
-      const msg = String(e?.message || "");
-      if (msg.includes("Auth session missing")) {
-        if (cacheKey) {
-          pruneUserCache(now);
-          userCache.set(cacheKey, { user: null, expiresAt: now + USER_CACHE_TTL_MS });
-        }
-        return {
-          user: null,
-          supabase: null,
-          getProfile: async () => null,
-          getUserRole: async () => "free",
-        };
+      // Catch missing auth session or token expiration gracefully to return 401
+      if (cacheKey) {
+        pruneUserCache(now);
+        userCache.set(cacheKey, { user: null, expiresAt: now + 5_000 });
       }
-      throw e;
+      return {
+        user: null,
+        supabase: null,
+        getProfile: async () => null,
+        getUserRole: async () => "free",
+      };
     }
-    if (cacheKey) {
+    if (cacheKey && user) {
       pruneUserCache(now);
       userCache.set(cacheKey, { user, expiresAt: now + USER_CACHE_TTL_MS });
     }

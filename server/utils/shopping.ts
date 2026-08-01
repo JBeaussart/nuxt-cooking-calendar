@@ -29,7 +29,7 @@ const normalizeItemKey = (s: string) =>
     .map((word) => (word.length > 1 && word.endsWith("s") ? word.slice(0, -1) : word))
     .join(" ");
 
-export async function recomputeShoppingTotals(userId: string, supabase: SupabaseClient) {
+export async function recomputeShoppingTotals(userId: string, supabase: SupabaseClient, persist = true) {
   // Seules les recettes planifiées à venir (aujourd'hui inclus) comptent :
   // un repas déjà passé n'a plus besoin d'être acheté.
   const today = new Date().toISOString().slice(0, 10);
@@ -100,9 +100,13 @@ export async function recomputeShoppingTotals(userId: string, supabase: Supabase
     items = Array.from(totalsMap.values());
   }
 
-  await supabase
-    .from("shopping_totals")
-    .upsert({ user_id: userId, data: { items } }, { onConflict: "user_id" });
+  // Ne déclencher l'écriture DB que si les données ont effectivement changé ou si la ligne n'existait pas encore
+  const hasChanged = !savedRow || JSON.stringify(items) !== JSON.stringify(savedItems);
+  if (persist && hasChanged) {
+    await supabase
+      .from("shopping_totals")
+      .upsert({ user_id: userId, data: { items } }, { onConflict: "user_id" });
+  }
 
   return items;
 }
