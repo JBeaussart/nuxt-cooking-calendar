@@ -1,9 +1,5 @@
 [build]
   command = "npm run build"
-  publish = ".netlify/publish"
-  functions = ".netlify/functions-internal"
 
 [build.environment]
   NODE_VERSION = "20"
-  NITRO_PRESET = "netlify"
-
