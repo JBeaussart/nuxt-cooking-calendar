@@ -8,6 +8,9 @@ export default defineNuxtConfig({
       title: "Cooking Calendar",
       meta: [],
       link: [
+        // Les navigateurs modernes preferent le SVG (net a toutes les tailles) ;
+        // les PNG restent le repli pour ceux qui ne le supportent pas.
+        { rel: "icon", type: "image/svg+xml", href: "/icon.svg" },
         { rel: "icon", type: "image/png", sizes: "32x32", href: "/icon-32x32.png" },
         { rel: "icon", type: "image/png", sizes: "16x16", href: "/icon-16x16.png" },
         { rel: "icon", type: "image/png", sizes: "192x192", href: "/icon-192x192.png" },
