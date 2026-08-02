@@ -272,8 +272,19 @@ const normalizeUnitKey = (s: string) => {
   return n.length > 1 && n.endsWith("s") ? n.slice(0, -1) : n;
 };
 
+// "Courgette" (singulier, écrit tel quel dans une recette) doit rejoindre le
+// même total que "Courgettes" (pluriel, écrit dans une autre recette) : même
+// règle de repli du pluriel que côté serveur (normalizeItemKey), sinon le
+// total fusionné et l'ingrédient de la recette n'ont pas la même identité et
+// la case à cocher de cette recette ne retrouve jamais son total (clic muet).
+const normalizeItemKey = (s: string) =>
+  normalize(s)
+    .split(" ")
+    .map((word) => (word.length > 1 && word.endsWith("s") ? word.slice(0, -1) : word))
+    .join(" ");
+
 const totalIdentity = (item: Pick<ShoppingTotalItem, "item" | "unit">) =>
-  `${normalize(item.item)}__${normalizeUnitKey(item.unit || "")}`;
+  `${normalizeItemKey(item.item)}__${normalizeUnitKey(item.unit || "")}`;
 
 const totalsByIdentity = computed(() => {
   const map = new Map<string, ShoppingTotalItem>();
@@ -447,6 +458,28 @@ const saveTotals = () => {
     }
   }, 400);
 };
+
+// recomputeShoppingTotals (serveur) recopie l'ancien "checked" global tel
+// quel quand les quantités changent (ex: nouvelle recette planifiée pour un
+// ingrédient déjà entièrement coché) : "checked" peut donc rester à true en
+// base alors que les occurrences ne couvrent plus toutes les recettes. On
+// recalcule chaque total dès que les données arrivent (pas seulement quand la
+// vue par recette est ouverte), et on persiste la correction si elle change
+// réellement quelque chose, pour que la vue condensée ne mente jamais.
+watch(
+  () => [shoppingData.value?.totals, recipes.value] as const,
+  () => {
+    if (!shoppingData.value) return;
+    let changed = false;
+    for (const total of shoppingData.value.totals) {
+      const before = total.checked;
+      normalizeTotalCheckedState(total);
+      if (total.checked !== before) changed = true;
+    }
+    if (changed) saveTotals();
+  },
+  { immediate: true },
+);
 
 const toggleItem = (item: any) => {
   if (!shoppingData.value) return;
