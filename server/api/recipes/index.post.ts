@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
   const userRole = await getUserRole();
 
   // Vérifier la limite pour les utilisateurs free
-  if (!["admin", "premium"].includes(userRole)) {
+  if (!isPremiumOrAdmin(userRole)) {
     const { count } = await supabase
       .from("recipes")
       .select("*", { count: "exact", head: true })
