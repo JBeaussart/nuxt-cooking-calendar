@@ -1,33 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { ShoppingTotalItem } from "~/types/shopping";
-
-// NFD ne decompose que les accents (e-aigu -> e) : les ligatures oe/ae collees
-// n'ont pas de decomposition canonique et doivent etre depliees a la main.
-const normalize = (s: string) =>
-  String(s || "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/\u0153/g, "oe")
-    .replace(/\u00e6/g, "ae")
-    .trim();
-
-// "gousse" et "gousses" (ou "Ail"/"ail") doivent fusionner : on ignore le
-// pluriel de l'unite dans la cle de regroupement (l'affichage garde le
-// premier libelle rencontre, seule la cle de fusion est concernee).
-const normalizeUnitKey = (s: string) => {
-  const n = normalize(s);
-  return n.length > 1 && n.endsWith("s") ? n.slice(0, -1) : n;
-};
-
-// "Haricot rouge" et "haricots rouges" doivent fusionner de la meme facon :
-// on ignore le pluriel de chaque mot du nom d'ingredient dans la cle de
-// regroupement (l'affichage garde le premier libelle rencontre).
-const normalizeItemKey = (s: string) =>
-  normalize(s)
-    .split(" ")
-    .map((word) => (word.length > 1 && word.endsWith("s") ? word.slice(0, -1) : word))
-    .join(" ");
+import { normalizeItemKey, normalizeUnitKey } from "~/shared/utils/ingredientKey";
 
 export async function recomputeShoppingTotals(userId: string, supabase: SupabaseClient, persist = true) {
   // Seules les recettes planifiées à venir (aujourd'hui inclus) comptent :

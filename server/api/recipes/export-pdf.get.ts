@@ -1,4 +1,3 @@
-import type { H3Event } from "h3";
 import { setHeader } from "h3";
 
 type RecipeRow = {
@@ -7,7 +6,7 @@ type RecipeRow = {
   steps: string[];
 };
 
-async function renderPdf(event: H3Event, recipes: RecipeRow[]) {
+async function renderPdf(recipes: RecipeRow[]) {
   const mod: any = await import("pdfkit");
   const PDFDocument = mod?.default || mod;
 
@@ -90,7 +89,7 @@ export default defineEventHandler(async (event) => {
 
   if (error) throw createError({ statusCode: 500, statusMessage: error.message });
 
-  const pdf = await renderPdf(event, (data || []) as RecipeRow[]);
+  const pdf = await renderPdf((data || []) as RecipeRow[]);
 
   const filename = `mes-recettes-${new Date().toISOString().split("T")[0]}.pdf`;
   setHeader(event, "Content-Type", "application/pdf");

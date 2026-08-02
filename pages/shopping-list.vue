@@ -208,6 +208,7 @@ import type {
   ShoppingTotalItem,
 } from "~/types/shopping";
 import { getIngredientQuantityType, getShoppingListQuantity } from "~/shared/utils/ingredientQuantity";
+import { normalizeItemKey, normalizeLabel, normalizeUnitKey } from "~/shared/utils/ingredientKey";
 
 definePageMeta({ layout: "default", middleware: "auth" });
 
@@ -254,34 +255,6 @@ const removeCustomItemById = (id: unknown) => {
   if (idx !== -1) shoppingData.value.custom.splice(idx, 1);
 };
 
-// NFD ne decompose que les accents : les ligatures oe/ae collees n'ont pas
-// de decomposition canonique et doivent etre depliees a la main.
-const normalize = (s: string) =>
-  String(s || "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/\u0153/g, "oe")
-    .replace(/\u00e6/g, "ae")
-    .trim();
-
-// "gousse" et "gousses" (ou "Ail"/"ail") doivent fusionner : on ignore le
-// pluriel de l'unité dans la clé de regroupement.
-const normalizeUnitKey = (s: string) => {
-  const n = normalize(s);
-  return n.length > 1 && n.endsWith("s") ? n.slice(0, -1) : n;
-};
-
-// "Courgette" (singulier, écrit tel quel dans une recette) doit rejoindre le
-// même total que "Courgettes" (pluriel, écrit dans une autre recette) : même
-// règle de repli du pluriel que côté serveur (normalizeItemKey), sinon le
-// total fusionné et l'ingrédient de la recette n'ont pas la même identité et
-// la case à cocher de cette recette ne retrouve jamais son total (clic muet).
-const normalizeItemKey = (s: string) =>
-  normalize(s)
-    .split(" ")
-    .map((word) => (word.length > 1 && word.endsWith("s") ? word.slice(0, -1) : word))
-    .join(" ");
 
 const totalIdentity = (item: Pick<ShoppingTotalItem, "item" | "unit">) =>
   `${normalizeItemKey(item.item)}__${normalizeUnitKey(item.unit || "")}`;
@@ -293,7 +266,7 @@ const totalsByIdentity = computed(() => {
 });
 
 const sortedTotals = computed(() =>
-  byCheckedLast([...totals.value].sort((a, b) => normalize(a.item).localeCompare(normalize(b.item)))),
+  byCheckedLast([...totals.value].sort((a, b) => normalizeLabel(a.item).localeCompare(normalizeLabel(b.item)))),
 );
 
 const recipeIngredientOccurrenceId = (

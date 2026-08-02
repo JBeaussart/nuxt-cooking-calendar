@@ -247,6 +247,8 @@
 </template>
 
 <script setup lang="ts">
+import { normalizeLabel as normalize } from "~/shared/utils/ingredientKey";
+
 definePageMeta({ layout: "default", middleware: "auth" });
 
 const route = useRoute();
@@ -331,9 +333,6 @@ watch(debouncedQuery, async (val) => {
   const ids = await $fetch<string[]>("/api/recipes/search", { query: { q } }).catch(() => []);
   if (token === searchToken) ingredientMatchIds.value = new Set(ids);
 }, { immediate: true });
-
-const normalize = (s: string) =>
-  String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 
 const filteredRecipes = computed(() => {
   let list = recipes.value || [];
