@@ -38,14 +38,17 @@ export default defineNuxtConfig({
 
   ssr: true,
 
-  // /, /login et /signup sont statiques (aucune donnée par requête) : on les
-  // prérend au build pour qu'ils soient servis par le CDN Netlify sans passer
-  // par la fonction serverless (mesuré : ~300-700ms de moins par visite).
-  routeRules: {
-    "/": { prerender: true },
-    "/login": { prerender: true },
-    "/signup": { prerender: true },
-  },
+  // Pas de prerender sur /, /login, /signup : le layout affiche une barre de
+  // navigation qui depend de l'utilisateur connecte. Un HTML fige au build
+  // contient forcement la nav "deconnecte" ; quand un utilisateur connecte
+  // hydrate par-dessus, Vue met a jour les libelles mais PAS les <svg>
+  // (contenu statique ignore par l'hydratation), ce qui donnait des icones
+  // melangees dans le PWA iOS (icone Accueil sous le libelle "Planning").
+  // Verifie : ni un `key` sur les branches v-if/v-else ni un `:d` dynamique ne
+  // reparent ce mismatch. Le rendu SSR par requete, lui, connait le cookie de
+  // session et produit la bonne nav des le HTML.
+  // Le gros du gain de perf vient de toute facon de la region fra1 (vercel.json),
+  // colocalisee avec Supabase, pas du prerender.
 
   nitro: {
     compressPublicAssets: { gzip: true, brotli: true },
