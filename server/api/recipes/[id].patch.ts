@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-  const { user, supabase, getUserRole } = await getServerUser(event);
+  const { user, supabase } = await getServerUser(event);
   if (!user || !supabase) throw createError({ statusCode: 401, statusMessage: "Non authentifié" });
 
   const id = getRouterParam(event, "id");
@@ -8,7 +8,6 @@ export default defineEventHandler(async (event) => {
 
   if (!title) throw createError({ statusCode: 400, statusMessage: "Titre requis" });
 
-  const userRole = await getUserRole();
   const cleanServings = Math.round(Number(servings));
   const finalServings = Number.isFinite(cleanServings) && cleanServings >= 1 && cleanServings <= 50 ? cleanServings : 4;
 
@@ -38,7 +37,7 @@ export default defineEventHandler(async (event) => {
       image: image ? String(image).trim() : "",
       ingredients: cleanIngredients,
       steps: cleanSteps,
-      maman: isAdmin(userRole) ? !!maman : false,
+      maman: !!maman,
       salt: !!salt,
       servings: finalServings,
       // Une modification manuelle (formulaire d'edition) redefinit la base :

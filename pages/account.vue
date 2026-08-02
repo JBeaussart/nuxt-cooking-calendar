@@ -16,13 +16,6 @@
             <p class="font-medium">{{ stats.email }}</p>
           </div>
           <div class="flex items-center gap-3">
-            <span class="px-3 py-1 rounded-full text-sm font-medium" :class="{
-              'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300': stats.role === 'admin',
-              'bg-saffron-100 text-saffron-700 dark:bg-saffron-900/40 dark:text-saffron-300': stats.role === 'premium',
-              'bg-gray-100 text-gray-700 dark:bg-stone-700 dark:text-stone-300': stats.role === 'free',
-            }">
-              {{ stats.role === 'admin' ? 'Administrateur' : stats.role === 'premium' ? 'Premium' : 'Gratuit' }}
-            </span>
             <span class="text-sm text-gray-500 dark:text-stone-400">Membre depuis {{ formatDate(stats.createdAt) }}</span>
           </div>
         </section>
@@ -85,7 +78,7 @@ definePageMeta({ layout: "default", middleware: "auth" });
 const { logout } = useAuth();
 const supabase = useSupabaseClient();
 const { data: stats, pending } = useFetch<{
-  recipesCount: number; planningCount: number; email: string; role: string; createdAt: string;
+  recipesCount: number; planningCount: number; email: string; createdAt: string;
 }>("/api/account/stats");
 
 const formatDate = (date?: string) =>

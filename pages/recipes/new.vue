@@ -15,22 +15,7 @@
         title="Nouvelle recette"
       />
 
-      <div v-if="countPending" class="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 p-5 text-center text-sm text-stone-500 dark:text-stone-400">
-        Chargement...
-      </div>
-
-      <!-- Limite atteinte -->
-      <div v-else-if="limitReached" class="rounded-xl border p-5 text-center" style="background-color: #FDF3E1; border-color: #F1CD8C;">
-        <span class="text-2xl block mb-2">🎉</span>
-        <h3 class="text-lg font-semibold text-stone-800 mb-2">Limite de 20 recettes atteinte</h3>
-        <p class="text-sm text-stone-700 mb-4">Passez à Premium pour créer des recettes illimitées.</p>
-        <NuxtLink to="/premium" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-white" style="background-color: #D98E2B;">
-          Découvrir le Premium
-        </NuxtLink>
-      </div>
-
-      <template v-else>
-        <!-- Statut -->
+      <!-- Statut -->
         <div v-if="statusMsg" class="mb-6 rounded-xl border-2 p-4 text-sm font-medium text-center" :class="statusClass">
           {{ statusMsg }}
         </div>
@@ -111,7 +96,7 @@
               </div>
             </div>
 
-            <div v-if="isAdmin" class="flex items-center pb-0">
+            <div class="flex items-center pb-0">
               <div class="flex items-center p-1 bg-stone-100 dark:bg-stone-800 rounded-xl border border-stone-200 dark:border-stone-700">
                 <button type="button" @click="form.maman = !form.maman"
                   class="px-3 sm:px-4 py-1.5 text-xs sm:text-sm rounded-lg transition-all flex items-center gap-1"
@@ -190,19 +175,12 @@
           </button>
         </div>
       </form>
-      </template>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 definePageMeta({ layout: "default", middleware: "auth" });
-
-const { isAdmin, isFree } = useAuth();
-
-// Vérifier la limite (count seulement, sans charger toutes les recettes)
-const { data: recipesCount, pending: countPending } = useFetch<{ count: number }>("/api/recipes/count");
-const limitReached = computed(() => isFree.value && (recipesCount.value?.count || 0) >= 20);
 
 const form = reactive({
   title: "",
@@ -284,7 +262,7 @@ const loadJson = () => {
   form.title = title;
   form.image = String(parsed.image || "");
   form.salt = parsed.salt !== false;
-  form.maman = isAdmin.value ? !!parsed.maman : false;
+  form.maman = !!parsed.maman;
   form.servings = Number.isFinite(parsedServings) && parsedServings >= 1 ? parsedServings : 4;
   form.ingredients = ingredients;
   form.steps = steps.length ? steps : [""];

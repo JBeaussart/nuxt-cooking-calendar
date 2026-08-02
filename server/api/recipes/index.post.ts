@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-  const { user, supabase, getUserRole } = await getServerUser(event);
+  const { user, supabase } = await getServerUser(event);
   if (!user || !supabase) {
     throw createError({ statusCode: 401, statusMessage: "Non authentifié" });
   }
@@ -19,22 +19,6 @@ export default defineEventHandler(async (event) => {
     return Number.isFinite(n) && n >= 0 && n <= 1440 ? n : null;
   };
   const finalPrepMinutes = cleanMinutes(prepMinutes);
-
-  const userRole = await getUserRole();
-
-  // Vérifier la limite pour les utilisateurs free
-  if (!isPremiumOrAdmin(userRole)) {
-    const { count } = await supabase
-      .from("recipes")
-      .select("*", { count: "exact", head: true })
-      .eq("user_id", user.id);
-    if ((count || 0) >= 20) {
-      throw createError({
-        statusCode: 403,
-        statusMessage: "Limite de 20 recettes atteinte. Passez à Premium pour créer des recettes illimitées.",
-      });
-    }
-  }
 
   const cleanIngredients = ingredients
     .map((i: any) => {
@@ -57,7 +41,7 @@ export default defineEventHandler(async (event) => {
       image: image ? String(image).trim() : "",
       ingredients: cleanIngredients,
       steps: cleanSteps,
-      maman: isAdmin(userRole) ? !!maman : false,
+      maman: !!maman,
       salt: !!salt,
       servings: finalServings,
       base_servings: finalServings,

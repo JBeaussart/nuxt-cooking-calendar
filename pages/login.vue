@@ -67,7 +67,6 @@ const email = ref("");
 const password = ref("");
 const error = ref("");
 const loading = ref(false);
-const { fetchProfile } = useAuth();
 
 const supabase = useSupabaseClient();
 
@@ -80,7 +79,6 @@ const handleLogin = async () => {
       password: password.value,
     });
     if (authError) throw new Error(authError.message);
-    await fetchProfile();
     // Navigation "dure" pour forcer une requête SSR fraîche avec le cookie
     // de session déjà posé (évite une page vide tant que le cookie n'a pas
     // encore été pris en compte par une navigation SPA classique).

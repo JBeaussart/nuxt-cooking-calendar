@@ -53,7 +53,7 @@
                   :class="!form.salt ? 'bg-white dark:bg-stone-700 font-bold text-saffron-600 shadow-sm' : 'font-medium text-stone-500 dark:text-stone-400'">🍰 Sucré</button>
               </div>
             </div>
-            <div v-if="isAdmin" class="flex items-center">
+            <div class="flex items-center">
               <div class="flex items-center p-1 bg-stone-100 dark:bg-stone-800 rounded-xl border border-stone-200 dark:border-stone-700">
                 <button type="button" @click="form.maman = !form.maman" class="px-3 sm:px-4 py-1.5 text-xs sm:text-sm rounded-lg transition-all flex items-center gap-1"
                   :class="form.maman ? 'bg-white dark:bg-stone-700 font-bold text-pink-600 shadow-sm' : 'font-medium text-stone-500 dark:text-stone-400'">
@@ -133,7 +133,6 @@ definePageMeta({ layout: "default", middleware: "auth" });
 
 const route = useRoute();
 const id = route.params.id as string;
-const { isAdmin } = useAuth();
 
 const { data: recipe, pending } = useFetch<any>(`/api/recipes/${id}`);
 

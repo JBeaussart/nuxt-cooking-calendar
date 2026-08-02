@@ -46,14 +46,6 @@
       <!-- RIGHT ACTIONS -->
       <div class="flex items-center gap-3">
         <template v-if="user">
-          <NuxtLink
-            v-if="isFree"
-            to="/premium"
-            class="px-4 py-2 rounded-lg text-sm font-medium bg-saffron-100 text-saffron-700 hover:bg-saffron-200 dark:bg-saffron-900/40 dark:text-saffron-300 dark:hover:bg-saffron-900/60 transition"
-          >
-            Passer à Premium
-          </NuxtLink>
-
           <div class="relative">
             <button
               @click="desktopMenuOpen = !desktopMenuOpen"
@@ -67,19 +59,7 @@
               class="absolute right-0 mt-2 w-56 bg-white dark:bg-stone-800 rounded-xl shadow-lg border border-gray-200 dark:border-stone-700 overflow-hidden"
             >
               <div class="px-4 py-3 border-b border-gray-200 dark:border-stone-700">
-                <div class="text-sm text-gray-600 dark:text-stone-400 mb-2">{{ user.email }}</div>
-                <div class="flex items-center gap-2">
-                  <span
-                    class="inline-flex items-center px-2 py-1 rounded-md text-xs font-semibold"
-                    :class="{
-                      'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300': userRole === 'admin',
-                      'bg-saffron-100 text-saffron-700 dark:bg-saffron-900/40 dark:text-saffron-300': userRole === 'premium',
-                      'bg-gray-100 text-gray-700 dark:bg-stone-700 dark:text-stone-300': userRole === 'free',
-                    }"
-                  >
-                    {{ userRole === 'admin' ? 'Admin' : userRole === 'premium' ? 'Premium' : 'Free' }}
-                  </span>
-                </div>
+                <div class="text-sm text-gray-600 dark:text-stone-400">{{ user.email }}</div>
               </div>
               <NuxtLink to="/account" class="block px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-stone-700" @click="desktopMenuOpen = false">
                 Mon profil
@@ -172,7 +152,7 @@
 
 <script setup lang="ts">
 const route = useRoute();
-const { user, userRole, isFree, logout } = useAuth();
+const { user, logout } = useAuth();
 
 const desktopMenuOpen = ref(false);
 

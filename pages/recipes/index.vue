@@ -4,45 +4,7 @@
       <PageHeader
         title="Mes recettes"
         description="Découvrez et gérez votre collection"
-      >
-        <template #after-title>
-          <span
-            v-if="isFree && recipes.length === 20"
-            class="inline-flex max-w-full items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700"
-          >
-            20/20 recettes – Limite atteinte
-          </span>
-        </template>
-      </PageHeader>
-
-      <!-- Bannière limite -->
-      <div
-        v-if="isFree && recipes.length === 20 && !bannerDismissed"
-        class="mb-6 rounded-xl border p-4 sm:p-5 shadow-sm"
-        style="background-color: #FDF3E1; border-color: #F1CD8C;"
-      >
-        <div class="flex items-start justify-between gap-4">
-          <div class="flex-1">
-            <div class="flex items-center gap-2 mb-2">
-              <span class="text-2xl">🎉</span>
-              <h3 class="text-base sm:text-lg font-semibold text-stone-800">Bravo, vous avez atteint la limite de 20 recettes !</h3>
-            </div>
-            <p class="text-sm sm:text-base text-stone-700 mb-4">Profitez de recettes illimitées avec le Premium.</p>
-            <NuxtLink
-              to="/premium"
-              class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-white"
-              style="background-color: #D98E2B;"
-            >
-              Découvrir le Premium
-            </NuxtLink>
-          </div>
-          <button @click="bannerDismissed = true" class="p-1.5 rounded-lg text-stone-500 hover:text-stone-700">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-      </div>
+      />
 
       <!-- Filtres et actions -->
       <div class="mb-4 flex flex-col gap-4 sm:mb-6">
@@ -73,7 +35,7 @@
                 {{ f.label }}
               </button>
             </div>
-            <div v-if="isAdmin" class="flex items-center p-1 bg-stone-100 dark:bg-stone-800 rounded-xl border border-stone-200 dark:border-stone-700">
+            <div class="flex items-center p-1 bg-stone-100 dark:bg-stone-800 rounded-xl border border-stone-200 dark:border-stone-700">
               <button
                 @click="mamanFilter = !mamanFilter"
                 class="px-3 sm:px-4 py-1.5 text-xs sm:text-sm rounded-lg transition-all flex items-center gap-1"
@@ -87,10 +49,7 @@
             <div v-if="recipes.length > 0" class="ml-auto flex items-center p-1 bg-stone-100 dark:bg-stone-800 rounded-xl border border-stone-200 dark:border-stone-700">
               <button
                 @click="exportPdf"
-                :disabled="!isPremium"
-                class="inline-flex items-center justify-center gap-1.5 px-3 sm:px-4 py-1.5 text-xs sm:text-sm rounded-lg transition-all"
-                :class="isPremium ? 'font-medium text-stone-500 dark:text-stone-400 hover:text-saffron-300 hover:bg-saffron-50 dark:hover:bg-saffron-900/30' : 'font-medium text-stone-400 dark:text-stone-500 opacity-60 cursor-not-allowed'"
-                :title="!isPremium ? 'Export PDF réservé aux utilisateurs Premium' : ''"
+                class="inline-flex items-center justify-center gap-1.5 px-3 sm:px-4 py-1.5 text-xs sm:text-sm rounded-lg transition-all font-medium text-stone-500 dark:text-stone-400 hover:text-saffron-300 hover:bg-saffron-50 dark:hover:bg-saffron-900/30"
               >
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
@@ -100,10 +59,6 @@
               </button>
             </div>
           </div>
-
-          <span v-if="isFree && recipes.length < 20" class="text-xs font-medium text-stone-500 dark:text-stone-400 flex-shrink-0">
-            {{ recipes.length }}/20 recettes
-          </span>
         </div>
       </div>
 
@@ -296,7 +251,6 @@ definePageMeta({ layout: "default", middleware: "auth" });
 
 const route = useRoute();
 const { getOptimizedImageUrl, getOptimizedImageSrcset } = useImageOptimizer();
-const { isPremium, isAdmin, isFree } = useAuth();
 const planning = usePlanningStore();
 const toast = useToast();
 
@@ -306,7 +260,6 @@ const searchQuery = useState("recipes_search_query", () => (route.query.q as str
 const debouncedQuery = ref(searchQuery.value);
 const saltFilter = useState("recipes_salt_filter", () => (route.query.salt as string) || "all");
 const mamanFilter = useState("recipes_maman_filter", () => route.query.maman === "true");
-const bannerDismissed = ref(false);
 const exportLoading = ref(false);
 const DEFAULT_RECIPE_IMAGE = "/images/default-recipe.jpg";
 const imageLoadFailed = ref<Record<string, boolean>>({});
@@ -511,10 +464,6 @@ const assignToDay = async (dateStr: string) => {
 };
 
 const exportPdf = async () => {
-  if (!isPremium.value) {
-    toast.show("🔒 Export PDF réservé aux utilisateurs Premium");
-    return;
-  }
   exportLoading.value = true;
   try {
     const response = await fetch("/api/recipes/export-pdf", { credentials: "include" });

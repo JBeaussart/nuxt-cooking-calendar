@@ -79,7 +79,6 @@ const error = ref("");
 const success = ref("");
 const loading = ref(false);
 const supabase = useSupabaseClient();
-const { fetchProfile } = useAuth();
 
 const handleSignup = async () => {
   error.value = "";
@@ -94,7 +93,6 @@ const handleSignup = async () => {
       password: password.value,
     });
     if (authError) throw new Error(authError.message);
-    await fetchProfile();
     success.value = "Compte créé ! Redirection...";
     // Navigation "dure" pour forcer une requête SSR fraîche avec le cookie
     // de session déjà posé (voir login.vue).
