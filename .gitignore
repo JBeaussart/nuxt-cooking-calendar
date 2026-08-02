@@ -5,3 +5,9 @@ dist/
 .env
 *.log
 .DS_Store
+
+# Dumps de base (migration Supabase) : contiennent toutes les donnees
+# utilisateur, ne doivent jamais partir sur GitHub.
+roles.sql
+schema.sql
+data.sql
