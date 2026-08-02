@@ -38,6 +38,15 @@ export default defineNuxtConfig({
 
   ssr: true,
 
+  // /, /login et /signup sont statiques (aucune donnée par requête) : on les
+  // prérend au build pour qu'ils soient servis par le CDN Netlify sans passer
+  // par la fonction serverless (mesuré : ~300-700ms de moins par visite).
+  routeRules: {
+    "/": { prerender: true },
+    "/login": { prerender: true },
+    "/signup": { prerender: true },
+  },
+
   nitro: {
     compressPublicAssets: { gzip: true, brotli: true },
     minify: true,
