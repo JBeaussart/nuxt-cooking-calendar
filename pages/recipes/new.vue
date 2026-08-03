@@ -125,9 +125,9 @@
                 class="w-20 rounded-lg border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 dark:text-stone-100 px-3 py-2 text-sm" />
               <select v-model="ing.unit" class="w-24 rounded-lg border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 dark:text-stone-100 px-2 py-2 text-sm">
                 <option value="">Unité</option>
-                <option v-for="unit in ingredientUnits" :key="unit" :value="unit">
-                  {{ unit }}
-                </option>
+                <optgroup v-for="g in INGREDIENT_UNIT_GROUPS" :key="g.group" :label="g.group">
+                  <option v-for="unit in g.units" :key="unit" :value="unit">{{ unit }}</option>
+                </optgroup>
               </select>
               <button type="button" @click="form.ingredients.splice(i, 1)" class="p-2 text-stone-400 dark:text-stone-500 hover:text-rose-500">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m1 0H8m8 0l-1-3H9L8 7" /></svg>
@@ -180,6 +180,8 @@
 </template>
 
 <script setup lang="ts">
+import { INGREDIENT_UNIT_GROUPS, canonicalizeUnit } from "~/shared/utils/ingredientUnits";
+
 definePageMeta({ layout: "default", middleware: "auth" });
 
 const form = reactive({
@@ -236,6 +238,9 @@ const loadJson = () => {
     return;
   }
 
+  // Le JSON colle peut contenir n'importe quelle unite : on la ramene a la
+  // liste fermee, et on refuse l'import plutot que de la perdre en silence.
+  const unknownUnits: string[] = [];
   const ingredients = (Array.isArray(parsed.ingredients) ? parsed.ingredients : [])
     .map((i: any) => {
       if (typeof i === "string") {
@@ -244,15 +249,23 @@ const loadJson = () => {
       }
       const item = String(i?.item || "").trim();
       if (!item) return null;
+      const rawUnit = String(i?.unit || "");
+      const unit = canonicalizeUnit(rawUnit);
+      if (unit === null) unknownUnits.push(rawUnit.trim());
       return {
         item,
         quantity: i?.quantity === undefined || i?.quantity === null ? "" : i.quantity,
-        unit: String(i?.unit || ""),
+        unit: unit ?? "",
       };
     })
     .filter(Boolean);
   if (!ingredients.length) {
     jsonError.value = "Au moins un ingrédient est requis.";
+    return;
+  }
+  if (unknownUnits.length) {
+    const uniques = [...new Set(unknownUnits)];
+    jsonError.value = `Unité${uniques.length > 1 ? "s" : ""} non reconnue${uniques.length > 1 ? "s" : ""} : ${uniques.map((u) => `« ${u} »`).join(", ")}. Utilisez une unité de la liste proposée par le formulaire.`;
     return;
   }
 
@@ -271,25 +284,6 @@ const loadJson = () => {
   statusMsg.value = "JSON chargé : vérifiez la recette puis enregistrez.";
   statusClass.value = "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900 dark:bg-blue-950/30 dark:text-blue-300";
 };
-const ingredientUnits = [
-  "g",
-  "kg",
-  "ml",
-  "cl",
-  "l",
-  "c. a cafe",
-  "c. a soupe",
-  "pincée",
-  "tranche",
-  "botte",
-  "sachet",
-  "verre",
-  "zeste",
-  "boîte",
-  "gousse",
-  "feuille",
-  "poignée",
-];
 
 const { addIngredient, addStep, moveStep, cleanIngredients, cleanSteps } = useRecipeFormHelpers(form);
 

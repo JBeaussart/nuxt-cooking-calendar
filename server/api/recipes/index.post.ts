@@ -1,3 +1,5 @@
+import { canonicalizeUnit } from "~/shared/utils/ingredientUnits";
+
 export default defineEventHandler(async (event) => {
   const { user, supabase } = await getServerUser(event);
   if (!user || !supabase) {
@@ -26,7 +28,13 @@ export default defineEventHandler(async (event) => {
       const item = String(i.item || "").trim();
       if (!item) return null;
       const qty = i.quantity === "" || i.quantity === null || i.quantity === undefined ? undefined : Number(i.quantity);
-      const unit = String(i.unit || "").trim();
+      const unit = canonicalizeUnit(i.unit);
+      if (unit === null) {
+        throw createError({
+          statusCode: 400,
+          statusMessage: `Unité non reconnue : « ${String(i.unit).trim()} ». Utilisez une unité de la liste.`,
+        });
+      }
       return { item, ...(Number.isFinite(qty) ? { quantity: qty } : {}), ...(unit ? { unit } : {}) };
     })
     .filter(Boolean);

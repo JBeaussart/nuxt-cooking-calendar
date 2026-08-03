@@ -3,6 +3,8 @@
 // liste de courses). Auto-importe cote client ET serveur via le dossier
 // Nuxt `shared/`.
 
+import { getUnitCategory } from "./ingredientUnits";
+
 export type IngredientQuantityType = "continuous" | "shareable" | "unitary";
 
 // \p{Mn} (marques combinantes) ne deplie pas les ligatures oe/ae collees,
@@ -16,23 +18,6 @@ const norm = (s: string) =>
     .replace(/æ/g, "ae")
     .trim();
 
-// Unites mesurables/dosables : pas de contrainte d'achat a la piece, la
-// precision (ou une fraction) a un sens autant en cuisine qu'au moment de
-// l'achat (on pese/mesure ce qu'il faut).
-const CONTINUOUS_UNITS = new Set(
-  ["g", "kg", "ml", "cl", "l", "c. a cafe", "c. a soupe", "pincee", "zeste", "poignee", "verre"].map(norm)
-);
-
-// Unites qui representent un contenant achete entier (on ne peut pas acheter
-// une demi-boite au supermarche), mais qui restent traitees comme les
-// ingredients "partageables" pour l'instant (voir formatRecipeQuantity /
-// getShoppingListQuantity) : la distinction sert a documenter l'intention et
-// permettra de les differencier plus tard si besoin.
-const UNITARY_UNITS = new Set(["boite", "sachet", "conserve", "conserves", "tranche", "tranches"].map(norm));
-
-// La gousse d'ail se coupe/partage tres naturellement en cuisine.
-const SHAREABLE_UNITS = new Set(["gousse", "gousses"].map(norm));
-
 // Ingredients sans unite generalement compris comme un compte a la piece
 // indivisible en cuisine (contrairement a "demi-avocat" ou "demi-oignon",
 // qui sont des usages courants).
@@ -41,17 +26,15 @@ const UNITARY_ITEM_NAMES = new Set(["oeuf", "oeufs", "citron", "citron jaune", "
 /**
  * Determine le type de quantite d'un ingredient (deduit de son unite, puis
  * de son nom si l'ingredient est compte a la piece sans unite).
+ *
+ * La categorie de chaque unite est declaree une seule fois, dans
+ * shared/utils/ingredientUnits.ts, aux cotes de la liste fermee proposee par
+ * les formulaires : une unite ajoutee la-bas est automatiquement classee ici.
  */
 export function getIngredientQuantityType(ingredient: { unit?: string; item?: string }): IngredientQuantityType {
-  const unit = norm(ingredient.unit || "");
-  if (unit) {
-    if (SHAREABLE_UNITS.has(unit)) return "shareable";
-    if (UNITARY_UNITS.has(unit)) return "unitary";
-    if (CONTINUOUS_UNITS.has(unit)) return "continuous";
-    // Unite inconnue/non repertoriee : pas de contrainte d'achat a la piece
-    // connue, on la traite comme continue par defaut.
-    return "continuous";
-  }
+  const unit = String(ingredient.unit || "").trim();
+  if (unit) return getUnitCategory(unit);
+
   const item = norm(ingredient.item || "");
   return UNITARY_ITEM_NAMES.has(item) ? "unitary" : "shareable";
 }

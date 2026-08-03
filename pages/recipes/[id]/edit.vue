@@ -75,7 +75,18 @@
             <div v-for="(ing, i) in form.ingredients" :key="i" class="grid grid-cols-[1fr_auto_auto_auto] gap-2 items-start">
               <input v-model="ing.item" type="text" placeholder="Ingrédient" required class="w-full rounded-lg border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 dark:text-stone-100 px-3 py-2 text-sm" />
               <input v-model.number="ing.quantity" type="number" step="any" placeholder="Qté" class="w-20 rounded-lg border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 dark:text-stone-100 px-3 py-2 text-sm" />
-              <input v-model="ing.unit" type="text" placeholder="Unité" class="w-20 rounded-lg border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 dark:text-stone-100 px-3 py-2 text-sm" />
+              <select v-model="ing.unit" class="w-24 rounded-lg border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 dark:text-stone-100 px-2 py-2 text-sm">
+                <option value="">Unité</option>
+                <!-- Une recette ancienne peut porter une unite hors liste : on
+                     l'affiche quand meme pour ne pas l'ecraser en silence a la
+                     premiere sauvegarde, signalee comme a corriger. -->
+                <option v-if="ing.unit && !INGREDIENT_UNIT_VALUES.includes(ing.unit)" :value="ing.unit">
+                  {{ ing.unit }} (à corriger)
+                </option>
+                <optgroup v-for="g in INGREDIENT_UNIT_GROUPS" :key="g.group" :label="g.group">
+                  <option v-for="unit in g.units" :key="unit" :value="unit">{{ unit }}</option>
+                </optgroup>
+              </select>
               <button type="button" @click="form.ingredients.splice(i, 1)" class="p-2 text-stone-400 dark:text-stone-500 hover:text-rose-500">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m1 0H8m8 0l-1-3H9L8 7" /></svg>
               </button>
@@ -129,6 +140,8 @@
 </template>
 
 <script setup lang="ts">
+import { INGREDIENT_UNIT_GROUPS, INGREDIENT_UNIT_VALUES } from "~/shared/utils/ingredientUnits";
+
 definePageMeta({ layout: "default", middleware: "auth" });
 
 const route = useRoute();
