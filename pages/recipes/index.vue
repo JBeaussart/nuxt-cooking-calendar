@@ -248,6 +248,7 @@
 
 <script setup lang="ts">
 import { normalizeLabel as normalize } from "~/shared/utils/ingredientKey";
+import { formatDuration } from "~/shared/utils/duration";
 
 definePageMeta({ layout: "default", middleware: "auth" });
 
@@ -296,7 +297,7 @@ const onRecipeCardImageError = (e: Event, r: { id: string; image?: string }) => 
   markImageFailed(r.id);
 };
 
-const formatPrepTime = (r: { prep_minutes?: number }) => (r.prep_minutes ? `${r.prep_minutes} min` : "");
+const formatPrepTime = (r: { prep_minutes?: number }) => formatDuration(r.prep_minutes);
 
 /** Salé / Sucré (l’icône pastille indique Ninette quand `maman`) */
 const recipeCardSubtitle = (r: { salt?: boolean }) => (r.salt === false ? "Sucré" : "Salé");

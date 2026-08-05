@@ -45,7 +45,7 @@
               v-if="recipe.prep_minutes"
               class="absolute bottom-3 right-3 inline-flex items-center gap-1 rounded-full bg-stone-900/70 backdrop-blur-sm px-3 py-1.5 text-xs font-semibold text-white shadow-sm"
             >
-              ⏱️ {{ recipe.prep_minutes }} min
+              ⏱️ {{ formatDuration(recipe.prep_minutes) }}
             </div>
           </div>
 
@@ -188,6 +188,7 @@ import {
   formatRecipeQuantity,
   formatQuantityLabel,
 } from "~/shared/utils/ingredientQuantity";
+import { formatDuration } from "~/shared/utils/duration";
 
 definePageMeta({ layout: "default", middleware: "auth" });
 
