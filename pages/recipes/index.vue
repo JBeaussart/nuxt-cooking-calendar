@@ -44,6 +44,16 @@
                 <svg class="w-4 h-4 text-pink-400" viewBox="0 0 512 512" fill="currentColor"><path d="M226.5 92.9c14.3 42.9-.3 86.2-32.6 96.8s-70.1-15.6-84.4-58.5.3-86.2 32.6-96.8 70.1 15.6 84.4 58.5zM100.4 198.6c18.9 32.4 14.3 70.1-10.2 84.1s-59.7-.9-78.5-33.3S-2.7 179.3 21.8 165.3s59.7.9 78.6 33.3zM69.2 401.2C121.6 259.9 214.7 224 256 224s134.4 35.9 186.8 177.2c3.6 9.7 5.2 20.1 5.2 30.5v1.6c0 25.8-20.9 46.7-46.7 46.7-11.5 0-22.9-1.4-34-4.2l-88-22c-15.3-3.8-31.3-3.8-46.6 0l-88 22c-11.1 2.8-22.5 4.2-34 4.2-25.8 0-46.7-20.9-46.7-46.7v-1.6c0-10.4 1.6-20.8 5.2-30.5zM324.5 92.9c14.3-42.9 51.7-73.1 84.4-58.5s46.9 53.9 32.6 96.8-51.7 73.1-84.4 58.5-46.9-53.9-32.6-96.8zM400.1 165.3c24.5 14 29.1 51.7 10.2 84.1s-54 48.2-78.5 33.3-29.1-51.7-10.2-84.1 54-48.2 78.5-33.3z"/></svg>
                 Ninette
               </button>
+              <button
+                @click="receptionFilter = !receptionFilter"
+                class="px-3 sm:px-4 py-1.5 text-xs sm:text-sm rounded-lg transition-all flex items-center gap-1"
+                :class="receptionFilter ? 'bg-white dark:bg-stone-700 font-bold text-violet-600 shadow-sm' : 'font-medium text-stone-500 dark:text-stone-400'"
+              >
+                <svg class="w-4 h-4 text-violet-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+                Réception
+              </button>
             </div>
 
             <div v-if="recipes.length > 0" class="ml-auto flex items-center p-1 bg-stone-100 dark:bg-stone-800 rounded-xl border border-stone-200 dark:border-stone-700">
@@ -142,6 +152,15 @@
                     title="Recette Ninette"
                   >
                     <path d="M226.5 92.9c14.3 42.9-.3 86.2-32.6 96.8s-70.1-15.6-84.4-58.5.3-86.2 32.6-96.8 70.1 15.6 84.4 58.5zM100.4 198.6c18.9 32.4 14.3 70.1-10.2 84.1s-59.7-.9-78.5-33.3S-2.7 179.3 21.8 165.3s59.7.9 78.6 33.3zM69.2 401.2C121.6 259.9 214.7 224 256 224s134.4 35.9 186.8 177.2c3.6 9.7 5.2 20.1 5.2 30.5v1.6c0 25.8-20.9 46.7-46.7 46.7-11.5 0-22.9-1.4-34-4.2l-88-22c-15.3-3.8-31.3-3.8-46.6 0l-88 22c-11.1 2.8-22.5 4.2-34 4.2-25.8 0-46.7-20.9-46.7-46.7v-1.6c0-10.4 1.6-20.8 5.2-30.5zM324.5 92.9c14.3-42.9 51.7-73.1 84.4-58.5s46.9 53.9 32.6 96.8-51.7 73.1-84.4 58.5-46.9-53.9-32.6-96.8zM400.1 165.3c24.5 14 29.1 51.7 10.2 84.1s-54 48.2-78.5 33.3-29.1-51.7-10.2-84.1 54-48.2 78.5-33.3z" />
+                  </svg>
+                  <svg
+                    v-if="r.reception"
+                    class="h-3 w-3 shrink-0 text-violet-400"
+                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+                    title="Recette de réception"
+                  >
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
                   </svg>
                   <h3 class="min-w-0 line-clamp-2 text-sm font-bold leading-tight text-stone-900 dark:text-stone-100 sm:text-base">
                     {{ r.title }}
@@ -263,6 +282,7 @@ const searchQuery = useState("recipes_search_query", () => (route.query.q as str
 const debouncedQuery = ref(searchQuery.value);
 const saltFilter = useState("recipes_salt_filter", () => (route.query.salt as string) || "all");
 const mamanFilter = useState("recipes_maman_filter", () => route.query.maman === "true");
+const receptionFilter = useState("recipes_reception_filter", () => route.query.reception === "true");
 const exportLoading = ref(false);
 const DEFAULT_RECIPE_IMAGE = "/images/default-recipe.jpg";
 const imageLoadFailed = ref<Record<string, boolean>>({});
@@ -344,6 +364,7 @@ const filteredRecipes = computed(() => {
   }
 
   if (mamanFilter.value) list = list.filter((r) => r.maman === true);
+  if (receptionFilter.value) list = list.filter((r) => r.reception === true);
   if (saltFilter.value === "salty") list = list.filter((r) => r.salt === true);
   else if (saltFilter.value === "sweet") list = list.filter((r) => r.salt === false);
 

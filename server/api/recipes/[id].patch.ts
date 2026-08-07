@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
 
   const id = getRouterParam(event, "id");
   const body = await readBody(event);
-  const { title, image, ingredients, steps, maman, salt, servings, prepMinutes } = body;
+  const { title, image, ingredients, steps, maman, reception, salt, servings, prepMinutes } = body;
 
   if (!title) throw createError({ statusCode: 400, statusMessage: "Titre requis" });
 
@@ -46,6 +46,7 @@ export default defineEventHandler(async (event) => {
       ingredients: cleanIngredients,
       steps: cleanSteps,
       maman: !!maman,
+      reception: !!reception,
       salt: !!salt,
       servings: finalServings,
       // Une modification manuelle (formulaire d'edition) redefinit la base :

@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const body = await readBody(event);
-  const { title, image, ingredients, steps, maman = false, salt = true, servings, prepMinutes } = body;
+  const { title, image, ingredients, steps, maman = false, reception = false, salt = true, servings, prepMinutes } = body;
 
   if (!title || !Array.isArray(ingredients) || ingredients.length === 0) {
     throw createError({ statusCode: 400, statusMessage: "Champs requis manquants" });
@@ -50,6 +50,7 @@ export default defineEventHandler(async (event) => {
       ingredients: cleanIngredients,
       steps: cleanSteps,
       maman: !!maman,
+      reception: !!reception,
       salt: !!salt,
       servings: finalServings,
       base_servings: finalServings,
