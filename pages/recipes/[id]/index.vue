@@ -8,10 +8,10 @@
       <div v-else-if="recipe">
         <!-- Navigation -->
         <div class="mb-4 flex items-center justify-between">
-          <NuxtLink :to="recipesIndexHref" class="inline-flex items-center gap-2 rounded-xl bg-white dark:bg-stone-800 px-4 py-2 text-sm font-medium text-stone-600 dark:text-stone-300 shadow-sm ring-1 ring-stone-200 dark:ring-stone-700 hover:bg-saffron-50 dark:hover:bg-saffron-900/30 hover:text-saffron-300 transition">
+          <button type="button" @click="goBack" class="inline-flex items-center gap-2 rounded-xl bg-white dark:bg-stone-800 px-4 py-2 text-sm font-medium text-stone-600 dark:text-stone-300 shadow-sm ring-1 ring-stone-200 dark:ring-stone-700 hover:bg-saffron-50 dark:hover:bg-saffron-900/30 hover:text-saffron-300 transition">
             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
             Retour
-          </NuxtLink>
+          </button>
           <div class="flex items-center gap-2">
             <button v-if="dateParam" @click="assignToPlanning"
               class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white dark:bg-stone-800 text-green-600 dark:text-green-400 shadow-sm ring-1 ring-stone-200 dark:ring-stone-700 hover:bg-green-50 dark:hover:bg-green-950/30 transition">
@@ -209,6 +209,20 @@ const recipesIndexHref = computed(() => {
   if (!dateParam.value) return "/recipes";
   return `/recipes?date=${encodeURIComponent(dateParam.value)}`;
 });
+
+// "Retour" doit ramener d'ou l'on vient (planning, liste de courses, liste des
+// recettes...) et non toujours vers /recipes. vue-router renseigne
+// history.state.back uniquement pour une navigation interne : s'il est vide
+// (URL ouverte directement, lancement du PWA, lien partage), on retombe sur la
+// liste des recettes plutot que de sortir de l'application.
+const router = useRouter();
+function goBack() {
+  if (import.meta.client && window.history.state?.back) {
+    router.back();
+    return;
+  }
+  return navigateTo(recipesIndexHref.value);
+}
 
 const { data: recipe, pending, error, refresh } = useFetch<any>(`/api/recipes/${id}`, {
   default: () => null,
