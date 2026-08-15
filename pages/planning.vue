@@ -101,26 +101,31 @@
                 </span>
               </NuxtLink>
 
-              <div class="relative flex shrink-0 items-center">
+              <!-- Cibles tactiles de 44px (minimum recommande) et separees :
+                   a 28px et collees, rater le deplacement revenait souvent a
+                   declencher la suppression, qui est destructrice. -->
+              <div class="relative flex shrink-0 items-center gap-2">
                 <button
                   type="button"
                   title="Déplacer vers un autre jour"
-                  class="inline-flex h-7 w-7 items-center justify-center rounded-lg text-stone-400 dark:text-stone-500 transition hover:bg-stone-100 dark:hover:bg-stone-700 hover:text-saffron-700 dark:hover:text-saffron-300"
+                  aria-label="Déplacer vers un autre jour"
+                  class="inline-flex h-11 w-11 items-center justify-center rounded-xl text-stone-500 dark:text-stone-400 transition hover:bg-stone-100 dark:hover:bg-stone-700 hover:text-saffron-700 dark:hover:text-saffron-300 active:bg-saffron-100 dark:active:bg-saffron-900/40"
                   aria-haspopup="true"
                   :aria-expanded="activeMoveEntryId === entry.id"
                   @click.stop="toggleMoveMenu(entry.id)"
                 >
-                  <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <svg class="h-[18px] w-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
                   </svg>
                 </button>
                 <button
                   type="button"
                   title="Retirer"
-                  class="inline-flex h-7 w-7 items-center justify-center rounded-lg text-stone-400 dark:text-stone-500 transition hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-400"
+                  aria-label="Retirer du planning"
+                  class="inline-flex h-11 w-11 items-center justify-center rounded-xl text-stone-400 dark:text-stone-500 transition hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-400 active:bg-red-100 dark:active:bg-red-950/50"
                   @click.stop="removeEntry(entry.date, entry.id)"
                 >
-                  <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <svg class="h-[18px] w-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
