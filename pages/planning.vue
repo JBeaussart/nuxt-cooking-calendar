@@ -128,27 +128,32 @@
                 <!-- Popover déplacer (desktop) -->
                 <div
                   v-if="activeMoveEntryId === entry.id"
-                  class="absolute right-0 top-full z-[100] mt-1 hidden w-40 max-h-56 overflow-y-auto rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 py-0.5 shadow-xl md:block"
+                  class="absolute right-0 top-full z-[100] mt-1 hidden w-48 max-h-72 overflow-y-auto rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 py-0.5 shadow-xl md:block"
                   role="menu"
                   @click.stop
                 >
-                  <p class="px-2 py-1.5 text-[10px] font-medium uppercase tracking-wide text-stone-400 dark:text-stone-500">
-                    Déplacer vers
-                  </p>
-                  <button
-                    v-for="targetDate in weekDates"
-                    :key="toISODateLocal(targetDate)"
-                    type="button"
-                    role="menuitem"
-                    class="flex w-full items-center px-2 py-2 text-left text-sm capitalize transition"
-                    :class="toISODateLocal(targetDate) === entry.date
-                      ? 'cursor-not-allowed bg-stone-50 dark:bg-stone-900/40 text-stone-400 dark:text-stone-600'
-                      : 'text-stone-800 dark:text-stone-200 hover:bg-saffron-50 dark:hover:bg-saffron-900/30'"
-                    :disabled="toISODateLocal(targetDate) === entry.date"
-                    @click="moveEntry(entry, toISODateLocal(targetDate))"
-                  >
-                    {{ weekdayLabel(targetDate) }} {{ targetDate.getDate() }}
-                  </button>
+                  <template v-for="group in moveGroups" :key="group.title">
+                    <p class="sticky top-0 bg-white dark:bg-stone-800 px-2 py-1.5 text-[10px] font-medium uppercase tracking-wide text-stone-400 dark:text-stone-500">
+                      {{ group.title }}
+                    </p>
+                    <button
+                      v-for="opt in group.days"
+                      :key="opt.iso"
+                      type="button"
+                      role="menuitem"
+                      class="flex w-full items-center justify-between gap-2 px-2 py-2 text-left text-sm transition"
+                      :class="opt.iso === entry.date
+                        ? 'cursor-not-allowed bg-stone-50 dark:bg-stone-900/40 text-stone-400 dark:text-stone-600'
+                        : 'text-stone-800 dark:text-stone-200 hover:bg-saffron-50 dark:hover:bg-saffron-900/30'"
+                      :disabled="opt.iso === entry.date"
+                      @click="moveEntry(entry, opt.iso)"
+                    >
+                      <span class="capitalize">{{ opt.label }}</span>
+                      <span v-if="opt.isToday" class="shrink-0 rounded-full bg-saffron-100 dark:bg-saffron-900/40 px-1.5 py-0.5 text-[9px] font-bold uppercase text-saffron-700 dark:text-saffron-300">
+                        Auj.
+                      </span>
+                    </button>
+                  </template>
                 </div>
               </div>
             </div>
@@ -220,19 +225,27 @@
               </button>
             </div>
             <div class="pb-[max(1rem,env(safe-area-inset-bottom))] pt-1">
-              <button
-                v-for="targetDate in weekDates"
-                :key="toISODateLocal(targetDate)"
-                type="button"
-                class="flex w-full px-4 py-3 text-left text-base capitalize transition"
-                :class="toISODateLocal(targetDate) === activeMoveEntry.date
-                  ? 'cursor-not-allowed bg-stone-50 dark:bg-stone-900/40 text-stone-400 dark:text-stone-600'
-                  : 'text-stone-900 dark:text-stone-100 active:bg-saffron-100 dark:active:bg-saffron-900/40'"
-                :disabled="toISODateLocal(targetDate) === activeMoveEntry.date"
-                @click="moveEntry(activeMoveEntry, toISODateLocal(targetDate))"
-              >
-                {{ weekdayLabel(targetDate) }} {{ targetDate.getDate() }}
-              </button>
+              <template v-for="group in moveGroups" :key="group.title">
+                <p class="px-4 pb-1 pt-3 text-[11px] font-bold uppercase tracking-wide text-stone-400 dark:text-stone-500">
+                  {{ group.title }}
+                </p>
+                <button
+                  v-for="opt in group.days"
+                  :key="opt.iso"
+                  type="button"
+                  class="flex w-full items-center justify-between gap-2 px-4 py-3 text-left text-base transition"
+                  :class="opt.iso === activeMoveEntry.date
+                    ? 'cursor-not-allowed bg-stone-50 dark:bg-stone-900/40 text-stone-400 dark:text-stone-600'
+                    : 'text-stone-900 dark:text-stone-100 active:bg-saffron-100 dark:active:bg-saffron-900/40'"
+                  :disabled="opt.iso === activeMoveEntry.date"
+                  @click="moveEntry(activeMoveEntry, opt.iso)"
+                >
+                  <span class="capitalize">{{ opt.label }}</span>
+                  <span v-if="opt.isToday" class="shrink-0 rounded-full bg-saffron-100 dark:bg-saffron-900/40 px-2 py-0.5 text-[10px] font-bold uppercase text-saffron-700 dark:text-saffron-300">
+                    Auj.
+                  </span>
+                </button>
+              </template>
             </div>
           </div>
         </div>
@@ -288,6 +301,24 @@ const startStr = computed(() => toISODateLocal(weekStart.value));
 const endStr = computed(() => toISODateLocal(weekDates.value[6]));
 const todayStr = toISODateLocal(new Date());
 const isCurrentWeek = computed(() => startStr.value === toISODateLocal(mondayOf(new Date())));
+
+// Le menu "deplacer" couvre deux semaines et non la seule semaine affichee :
+// depuis dimanche, la cible la plus naturelle est souvent le lundi suivant,
+// qui etait jusqu'ici hors de portee. La semaine affichee + les 7 jours
+// suivants sont donc toujours proposes, sans rien retirer de ce qui existait.
+const moveDayFmt = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short" });
+const moveGroups = computed(() => {
+  const build = (offset: number) =>
+    Array.from({ length: 7 }, (_, i) => {
+      const d = addDays(weekStart.value, offset + i);
+      const iso = toISODateLocal(d);
+      return { iso, label: `${weekdayLabel(d)} ${moveDayFmt.format(d)}`, isToday: iso === todayStr };
+    });
+  return [
+    { title: isCurrentWeek.value ? "Cette semaine" : "Semaine affichée", days: build(0) },
+    { title: "Semaine suivante", days: build(7) },
+  ];
+});
 
 const weekRangeLabel = computed(() => {
   const start = weekStart.value;
