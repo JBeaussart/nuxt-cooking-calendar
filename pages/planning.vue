@@ -54,43 +54,49 @@
       </div>
 
       <template v-else>
-      <div class="overflow-hidden rounded-2xl border border-stone-200/90 dark:border-stone-700 bg-white dark:bg-stone-800 shadow-sm">
+      <div>
         <div
           v-for="date in weekDates"
           :key="toISODateLocal(date)"
-          class="flex flex-col gap-2 border-b border-stone-100 last:border-b-0 px-3 py-3 dark:border-stone-700 sm:px-4 sm:py-3.5"
-          :class="toISODateLocal(date) === todayStr ? 'bg-saffron-50/50 dark:bg-saffron-900/10' : ''"
+          class="flex gap-3 border-b border-stone-200/80 dark:border-stone-700/60 py-2.5 last:border-b-0"
         >
-          <!-- Ligne jour -->
-          <div class="flex items-baseline gap-2">
-            <span
-              class="text-xs font-bold uppercase tracking-[0.08em] sm:text-sm"
-              :class="toISODateLocal(date) === todayStr ? 'text-saffron-700 dark:text-saffron-400' : 'text-stone-500 dark:text-stone-400'"
+          <!-- Colonne date : le jour courant porte une pastille pleine, seul
+               repere visuel fort de la page (les jours vides restent discrets). -->
+          <div class="w-11 shrink-0 text-center">
+            <div
+              class="text-[10px] font-extrabold uppercase tracking-[0.08em]"
+              :class="toISODateLocal(date) === todayStr ? 'text-saffron-700 dark:text-saffron-400' : 'text-stone-400 dark:text-stone-500'"
             >
-              {{ weekdayLabel(date) }}
-            </span>
-            <span class="text-xs font-semibold text-stone-400 dark:text-stone-500 sm:text-sm">
-              {{ dayMonthLabel(date) }}
-            </span>
+              {{ shortWeekdayLabel(date) }}
+            </div>
+            <div
+              v-if="toISODateLocal(date) === todayStr"
+              class="mx-auto mt-0.5 flex h-8 w-8 items-center justify-center rounded-xl bg-saffron-500 text-base font-extrabold text-white shadow-sm"
+            >
+              {{ date.getDate() }}
+            </div>
+            <div v-else class="text-xl font-extrabold leading-snug text-stone-600 dark:text-stone-300">
+              {{ date.getDate() }}
+            </div>
           </div>
 
-          <!-- Repas + ajout -->
-          <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+          <!-- Repas du jour + ajout -->
+          <div class="flex min-w-0 flex-1 flex-col justify-center gap-1.5">
             <div
               v-for="entry in entriesFor(date)"
               :key="entry.id"
-              class="relative flex items-center gap-1.5 rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 py-1 pl-1 pr-1 sm:py-1.5 sm:pl-1.5"
+              class="relative flex items-center gap-2.5 rounded-xl border border-stone-200/80 dark:border-stone-700 bg-white dark:bg-stone-800 p-1.5 shadow-sm"
             >
-              <NuxtLink :to="`/recipes/${entry.recipe.id}`" class="flex min-w-0 items-center gap-1.5 sm:gap-2">
+              <NuxtLink :to="`/recipes/${entry.recipe.id}`" class="flex min-w-0 flex-1 items-center gap-2.5">
                 <img
-                  :src="getOptimizedImageUrl(entry.recipe.image, 80, 70)"
+                  :src="getOptimizedImageUrl(entry.recipe.image, 96, 75)"
                   :alt="entry.recipe.title"
                   loading="lazy"
                   decoding="async"
-                  class="h-6 w-6 shrink-0 rounded-full bg-stone-200 dark:bg-stone-700 object-cover sm:h-7 sm:w-7"
+                  class="h-10 w-10 shrink-0 rounded-lg bg-stone-200 dark:bg-stone-700 object-cover"
                   @error="(e: Event) => ((e.target as HTMLImageElement).src = '/images/default-recipe.jpg')"
                 />
-                <span class="max-w-[8rem] truncate text-xs font-semibold text-stone-800 dark:text-stone-200 sm:max-w-[12rem] sm:text-sm">
+                <span class="line-clamp-2 min-w-0 text-[13px] font-bold leading-snug text-stone-800 dark:text-stone-200">
                   {{ entry.recipe.title }}
                 </span>
               </NuxtLink>
@@ -99,22 +105,22 @@
                 <button
                   type="button"
                   title="Déplacer vers un autre jour"
-                  class="inline-flex h-6 w-6 items-center justify-center rounded-full text-stone-400 dark:text-stone-500 transition hover:bg-stone-100 dark:hover:bg-stone-700 hover:text-saffron-700 dark:hover:text-saffron-300 sm:h-7 sm:w-7"
+                  class="inline-flex h-7 w-7 items-center justify-center rounded-lg text-stone-400 dark:text-stone-500 transition hover:bg-stone-100 dark:hover:bg-stone-700 hover:text-saffron-700 dark:hover:text-saffron-300"
                   aria-haspopup="true"
                   :aria-expanded="activeMoveEntryId === entry.id"
                   @click.stop="toggleMoveMenu(entry.id)"
                 >
-                  <svg class="h-3 w-3 sm:h-3.5 sm:w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
                   </svg>
                 </button>
                 <button
                   type="button"
                   title="Retirer"
-                  class="inline-flex h-6 w-6 items-center justify-center rounded-full text-stone-400 dark:text-stone-500 transition hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-400 sm:h-7 sm:w-7"
+                  class="inline-flex h-7 w-7 items-center justify-center rounded-lg text-stone-400 dark:text-stone-500 transition hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-400"
                   @click.stop="removeEntry(entry.date, entry.id)"
                 >
-                  <svg class="h-3 w-3 sm:h-3.5 sm:w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
@@ -122,7 +128,7 @@
                 <!-- Popover déplacer (desktop) -->
                 <div
                   v-if="activeMoveEntryId === entry.id"
-                  class="absolute left-0 top-full z-[100] mt-1 hidden w-40 max-h-56 overflow-y-auto rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 py-0.5 shadow-xl md:block"
+                  class="absolute right-0 top-full z-[100] mt-1 hidden w-40 max-h-56 overflow-y-auto rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 py-0.5 shadow-xl md:block"
                   role="menu"
                   @click.stop
                 >
@@ -147,14 +153,18 @@
               </div>
             </div>
 
+            <!-- Ajout volontairement discret : un jour vide ne doit pas crier
+                 plus fort qu'un repas reellement planifie. -->
             <NuxtLink
               :to="`/recipes?date=${toISODateLocal(date)}`"
-              class="inline-flex items-center gap-1 rounded-full border border-dashed border-saffron-300 dark:border-saffron-700 px-2.5 py-1 text-xs font-semibold text-saffron-700 dark:text-saffron-400 transition hover:bg-saffron-50 dark:hover:bg-saffron-900/20 sm:px-3 sm:py-1.5 sm:text-sm"
+              class="inline-flex w-fit items-center gap-1.5 rounded-lg py-1 pr-2 text-xs font-semibold text-stone-400 dark:text-stone-500 transition hover:text-saffron-700 dark:hover:text-saffron-300"
             >
-              <svg class="h-3 w-3 sm:h-3.5 sm:w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-              </svg>
-              {{ entriesFor(date).length === 0 ? "Ajouter une recette" : "Ajouter" }}
+              <span class="flex h-5 w-5 items-center justify-center rounded-md border border-stone-300 dark:border-stone-600">
+                <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                </svg>
+              </span>
+              Ajouter un repas
             </NuxtLink>
           </div>
         </div>
@@ -265,10 +275,11 @@ function weekdayLabel(d: Date): string {
   const idx = (d.getDay() + 6) % 7; // getDay(): 0=dimanche -> réindexe sur lundi=0
   return WEEKDAY_LABELS[idx];
 }
-function dayMonthLabel(d: Date): string {
-  const day = String(d.getDate()).padStart(2, "0");
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  return `${day}/${month}`;
+// Abreviation pour la colonne date de la vue semaine, ou la place est
+// contrainte : "Lun", "Mar"... Le libelle complet reste utilise par le menu
+// de deplacement, plus large.
+function shortWeekdayLabel(d: Date): string {
+  return weekdayLabel(d).slice(0, 3);
 }
 
 const weekStart = ref(mondayOf(new Date()));
