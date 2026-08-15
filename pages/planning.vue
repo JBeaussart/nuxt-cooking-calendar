@@ -115,6 +115,7 @@
                   :alt="entry.recipe.title"
                   loading="lazy"
                   decoding="async"
+                  draggable="false"
                   class="h-10 w-10 shrink-0 rounded-lg bg-stone-200 dark:bg-stone-700 object-cover"
                   @error="(e: Event) => ((e.target as HTMLImageElement).src = '/images/default-recipe.jpg')"
                 />
@@ -469,6 +470,11 @@ async function initSortables() {
     touchStartThreshold: 6,
     draggable: "[data-entry-id]",
     filter: "button",           // les actions du repas ne declenchent pas un glissement
+    // iOS Safari n'implemente pas l'API HTML5 de drag & drop. On force le mode
+    // de repli de Sortable (son propre rendu du deplacement) pour avoir le meme
+    // comportement partout plutot que deux chemins de code selon le navigateur.
+    forceFallback: true,
+    fallbackTolerance: 3,       // evite qu'un micro-tremblement du doigt ne leve la carte
     ghostClass: "planning-drag-ghost",
     chosenClass: "planning-drag-chosen",
     onStart: () => { isDragging.value = true; },
@@ -519,6 +525,24 @@ onUnmounted(() => {
 
 <style>
 /* Non scoped : Sortable deplace/clone les noeuds hors de la portee du composant. */
+
+/* Sur iOS, un appui long sur un lien ouvre l'apercu de page et sur une image
+   le menu "Enregistrer l'image" : les deux annulent le geste avant que le
+   glissement ne demarre. La carte etant un <a> contenant un <img>, il faut
+   desactiver explicitement ces comportements natifs, sinon le glisser-deposer
+   est simplement impossible sur iPhone. */
+[data-entry-id],
+[data-entry-id] * {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+/* manipulation (et non none) : le defilement de la page reste possible en
+   partant d'une carte, seul le double-tap-zoom est neutralise. */
+[data-entry-id] {
+  touch-action: manipulation;
+}
+
 .planning-drag-ghost {
   opacity: 0.35;
 }
