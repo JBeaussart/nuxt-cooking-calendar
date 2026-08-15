@@ -54,6 +54,20 @@
       </div>
 
       <template v-else>
+      <!-- Zones de changement de semaine : n'apparaissent que pendant un
+           glissement, pour ne pas encombrer la page au repos. Deposer y place
+           le repas au meme jour de la semaine voisine. -->
+      <div
+        v-show="isDragging"
+        data-week-drop="prev"
+        class="mb-2 flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-saffron-300 dark:border-saffron-700 bg-saffron-50/60 dark:bg-saffron-900/20 py-3 text-xs font-bold text-saffron-700 dark:text-saffron-300"
+      >
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+        </svg>
+        Semaine précédente
+      </div>
+
       <div>
         <div
           v-for="date in weekDates"
@@ -82,9 +96,17 @@
 
           <!-- Repas du jour + ajout -->
           <div class="flex min-w-0 flex-1 flex-col justify-center gap-1.5">
+            <!-- Conteneur de depot : pendant un glissement, meme vide il doit
+                 offrir une cible visible et assez haute pour le doigt. -->
+            <div
+              :data-day-list="toISODateLocal(date)"
+              class="flex flex-col gap-1.5 transition-all"
+              :class="isDragging ? 'min-h-[44px] rounded-xl border border-dashed border-saffron-300 dark:border-saffron-700 p-1' : ''"
+            >
             <div
               v-for="entry in entriesFor(date)"
               :key="entry.id"
+              :data-entry-id="entry.id"
               class="relative flex items-center gap-2.5 rounded-xl border border-stone-200/80 dark:border-stone-700 bg-white dark:bg-stone-800 p-1.5 shadow-sm"
             >
               <NuxtLink :to="`/recipes/${entry.recipe.id}`" class="flex min-w-0 flex-1 items-center gap-2.5">
@@ -163,6 +185,8 @@
               </div>
             </div>
 
+            </div>
+
             <!-- Ajout volontairement discret : un jour vide ne doit pas crier
                  plus fort qu'un repas reellement planifie. -->
             <NuxtLink
@@ -178,6 +202,17 @@
             </NuxtLink>
           </div>
         </div>
+      </div>
+
+      <div
+        v-show="isDragging"
+        data-week-drop="next"
+        class="mt-2 flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-saffron-300 dark:border-saffron-700 bg-saffron-50/60 dark:bg-saffron-900/20 py-3 text-xs font-bold text-saffron-700 dark:text-saffron-300"
+      >
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+        Semaine suivante
       </div>
 
       <div class="mt-6 flex justify-center pb-4 sm:mt-8 sm:pb-0">
@@ -378,6 +413,85 @@ async function moveEntry(entry: { id: string; date: string }, toDate: string) {
   }
 }
 
+// ---------------------------------------------------------------- glisser-deposer
+const isDragging = ref(false);
+let sortables: any[] = [];
+
+function shiftISODate(iso: string, days: number): string {
+  const [y, m, d] = iso.split("-").map(Number);
+  return toISODateLocal(addDays(new Date(y, m - 1, d), days));
+}
+
+function onDragEnd(evt: any) {
+  isDragging.value = false;
+  const { from, to, item, oldIndex } = evt;
+  if (!from || !to || from === to) return;
+
+  // Sortable a deja deplace le noeud dans le DOM, or c'est Vue qui possede
+  // cette liste : on remet le noeud a sa place et on laisse l'etat (le store)
+  // provoquer le vrai re-rendu. Sans ca, le vdom et le DOM divergent.
+  from.insertBefore(item, from.children[oldIndex] ?? null);
+
+  const entryId = item?.dataset?.entryId;
+  const fromDate = from.dataset?.dayList;
+  if (!entryId || !fromDate) return;
+
+  const weekDrop = to.dataset?.weekDrop;
+  const toDate = weekDrop
+    ? shiftISODate(fromDate, weekDrop === "next" ? 7 : -7)
+    : to.dataset?.dayList;
+  if (!toDate || toDate === fromDate) return;
+
+  // Un depot vers une autre semaine fait disparaitre le repas de l'ecran :
+  // sans retour explicite, on peut croire a une suppression.
+  if (weekDrop) {
+    const [y, m, d] = toDate.split("-").map(Number);
+    const target = new Date(y, m - 1, d);
+    toast.show(`Déplacé au ${weekdayLabel(target).toLowerCase()} ${moveDayFmt.format(target)}`);
+  }
+
+  moveEntry({ id: entryId, date: fromDate }, toDate);
+}
+
+async function initSortables() {
+  const Sortable = (await import("sortablejs")).default;
+  sortables.forEach((s) => s.destroy());
+  sortables = [];
+  await nextTick();
+
+  const common = {
+    group: "planning-meals",
+    animation: 150,
+    // Au doigt, un appui bref doit rester un clic (ouvrir la recette) et la
+    // page doit pouvoir defiler : seul un appui maintenu leve le repas.
+    delay: 250,
+    delayOnTouchOnly: true,
+    touchStartThreshold: 6,
+    draggable: "[data-entry-id]",
+    filter: "button",           // les actions du repas ne declenchent pas un glissement
+    ghostClass: "planning-drag-ghost",
+    chosenClass: "planning-drag-chosen",
+    onStart: () => { isDragging.value = true; },
+    onEnd: onDragEnd,
+  };
+
+  document.querySelectorAll<HTMLElement>("[data-day-list]").forEach((el) => {
+    sortables.push(new Sortable(el, common));
+  });
+  // Les barres de semaine accueillent un repas mais n'en fournissent jamais.
+  document.querySelectorAll<HTMLElement>("[data-week-drop]").forEach((el) => {
+    sortables.push(new Sortable(el, {
+      ...common,
+      group: { name: "planning-meals", pull: false, put: true },
+    }));
+  });
+}
+
+onMounted(() => { initSortables(); });
+// Changer de semaine recree les conteneurs : il faut rebrancher Sortable.
+watch([startStr, isLoadingWeek], () => { if (!isLoadingWeek.value) initSortables(); });
+onBeforeUnmount(() => { sortables.forEach((s) => s.destroy()); sortables = []; });
+
 async function removeEntry(date: string, id: string) {
   try {
     await planning.remove(date, id);
@@ -402,3 +516,15 @@ onUnmounted(() => {
   document.removeEventListener("click", closeMoveMenu);
 });
 </script>
+
+<style>
+/* Non scoped : Sortable deplace/clone les noeuds hors de la portee du composant. */
+.planning-drag-ghost {
+  opacity: 0.35;
+}
+.planning-drag-chosen {
+  cursor: grabbing;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.16);
+  transform: scale(1.02);
+}
+</style>
